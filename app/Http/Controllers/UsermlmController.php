@@ -6,9 +6,163 @@ use App\Models\Usermlm;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class UsermlmController extends Controller
 {
+
+
+    public function logout(Request $request)
+    {
+        $request->user()->token()->revoke();
+        return response()->json([
+            'statusCode' => 0,
+            'message' => 'Successfully logged out'
+        ]);
+    }
+
+
+    public function signin(Request $request)
+    {
+        // Validate the incoming request
+        $request->validate([
+            'identifier' => 'required|string', // Change 'email' to 'identifier'
+            'password' => 'required|string',
+            'remember_me' => 'boolean'
+        ]);
+    
+        // Determine whether the identifier is an email or mobile
+        $identifier = $request->input('identifier');
+        $fieldType = filter_var($identifier, FILTER_VALIDATE_EMAIL) ? 'email' : 'mobile';
+    
+        // Prepare credentials for authentication
+        $credentials = [$fieldType => $identifier, 'password' => $request->password];
+    
+        // Attempt to authenticate the user
+        if (!Auth::attempt($credentials)) {
+            throw new Exception("Invalid Credentials");
+        }
+    
+        // Retrieve the authenticated user
+        $user = Auth::user();
+    
+        // Create a token for the authenticated user
+        $tokenResult = $user->createToken('Personal Access Token');
+        $token = $tokenResult->token;
+    
+        // Set token expiration if remember me is checked
+        if ($request->remember_me) {
+            $token->expires_at = Carbon::now()->addWeeks(1);
+        }
+    
+        $token->save();
+    
+        // Initialize additional counters or variables as needed
+        $counterslogin = [];
+        $idWarehouse = 0;
+    
+        // Return the success response
+        return response()->json([
+            'message' => 'Login successful',
+            'user' => $user,
+            'token' => $token->plainTextToken, // Return the token
+        ], 200);
+    }
+
+
+
+    public function signin333(Request $request)
+    {
+        $customErr = "";
+        try {
+            $request->validate([
+                'email' => 'required|string|email',
+                'password' => 'required|string',
+                'remember_me' => 'boolean'
+            ]);
+            $credentials = request(['email', 'password']);
+
+            if (!Auth::attempt($credentials))
+                throw new Exception("Invalid Credentials");
+
+            $user = $request->user();
+            $tokenResult = $user->createToken('Personal Access Token');
+            $token = $tokenResult->token;
+
+            if ($request->remember_me)
+                $token->expires_at = Carbon::now()->addWeeks(1);
+
+            $token->save();
+            $counterslogin = [];
+            $idWarehouse = 0;
+            $aLvlStore = 1;
+            $SWname = '';
+            $address = '';
+            $city = '';
+            $pin = '';
+            $contact = '';
+            
+            $det = [
+                'access_token' => $tokenResult->accessToken,
+                'token_type' => 'Bearer',
+                'expires_at' => Carbon::parse(
+                    $tokenResult->token->expires_at
+                )->toDateTimeString(),
+                'name' => $user->name,
+                'email' => $user->email,
+                'type' => $user->user_type,
+                'contact' => $user->contact_number,
+                'counter_detail' => $counterslogin,
+                'is_store' => $aLvlStore,
+                'idwarehouse' => $idWarehouse,
+                'sw_name' => $SWname,
+                'sw_address' => $address,
+                'sw_city' => $city,
+                'sw_state' => $state ?? '',
+                'sw_pin' => $pin,
+                'sw_contact' => $contact,
+
+            ];
+            return response()->json(["statusCode" => 0, "message" => "Success", "data" => $det], 200);
+        } catch (Exception $e) {
+            return response()->json(["statusCode" => 1, "message" => "Error", "err" => $e->getMessage()], 200);
+        }
+    }
+
+
+
+    public function signin22(Request $request)
+    {
+        // Validate the incoming request
+        $request->validate([
+            'email_or_mobile' => 'required',
+            'password' => 'required',
+        ]);
+
+        // Check whether the input is an email or mobile
+        $fieldType = filter_var($request->email_or_mobile, FILTER_VALIDATE_EMAIL) ? 'email' : 'mobile';
+
+        // Retrieve the user using email or mobile
+        $user = Usermlm::where($fieldType, $request->email_or_mobile)->first();
+
+       if ($user && Hash::check($request->password, $user->password)) {
+            // Create a token for the user
+            $token = $user->createToken('API Token')->plainTextToken;
+
+            return response()->json([
+                'message' => 'Login successful',
+                'token' => $token,
+                'user' => $user
+            ], 200);
+        }
+
+        // Invalid login attempt
+        return response()->json([
+            'message' => 'Invalid credentials'
+        ], 401);
+    }
+
+
 
     public function pairlevel(Request $request)
     {
@@ -94,7 +248,7 @@ class UsermlmController extends Controller
             'used_code' => $request->used_code,
             'side' => $request->side,
             'status' => $request->status,
-            'password' => $request->password, //Hash::make($request->password), // Password encryption
+            'password' =>Hash::make($request->password), // Password encryption
             'level' => $request->level,
             'added_below' => $request->added_below,
         ]);

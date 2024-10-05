@@ -20,3 +20,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::post('/create-user', [UsermlmController::class, 'store']);
 Route::post('/pairlevel', [UsermlmController::class, 'pairlevel']);
+Route::post('/signin', [UsermlmController::class, 'signin']);
+Route::post('/login', [UsermlmController::class, 'login']);

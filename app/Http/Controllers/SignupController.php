@@ -11,6 +11,11 @@ class SignupController extends Controller
         return view('signup');
     }
 
+    public function signin()
+    {
+        return view('signin');
+    }
+
     public function store(Request $request)
     {
         // Validate the request data

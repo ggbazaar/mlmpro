@@ -74,3 +74,8 @@ Route::get('/verify/{reference}', [AdminController::class, 'verify']);
 
 Route::get('/signup', [SignupController::class, 'create'])->name('signup.create');
 Route::post('/signup', [SignupController::class, 'store'])->name('signup.store');
+
+Route::get('/signin', [SignupController::class, 'signin'])->name('signup.signin');
+
+
+
