@@ -2,7 +2,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert CDN -->
 
 <div class="bg-gradient-to-r from-red-400 to-red-700 p-10">
-  <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-2">
     <!-- Left Section -->
     <div>
       <h1 class="text-4xl font-bold mb-4">GGB</h1>
@@ -30,22 +30,22 @@
       <div class="min-h-screen bg-gray-100 flex items-center justify-center">
         <div class="bg-white p-2 rounded-lg shadow-lg w-full max-w-md">
           <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Login to Your Account</h2>
-          <form class="space-y-6" >
+          <form id="loginForm" class="space-y-6">
             <!-- Email Input -->
             <div>
-              <label class="block text-gray-600 font-semibold mb-2">Email Address</label>
-              <input type="email" placeholder="Enter your email" class="w-full p-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" />
+              <label class="block text-gray-600 font-semibold mb-2">Mobile or Email Address</label>
+              <input type="text" name="emailOrMobile"  id="emailOrMobile" placeholder="Enter your mobile or email" class="w-full p-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" />
             </div>
 
             <!-- Password Input -->
             <div>
               <label class="block text-gray-600 font-semibold mb-2">Password</label>
-              <input type="password" placeholder="Enter your password" class="w-full p-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" />
+              <input type="password" name="password" id="password" placeholder="Enter your password" class="w-full p-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" />
             </div>
 
             <!-- Remember Me Checkbox -->
             <div class="flex items-center">
-              <input type="checkbox" id="remember" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+              <input type="checkbox" id="remember" name="remember" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
               <label for="remember" class="ml-2 text-gray-600">Remember Me</label>
             </div>
 
@@ -130,15 +130,15 @@
     <label class="block text-black font-semibold mb-2">Side:</label>
     <div class="flex space-x-8 mb-4">
       <label class="inline-flex items-center">
-        <input type="radio" name="side" value="Left" class="form-radio text-red-600">
+        <input type="radio" name="side" value="1" class="form-radio text-red-600">
         <span class="ml-2">Left</span>
       </label>
       <label class="inline-flex items-center">
-        <input type="radio" name="side" value="Right" class="form-radio text-red-600">
+        <input type="radio" name="side" value="2" class="form-radio text-red-600">
         <span class="ml-2">Right</span>
       </label>
     </div>
-    <input type="text" placeholder="Prant Code*" class="p-4 border border-green-900 bg-red-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 w-full" />
+    <input id="parent_code" name="parent_code" type="text" placeholder="Parent Code*" class="p-4 border border-green-900 bg-red-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 w-full" />
   </div>
 
   <!-- Additional Inputs -->
@@ -206,6 +206,45 @@ document.getElementById('saveform').addEventListener('submit', function(event) {
     });
   });
 });
+</script>
+
+
+<script>
+  document.getElementById('loginForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    // Get the form values
+    const emailOrMobile = document.getElementById('emailOrMobile').value;
+    const password = document.getElementById('password').value;
+    const remember = document.getElementById('remember').checked;
+
+    // You can now handle the form submission with JavaScript, such as sending it to an API
+    console.log('Email or Mobile:', emailOrMobile);
+    console.log('Password:', password);
+    console.log('Remember Me:', remember);
+
+    // Example: You can send the data to a server using fetch
+    fetch('/api/signin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: emailOrMobile,
+        password: password,
+        remember: remember
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Handle response data
+      console.log(data);
+      return redirect()->route('route_name');
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  });
 </script>
 
 

@@ -23,28 +23,131 @@ class UsermlmController extends Controller
 
 
     public function signin(Request $request)
+{
+    try {
+        // Validate the request inputs
+        $request->validate([
+            'email' => 'required|string',
+            'password' => 'required|string',
+            'remember_me' => 'boolean'
+        ]);
+
+        // Get the credentials from the request
+        $credentials = $request->only(['email', 'password']);
+
+        // Find the user by their contact (or email)
+        $user = Usermlm::where('email', $credentials['email'])
+                        ->orWhere('mobile', $credentials['email'])
+                        ->first();
+
+        // Check if the user exists and if the password is correct
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+            throw new Exception("Invalid Credentials");
+        }
+
+        // Create token
+        $tokenResult = $user->createToken('Personal Access Token');
+        $accessToken = $tokenResult->plainTextToken; // for Sanctum
+        // $accessToken = $tokenResult->accessToken;  // for Passport
+
+        return response()->json([
+            'message' => 'Login successful',
+            'user' => $user,
+            'access_token' => [
+                'full'=>$tokenResult,
+                'token' => $accessToken,
+                'token_type' => 'Bearer',
+                // 'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString(),
+                'name' => $user->name,
+                'email' => $user->email,
+            ],
+        ], 200);
+
+    } catch (Exception $e) {
+        // Handle the exception and return a custom error message
+        return response()->json([
+            'error' => $e->getMessage()
+        ], 401);
+    }
+}
+
+
+
+
+    public function signin22BBNNMM(Request $request)
+    {
+        $customErr = "";
+        try {
+            $request->validate([
+                'email' => 'required|string',
+                'password' => 'required|string',
+                'remember_me' => 'boolean'
+            ]);
+            $credentials = request(['email', 'password']);
+
+            // if (!Auth::attempt($credentials))
+            //     throw new Exception("Invalid Credentials");
+
+            $det = Usermlm::where('contact', $credentials)->first();
+
+            $user = $request->user();
+            $tokenResult = $user->createToken('Personal Access Token');
+            $token = $tokenResult->token;
+
+            if ($request->remember_me)
+                $token->expires_at = Carbon::now()->addWeeks(1);
+
+            $token->save();
+           
+            $det = [
+                'access_token' => $tokenResult->accessToken,
+                'token_type' => 'Bearer',
+                'expires_at' => Carbon::parse(
+                    $tokenResult->token->expires_at
+                )->toDateTimeString(),
+                'name' => $user->name,
+                'email' => $user->email,
+                'type' => $user->user_type,
+                'contact' => $user->contact_number
+            ];
+            return response()->json(["statusCode" => 0, "message" => "Success", "data" => $det], 200);
+        } catch (Exception $e) {
+            return response()->json(["statusCode" => 1, "message" => "Error", "err" => $e->getMessage()], 200);
+        }
+    }
+
+
+
+    public function signin2233333(Request $request)
     {
         // Validate the incoming request
         $request->validate([
-            'identifier' => 'required|string', // Change 'email' to 'identifier'
+            'emailOrMobile' => 'required|string', // Change 'email' to 'identifier'
             'password' => 'required|string',
             'remember_me' => 'boolean'
         ]);
     
         // Determine whether the identifier is an email or mobile
-        $identifier = $request->input('identifier');
+        $identifier = $request->input('emailOrMobile');
         $fieldType = filter_var($identifier, FILTER_VALIDATE_EMAIL) ? 'email' : 'mobile';
     
         // Prepare credentials for authentication
         $credentials = [$fieldType => $identifier, 'password' => $request->password];
+
+        // print_r($credentials);
+        // die("ASDfa");
     
-        // Attempt to authenticate the user
-        if (!Auth::attempt($credentials)) {
-            throw new Exception("Invalid Credentials");
-        }
+        // // Attempt to authenticate the user
+        // if (!Auth::attempt($credentials)) {
+        //     throw new Exception("Invalid Credentials");
+        // }
     
         // Retrieve the authenticated user
-        $user = Auth::user();
+        // $user = Auth::user();
+
+        // print_r($user);
+        // die("ASFASDF");
+
     
         // Create a token for the authenticated user
         $tokenResult = $user->createToken('Personal Access Token');

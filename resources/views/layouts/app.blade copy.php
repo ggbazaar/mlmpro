@@ -103,13 +103,7 @@ right connector from last child*/
 
 </style>
 
-    
-
 <div class="tree" style="width: 1900px; overflow: auto;">
-
-@php
-echo $tree1
-@endphp
 <ul>
     <li>
         <a href="#">1</a>

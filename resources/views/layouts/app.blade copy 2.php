@@ -103,13 +103,30 @@ right connector from last child*/
 
 </style>
 
+    @php
+      
+      //print_r($tree1);
+        function renderTree($node) {
+            if (empty($items)) {
+                return;
+            }
+            echo '<ul>';
+            foreach ($items as $item) {
+                echo '<li>';
+                echo '<a href="#">' . htmlspecialchars($item['name']) . '</a>';
+                // Check if the item has children and call the function recursively
+                if (!empty($item['children'])) {
+                    renderTree($item['children']);
+                }
+                echo '</li>';
+            }
+            echo '</ul>';
+        }
+       echo renderTree($tree);
+    @endphp
     
 
 <div class="tree" style="width: 1900px; overflow: auto;">
-
-@php
-echo $tree1
-@endphp
 <ul>
     <li>
         <a href="#">1</a>
