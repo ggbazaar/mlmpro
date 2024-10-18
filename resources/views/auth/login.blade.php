@@ -12,7 +12,7 @@
       </p>
 
       <!-- Review Card -->
-      <div class="bg-white text-black p-6 rounded-lg shadow-lg mb-6">
+      <!-- <div class="bg-white text-black p-6 rounded-lg shadow-lg mb-6  ">
         <div class="flex items-center mb-4">
           <img class="h-10" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Capterra_logo.svg/1200px-Capterra_logo.svg.png" alt="Capterra logo" />
           <div class="ml-4">
@@ -21,10 +21,9 @@
           </div>
         </div>
         <div class="flex items-center mb-4">
-          <!-- Stars -->
           <span class="text-yellow-400 text-xl">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
         </div>
-      </div>
+      </div> -->
 
       <!-- Login Form -->
       <div class="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -127,7 +126,7 @@
 
   <!-- Side -->
   <div>
-    <label class="block text-black font-semibold mb-2">Side:</label>
+    <label class="block text-black font-semibold mb-2">Side (Optional):</label>
     <div class="flex space-x-8 mb-4">
       <label class="inline-flex items-center">
         <input type="radio" name="side" value="1" class="form-radio text-red-600">

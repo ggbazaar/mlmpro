@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\Auth;
 
 class TreeController extends Controller
 {
+
     public function showTree()
     {
-        // Sample binary tree data
         $tree = [
             'value' => 'Root',
             'left' => [
@@ -45,160 +45,15 @@ class TreeController extends Controller
             ],
         ];
 
-        //die("ASDFASDF");
-
-
-
-        
-// Your data array
-$array = [
-    [
-        'id' => '1',
-        'children' => [
-            [
-                'id' => '2',
-                'children' => [
-                    [
-                        'id' => '2.1',
-                        'children' => [
-                            [
-                                'id' => '4',
-                                'children' => [
-                                    ['id' => '2.1.2.1'],
-                                    ['id' => '2.1.2.2']
-                                ]
-                            ],
-                            [
-                                'id' => '5',
-                                'children' => [
-                                    ['id' => '2.1.2.1'],
-                                    ['id' => '2.1.2.2']
-                                ]
-                            ]
-                        ]
-                    ],
-                    [
-                        'id' => '2.2',
-                        'children' => [
-                            [
-                                'id' => '2.2.1',
-                                'children' => [
-                                    [
-                                        'id' => '4',
-                                        'children' => [
-                                            ['id' => '4.1'],
-                                            [
-                                                'id' => '4.2',
-                                                'children' => [
-                                                    ['id' => '4.2.1']
-                                                ]
-                                            ]
-                                        ]
-                                    ],
-                                    [
-                                        'id' => '4',
-                                        'children' => [
-                                            ['id' => '4.1'],
-                                            [
-                                                'id' => '4.2',
-                                                'children' => [
-                                                    ['id' => '4.2.1']
-                                                ]
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ],
-                            [
-                                'id' => '2.2.2',
-                                'children' => [
-                                    ['id' => '2.1.2.1'],
-                                    ['id' => '2.1.2.2']
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ],
-            [
-                'id' => '3',
-                'children' => [
-                    [
-                        'id' => '3.1',
-                        'children' => [
-                            [
-                                'id' => '3.1.1',
-                                'children' => [
-                                    ['id' => '3.1.1.1'],
-                                    ['id' => '3.1.1.2']
-                                ]
-                            ],
-                            [
-                                'id' => '3.1.2',
-                                'children' => [
-                                    ['id' => '2.1.2.1'],
-                                    ['id' => '2.1.2.2']
-                                ]
-                            ]
-                        ]
-                    ],
-                    [
-                        'id' => '3.2',
-                        'children' => [
-                            [
-                                'id' => '3.2.1',
-                                'children' => [
-                                    ['id' => '2.1.2.1'],
-                                    ['id' => '2.1.2.2']
-                                ]
-                            ],
-                            [
-                                'id' => '3.2.2',
-                                'children' => [
-                                    ['id' => '3.2.2.1'],
-                                    ['id' => '3.2.2.2']
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ]
-        ]
-    ]
-];
-
-// // Generate the menu
-// buildMenu($array);
-       
-
-   // echo "<pre>";
-        $tree12=$this->getBinaryTreeStructureJson('1');
-         $ttf[]=$tree12;
-       
-        // foreach($tree11[0] as $key=>$val){
-        //     print_r($val);
-        //     foreach($val as $key=>$val1){
-        //         print_r($val1);
-        //     }
-        // }
-
-     $tree1= $this->buildMenu($ttf);
-     //print_r($brrr);
-
-      //$tree1=$this->buildMenu($array); 
-       
-            
-       //$tree1='';
-        
-
-
-        // echo "<pre>";
-        // print_r($tree1);
-        // die("ASDFA");
-
-        return view('tree-view', compact('tree','tree1'));
+        // Fetch the binary tree structure
+        $tree12 = $this->getBinaryTreeStructureJson('1');
+        // Initialize an array to hold the fetched tree structure
+        $ttf = array($tree12); // Use array() for compatibility
+        // Build the menu from the fetched tree structure
+        $tree1 = $this->buildMenu($ttf);
+        // Pass the variables to the view
+        return view('tree-view', compact('tree', 'tree1'));
     }
-
 
     public function getBinaryTreeStructureJson($rootId) {
         $tree = $this->buildTree($rootId);
@@ -235,17 +90,6 @@ private function buildTree($nodeId) {
     return $treeNode;
 }
 
-
-    // public function getBinaryTreeStructureJson($rootId) {
-    //     $treeLevels = [];  // Array to hold all levels of the tree
-    
-    //     // Start level-order traversal from the root node
-    //     $this->retrieveLevelNodes([$rootId], $treeLevels);
-    
-    //     // Convert the result to JSON format
-    //     //return json_encode($treeLevels, JSON_PRETTY_PRINT);
-    //     return $treeLevels;
-    // }
 
 
     // Helper function to retrieve nodes level-wise
@@ -288,50 +132,6 @@ private function retrieveLevelNodes($currentLevelNodes, &$treeLevels) {
     $this->retrieveLevelNodes($nextLevelNodes, $treeLevels);
 }
 
-
-public function renderTree11($nodes) {
-    if (empty($nodes)) {
-        return;
-    }
-
-
-    
-
-
-
-
-    // echo "<ul>";
-    // foreach ($nodes as $level) {
-    //     foreach ($level as $node) {
-    //         echo "<li> <a href='#'>".htmlspecialchars($node['id'])."</a>";
-            
-    //         // // echo '' . htmlspecialchars($node['id']);
-    //         // // Check if the left or right child exists and print them
-    //         // if (!empty($node['left'])) {
-    //         //    echo 'L' . htmlspecialchars($node['left']);
-    //         // }
-    //         // if (!empty($node['right'])) {
-    //         //    echo 'R' . htmlspecialchars($node['right']);
-    //         // }
-    //         // Recursive call for children
-    //         // if (!empty($node['left']) || !empty($node['right'])) {
-    //         //     $children = [];
-    //         //     if (!empty($node['left'])) {
-    //         //         $children[] = ['id' => $node['left'], 'left' => null, 'right' => null];
-    //         //     }
-    //         //     if (!empty($node['right'])) {
-    //         //         $children[] = ['id' => $node['right'], 'left' => null, 'right' => null];
-    //         //     }
-    //         //     $this->renderTree([$children]); // Recursively call with children
-    //         // }
-    //         echo '</li>';
-    //     }
-    // }
-    // echo '</ul>';
-}
-
-
-
 public  function buildNestedArray($inputArray) {
     $output = [];
 
@@ -372,8 +172,6 @@ public  function buildNestedArray($inputArray) {
 
             $temp[] = $item;
         }
-
-        // Add to the output structure
         $output[] = $temp;
     }
 
@@ -381,39 +179,72 @@ public  function buildNestedArray($inputArray) {
 }
 
 
- 
+// <div class="node">
+// <div class="bg-white border rounded-lg p-4 shadow-lg flex flex-col items-center active-node">
+//     <h2 class="text-lg font-semibold">ID: 3</h2>
+//     <p class="text-gray-700">Name: Node 3</p>
+//     <p class="text-green-500 font-bold">Status: Active</p>
+// </div>
+// </div>
+
 public function buildMenu($items) {
 
- //print_r($items);
+    //print_r($items);
+   
+   
+       $r = "<ul>";
+       $yy="";
+   
+       foreach ($items as $item) {
+           if(isset($item['id'])){
+               $yy=$item['id'];
+           }
+           $r .= "<li><a href='#'>" . $yy . "</a>";
+   
+           // If the item has children, recursively build the submenu
+           if (isset($item['children'])) {
+               $r .= $this->buildMenu($item['children']); // Capture the returned submenu
+           }
+   
+           $r .= "</li>";
+       }
+   
+       $r .= "</ul>";
+       return $r;
+   }
+
+   
+   
+public function buildMenu11($items) {
 
 
-    $r = "<ul>";
+
+    $r = "<ul class='node L16'>";
     $yy="";
-
     foreach ($items as $item) {
         if(isset($item['id'])){
             $yy=$item['id'];
         }
-        $r .= "<li><a href='#'>" . $yy . "</a>";
+        $r .= "<li class='L15'><div class='L18 border rounded-lg p-4 active-node' href='#'>" . $yy ;
 
-        // If the item has children, recursively build the submenu
+        // $r.="<div class='node'>";
+        // $r .="<div class='L19'>";
+        // $r .="<div class='bg-red L22  w-[200px]  border rounded-lg p-4 shadow-lg flex flex-col items-center active-node' style='width: 200px;'>";
+        $r .= "<h2 class='text-lg font-semibold'>ID: $yy </h2>";
+        $r .= "<p class='text-gray-700'>Name: Node 1</p>";
+        $r .= "<p class='text-green-500 font-bold'>Status: Active</p>";
+        // $r .= "</div>";
+        // $r .= "</div>";
+         $r .= "</div>";
+
         if (isset($item['children'])) {
             $r .= $this->buildMenu($item['children']); // Capture the returned submenu
         }
 
         $r .= "</li>";
     }
-
     $r .= "</ul>";
     return $r;
 }
-
-
- 
-
-
-
-
-
 
 }

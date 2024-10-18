@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\UsermlmController;
+use App\Http\Controllers\GetAdvisorList;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,3 +23,9 @@ Route::post('/create-user', [UsermlmController::class, 'store']);
 Route::post('/pairlevel', [UsermlmController::class, 'pairlevel']);
 Route::post('/signin', [UsermlmController::class, 'signin']);
 Route::post('/login', [UsermlmController::class, 'login']);
+
+
+
+Route::post('/getadvisorlist', [GetAdvisorList::class, 'find']);
+
+

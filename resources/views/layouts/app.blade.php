@@ -5,7 +5,6 @@
 
 .tree ul {
 	padding-top: 20px; position: relative;
-	
 	transition: all 0.5s;
 	-webkit-transition: all 0.5s;
 	-moz-transition: all 0.5s;
@@ -70,7 +69,7 @@ right connector from last child*/
 	width: 0; height: 20px;
 }
 
-.tree li a{
+.tree1 li1 a1{
 	border: 1px solid #ccc;
 	padding: 5px 10px;
 	text-decoration: none;
@@ -88,6 +87,30 @@ right connector from last child*/
 	-moz-transition: all 0.5s;
 }
 
+
+
+
+.tree li a{
+	border: 2px solid #38a169;
+    background-color: #f0fff4;
+	padding: 1rem;
+    
+	text-decoration: none;
+	color: #666;
+	font-family: arial, verdana, tahoma;
+	font-size: 11px;
+	display: inline-block;
+	
+	border-radius: .5rem;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	
+	transition: all 0.5s;
+	-webkit-transition: all 0.5s;
+	-moz-transition: all 0.5s;
+}
+
+
 /*Time for some hover effects*/
 /*We will apply the hover effect the the lineage of the element also*/
 .tree li a:hover, .tree li a:hover+ul li a {
@@ -101,165 +124,57 @@ right connector from last child*/
 	border-color:  #94a0b4;
 }
 
+ 
+        .node {
+            position: relative;
+            /* display: flex; */
+            flex-direction: column;
+            align-items: center;
+            /* margin: 20px; */
+            /* width: 120px; */
+        }
+
+        .line {
+            position: absolute;
+            top: 0;
+            width: 2px;
+            background-color: gray;
+            height: 20px; /* Adjust height based on distance between nodes */
+        }
+        
+        .left {
+            left: -50px; /* Adjust as needed */
+        }
+
+        .right {
+            right: -50px; /* Adjust as needed */
+        }
+     
+
+          /* Highlight active nodes */
+          .active-node {
+            background-color: #f0fff4; /* Light green background for active nodes */
+            border-color: #38a169; /* Darker border for active nodes */
+        }
+
+        /* Dull inactive nodes */
+        .inactive-node {
+            background-color: #f9fafb; /* Light gray background for inactive nodes */
+            border-color: #e2e8f0; /* Light border for inactive nodes */
+            opacity: 0.7; /* Make inactive nodes slightly transparent */
+        }
+
+
+
+
 </style>
 
-    
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
-<div class="tree" style="width: 1900px; overflow: auto;">
+<div class="tree L12" style="width: 1900px; overflow: auto;">
 
 @php
 echo $tree1
 @endphp
-<ul>
-    <li>
-        <a href="#">1</a>
-        <ul>
-            <li>
-                <a href="#">2</a>
-                <ul>
-                    <li>
-                        <a href="#">2.1</a>
-                        <ul>
-                            <li>
-                                <a href="#">4</a>
-                                <ul>
-                                    <li>
-                                        <a href="#">2.1.2.1</a>
-                                    </li>
-                                    <li>
-                                        <a href="#">2.1.2.2</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#">5</a>
-                                <ul>
-                                    <li>
-                                        <a href="#">2.1.2.1</a>
-                                    </li>
-                                    <li>
-                                        <a href="#">2.1.2.2</a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="#">2.2</a>
-                        <ul>
-                            <li>
-                                <a href="#">2.2.1</a>
-                                <ul>
-            <li>
-                <a href="#">4</a>
-                <ul>
-                    <li>
-                        <a href="#">4.1</a>
-                    </li>
-                    <li>
-                        <a href="#">4.2</a>
-                        <ul>
-                            <li>
-                                <a href="#">4.2.1</a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </li>
-            <li>
-                <a href="#">4</a>
-                <ul>
-                    <li>
-                        <a href="#">4.1</a>
-                    </li>
-                    <li>
-                        <a href="#">4.2</a>
-                        <ul>
-                            <li>
-                                <a href="#">4.2.1</a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#">2.2.2</a>
-                                <ul>
-                                    <li>
-                                        <a href="#">2.1.2.1</a>
-                                    </li>
-                                    <li>
-                                        <a href="#">2.1.2.2</a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </li>
-            <li>
-                <a href="#">3</a>
-                <ul>
-                    <li>
-                        <a href="#">3.1</a>
-                        <ul>
-                            <li>
-                                <a href="#">3.1.1</a>
-                                <ul>
-                                    <li>
-                                        <a href="#">3.1.1.1</a>
-                                    </li>
-                                    <li>
-                                        <a href="#">3.1.1.2</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#">3.1.2</a>
-                                <ul>
-                                    <li>
-                                        <a href="#">2.1.2.1</a>
-                                    </li>
-                                    <li>
-                                        <a href="#">2.1.2.2</a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="#">3.2</a>
-                        <ul>
-                            <li>
-                                <a href="#">3.2.1</a>
-                                <ul>
-                                    <li>
-                                        <a href="#">2.1.2.1</a>
-                                    </li>
-                                    <li>
-                                        <a href="#">2.1.2.2</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#">3.2.2</a>
-                                <ul>
-                                    <li>
-                                        <a href="#">3.2.2.1</a>
-                                    </li>
-                                    <li>
-                                        <a href="#">3.2.2.2</a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </li>
-            
-        </ul>
-    </li>
-</ul>
+ 
 </div>

@@ -8,8 +8,40 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
-class UsermlmController extends Controller
+class GetAdvisorList extends Controller
 {
+
+    public function find(Request $request)
+    {
+
+        $request->validate([
+            'id' => 'required',
+        ]);
+        $req = $request->only(['id']);
+        
+
+        $user = Usermlm::where('id', $req['id'])->first();
+
+        $getBinaryTreeStructureJson=$this->getBinaryTreeStructureJson($user->id);
+
+      // print_r($getBinaryTreeStructureJson);
+
+
+      
+
+ 
+        //die("ASdfas");
+
+       // $request->user()->token()->revoke();
+        return response()->json([
+            'statusCode' => 1,
+            'data'=>$getBinaryTreeStructureJson,
+            'message' => 'Successfully getadvisorlist fetch out'
+        ]);
+    }
+
+
+
     public function logout(Request $request)
     {
         $request->user()->token()->revoke();
@@ -21,7 +53,7 @@ class UsermlmController extends Controller
 
 
     public function signin(Request $request)
-{
+   {
    
 
     try {
@@ -781,16 +813,30 @@ private function retrieveLevelNodes($currentLevelNodes, &$treeLevels) {
 
     foreach ($currentLevelNodes as $nodeId) {
         // Query to fetch left and right children of the current node
-        $children = DB::select("SELECT id, child_left, child_right FROM usermlms WHERE id = ?", [$nodeId]);
+        $children = DB::select("SELECT id, child_left,child_right,mobile,name,referral_code FROM usermlms WHERE id = ?", [$nodeId]);
 
         if (!empty($children)) {
             $node = $children[0];
+
+            if (empty($node->child_left) && empty($node->child_right)) {
+                $empt = 3; // Both are empty
+            } elseif (empty($node->child_left)) {
+                $empt = 1; // Only child_left is empty
+            } elseif (empty($node->child_right)) {
+                $empt = 2; // Only child_right is empty
+            } else {
+                $empt = 4; // Both are not empty
+            }
             
             // Add the current node and its children to the current level structure
             $currentLevel[] = [
                 'id' => $node->id,
                 'left' => $node->child_left,
-                'right' => $node->child_right
+                'right' => $node->child_right,
+                'referral_code'=>$node->referral_code,
+                'name'=> $node->name,
+                'mobile'=> $node->mobile,
+                'empty'=>$empt,
             ];
 
             // Append the left and right children to the next level array
@@ -805,6 +851,7 @@ private function retrieveLevelNodes($currentLevelNodes, &$treeLevels) {
 
     // Append the current level nodes to the tree structure
     $treeLevels[] = $currentLevel;
+    
 
     // Recursive call for the next level
     $this->retrieveLevelNodes($nextLevelNodes, $treeLevels);
