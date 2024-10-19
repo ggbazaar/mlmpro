@@ -45,9 +45,6 @@ class UsermlmController extends Controller
                         ->orWhere('mobile', $credentials['mobile'])
                         ->first();
 
-        // print_r($user);  
-        // die("ADASDD");
-
         // Check if the user exists and if the password is correct
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
             throw new Exception("Invalid Credentials");
@@ -55,14 +52,28 @@ class UsermlmController extends Controller
 
         // Create token
         $tokenResult = $user->createToken('FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(');
-       // $accessToken = $tokenResult->plainTextToken; // for Sanctum
         $accessToken = $tokenResult->accessToken;  // for Passport
 
+        if ($user) {
+            $userData = $user->toArray();
+            if (array_key_exists('self_code', $userData)) {
+                unset($userData['self_code']);
+                unset($userData['api_token']);
+                unset($userData['level']);
+            }
+
+            foreach ($userData as $key => $value) {
+                if (is_null($value)) {
+                    $userData[$key] = ''; // Set to an empty string if null
+                }
+            }
+        }
+
         return response()->json([
-            'message' => 'Login successful',
-            'user' => $user,
+            'message' => 'Login successful.',
+            'user' => $userData,
             'access_token' => [
-                'full'=>$tokenResult,
+                // 'full'=>$tokenResult,
                 'token' => $accessToken,
                 'token_type' => 'Bearer',
                 // 'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString(),
@@ -78,202 +89,6 @@ class UsermlmController extends Controller
         ], 401);
     }
 }
-
-
-
-
-    public function signin22BBNNMM(Request $request)
-    {
-        $customErr = "";
-        try {
-            $request->validate([
-                'email' => 'required|string',
-                'password' => 'required|string',
-                'remember_me' => 'boolean'
-            ]);
-            $credentials = request(['email', 'password']);
-
-            // if (!Auth::attempt($credentials))
-            //     throw new Exception("Invalid Credentials");
-
-            $det = Usermlm::where('contact', $credentials)->first();
-
-            $user = $request->user();
-            $tokenResult = $user->createToken('Personal Access Token');
-            $token = $tokenResult->token;
-
-            if ($request->remember_me)
-                $token->expires_at = Carbon::now()->addWeeks(1);
-
-            $token->save();
-           
-            $det = [
-                'access_token' => $tokenResult->accessToken,
-                'token_type' => 'Bearer',
-                'expires_at' => Carbon::parse(
-                    $tokenResult->token->expires_at
-                )->toDateTimeString(),
-                'name' => $user->name,
-                'email' => $user->email,
-                'type' => $user->user_type,
-                'contact' => $user->contact_number
-            ];
-            return response()->json(["statusCode" => 0, "message" => "Success", "data" => $det], 200);
-        } catch (Exception $e) {
-            return response()->json(["statusCode" => 1, "message" => "Error", "err" => $e->getMessage()], 200);
-        }
-    }
-
-
-
-    public function signin2233333(Request $request)
-    {
-        // Validate the incoming request
-        $request->validate([
-            'emailOrMobile' => 'required|string', // Change 'email' to 'identifier'
-            'password' => 'required|string',
-            'remember_me' => 'boolean'
-        ]);
-    
-        // Determine whether the identifier is an email or mobile
-        $identifier = $request->input('emailOrMobile');
-        $fieldType = filter_var($identifier, FILTER_VALIDATE_EMAIL) ? 'email' : 'mobile';
-    
-        // Prepare credentials for authentication
-        $credentials = [$fieldType => $identifier, 'password' => $request->password];
-
-        // print_r($credentials);
-        // die("ASDfa");
-    
-        // // Attempt to authenticate the user
-        // if (!Auth::attempt($credentials)) {
-        //     throw new Exception("Invalid Credentials");
-        // }
-    
-        // Retrieve the authenticated user
-        // $user = Auth::user();
-
-        // print_r($user);
-        // die("ASFASDF");
-
-    
-        // Create a token for the authenticated user
-        $tokenResult = $user->createToken('Personal Access Token');
-        $token = $tokenResult->token;
-    
-        // Set token expiration if remember me is checked
-        if ($request->remember_me) {
-            $token->expires_at = Carbon::now()->addWeeks(1);
-        }
-    
-        $token->save();
-    
-        // Initialize additional counters or variables as needed
-        $counterslogin = [];
-        $idWarehouse = 0;
-    
-        // Return the success response
-        return response()->json([
-            'message' => 'Login successful',
-            'user' => $user,
-            'token' => $token->plainTextToken, // Return the token
-        ], 200);
-    }
-
-
-
-    public function signin333(Request $request)
-    {
-        $customErr = "";
-        try {
-            $request->validate([
-                'email' => 'required|string|email',
-                'password' => 'required|string',
-                'remember_me' => 'boolean'
-            ]);
-            $credentials = request(['email', 'password']);
-
-            if (!Auth::attempt($credentials))
-                throw new Exception("Invalid Credentials");
-
-            $user = $request->user();
-            $tokenResult = $user->createToken('Personal Access Token');
-            $token = $tokenResult->token;
-
-            if ($request->remember_me)
-                $token->expires_at = Carbon::now()->addWeeks(1);
-
-            $token->save();
-            $counterslogin = [];
-            $idWarehouse = 0;
-            $aLvlStore = 1;
-            $SWname = '';
-            $address = '';
-            $city = '';
-            $pin = '';
-            $contact = '';
-            
-            $det = [
-                'access_token' => $tokenResult->accessToken,
-                'token_type' => 'Bearer',
-                'expires_at' => Carbon::parse(
-                    $tokenResult->token->expires_at
-                )->toDateTimeString(),
-                'name' => $user->name,
-                'email' => $user->email,
-                'type' => $user->user_type,
-                'contact' => $user->contact_number,
-                'counter_detail' => $counterslogin,
-                'is_store' => $aLvlStore,
-                'idwarehouse' => $idWarehouse,
-                'sw_name' => $SWname,
-                'sw_address' => $address,
-                'sw_city' => $city,
-                'sw_state' => $state ?? '',
-                'sw_pin' => $pin,
-                'sw_contact' => $contact,
-
-            ];
-            return response()->json(["statusCode" => 0, "message" => "Success", "data" => $det], 200);
-        } catch (Exception $e) {
-            return response()->json(["statusCode" => 1, "message" => "Error", "err" => $e->getMessage()], 200);
-        }
-    }
-
-
-
-    public function signin22(Request $request)
-    {
-        // Validate the incoming request
-        $request->validate([
-            'email_or_mobile' => 'required',
-            'password' => 'required',
-        ]);
-
-        // Check whether the input is an email or mobile
-        $fieldType = filter_var($request->email_or_mobile, FILTER_VALIDATE_EMAIL) ? 'email' : 'mobile';
-
-        // Retrieve the user using email or mobile
-        $user = Usermlm::where($fieldType, $request->email_or_mobile)->first();
-
-       if ($user && Hash::check($request->password, $user->password)) {
-            // Create a token for the user
-            $token = $user->createToken('API Token')->plainTextToken;
-
-            return response()->json([
-                'message' => 'Login successful',
-                'token' => $token,
-                'user' => $user
-            ], 200);
-        }
-
-        // Invalid login attempt
-        return response()->json([
-            'message' => 'Invalid credentials'
-        ], 401);
-    }
-
-
 
     public function pairlevel(Request $request)
     {
@@ -307,28 +122,24 @@ class UsermlmController extends Controller
     {
         // Validation
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255'
-        //     'mobile' => 'required|string|max:15',
-        //     'email' => 'required|email|max:255|unique:users',
-        //     'whatsapp' => 'required|string|max:15',
-        //     'pan' => 'required|string|max:10',
-        //     'adhar' => 'required|string|max:12',
-        //     'relation' => 'required|string|max:255',
-        //     'relation_name' => 'required|string|max:255',
-        //     'gender' => 'required|string|in:male,female,other',
-        //     'dob' => 'required|date',
-        //     'referral_code' => 'nullable|string|max:255',
-        //     'used_code' => 'required',
-        //     'status' => 'required',
-        //     'password' => 'required|string|min:8', // password confirmation rule
-        //     'level' => 'required|integer',
-        //     'added_below'=>'required'
+            'name' => 'required|string|max:255',
+            'mobile' => 'required|string|max:15',
+            'email' => 'required|email|max:255|unique:users',
+            'whatsapp' => 'required|string|max:15',
+            'pan' => 'required|string|max:10',
+            'adhar' => 'required|string|max:12',
+            'relation' => 'required|string|max:255',
+            'relation_name' => 'required|string|max:255',
+            'gender' => 'required',
+            'dob' => 'required',
+            'referral_code' => 'nullable|string|max:255',
+            'used_code' => 'string',
+            'status' => 'string',
+            'password' => 'required|string|min:8', // password confirmation rule
+            'level' => 'required|integer',
+            'added_below'=>'string',
+            'parent_code'=>'string'
         ]);
-
-
-       
-
-        // 'password' => 'required|string|min:8|confirmed', // password confirmation rule
 
         // Handle validation failure
         if ($validator->fails()) {
@@ -338,12 +149,36 @@ class UsermlmController extends Controller
         $lastUser = Usermlm::latest('id')->first();
         $id = $lastUser ? $lastUser->id + 1 : 1;
 
-        if($request->side==null){
-            $request->side=1;
-          //  die("ASDFA");
+        $isUnique = DB::table('usermlms')->where('mobile', $request->mobile)->exists();
+        $result = $isUnique ? 1 : 0; // 1 if unique, 0 if duplicate
+        if($result){
+          return response()->json(['status'=>0,'message' => 'Mobile number already exist'], 409); // 409 Conflict
         }
 
-        // Create the user
+        $sponsoredCode=$request->parent_code;
+
+        $getBinaryTreeStructureJson1 = $this->getBinaryTreeStructureJson1($sponsoredCode);
+        $nodeAdd = !empty($getBinaryTreeStructureJson1) ? $getBinaryTreeStructureJson1[0][0] : null;
+        if (!$nodeAdd) {
+            return response()->json(['status' => 0, 'message' => 'Parent code not found or invalid'], 404); // 404 Not Found
+        }
+
+        // $getBinaryTreeStructureJson1=$this->getBinaryTreeStructureJson1($request->parent_code);
+        // if(count($getBinaryTreeStructureJson1)>0){
+        //     $nodeAdd=$getBinaryTreeStructureJson1[0][0];
+        // }
+         
+        $request->side = $nodeAdd['empty'];
+        $request->parent_code = $nodeAdd['id'];
+        $request->used_code = $sponsoredCode;
+
+        // if($request->side==null){
+        //     $request->side=1;
+        // }
+
+        // print_r($request->parent_code);
+        // die("ASDFasf");
+
         $usermlm = Usermlm::create([
             'name' => $request->name,
             'mobile' => $request->mobile,
@@ -362,45 +197,13 @@ class UsermlmController extends Controller
             'password' =>Hash::make($request->password), // Password encryption
             'level' => $request->level,
             'added_below' => $request->added_below,
+            'parent_code'=> $request->parent_code,
         ]);
 
        $Tuser = Usermlm::latest('id')->first();
        $get = DB::select("SELECT * FROM usermlms WHERE id = $request->parent_code");
        $pr=$get[0];
        $uid=$usermlm->id;
-
-     
-        // Example tree
-        $tree5 = [
-            1,  // Root node
-            [   // Left subtree of root
-                2, 
-                [4,  // Left subtree of node 2
-                    [8, [16, null, null], [17, null, null]],  // Left subtree of node 4
-                    [9, [18, null, null], [19, null, null]]   // Right subtree of node 4
-                ], 
-                [5,  // Right subtree of node 2
-                    [10, [20, null, null], [21, null, null]],  // Left subtree of node 5
-                    [11, [22, null, null], [23, null, null]]   // Right subtree of node 5
-                ]
-            ],
-            [   // Right subtree of root
-                3, 
-                [6,  // Left subtree of node 3
-                    [12, [24, null, null], [25, null, null]],  // Left subtree of node 6
-                    [13, [26, null, null], [27, null, null]]   // Right subtree of node 6
-                ], 
-                [7,  // Right subtree of node 3
-                    [14, [28, null, null], [29, null, null]],  // Left subtree of node 7
-                    [15, [30, null, null], [31, null, null]]   // Right subtree of node 7
-                ]
-            ]
-        ];
-
-// Output the result
-        //echo $this->checkCompleteLevels($tree5);
-
-        
 
         if($request->side==1){
             $Downline=$this->LeftDownline($request->parent_code);
@@ -413,21 +216,17 @@ class UsermlmController extends Controller
             }else{
               DB::update("UPDATE usermlms SET child_left = $usermlm->id WHERE id = $pr->last_left");
             }
-           // $levelg=$this->getTreeDepth($usermlm->id);
 
         }else{
             $Downline=$this->RightDownline($request->parent_code);
             $Upline= $this->RightUpline($request->parent_code);
             $results_string = $Downline.",".$Upline;
             DB::update("UPDATE usermlms SET last_right = $usermlm->id WHERE id in($results_string)");
-
-            //DB::update("UPDATE usermlms SET last_right = $usermlm->id WHERE id = $request->parent_code");
             if($pr->child_right==''){
               DB::update("UPDATE usermlms SET child_right = $usermlm->id WHERE id = $request->parent_code");
             }else{
               DB::update("UPDATE usermlms SET child_right = $usermlm->id WHERE id = $pr->last_right");
             }
-           // $levelg=$this->getTreeDepth($usermlm->id);
         }
        
         return response()->json(['message' => 'User created successfully', 'user' => $usermlm,'Downline'=> $Downline,'Upline'=>$Upline], 201);
@@ -812,8 +611,81 @@ private function retrieveLevelNodes($currentLevelNodes, &$treeLevels) {
 
 
 
+public function getBinaryTreeStructureJson1($rootId) {
+    $treeLevels = [];  // Array to hold all levels of the tree
+    // Start level-order traversal from the root node
+    $this->retrieveLevelNodes1([$rootId], $treeLevels);
+   // echo count($treeLevels);
+    if(count($treeLevels)>0){
+        return $treeLevels;
+    }
+    
 
+    // Convert the result to JSON format
+    //return json_encode($treeLevels, JSON_PRETTY_PRINT);
+    
+}
+ 
+private function retrieveLevelNodes1($currentLevelNodes, &$treeLevels) {
+    if (empty($currentLevelNodes)) {
+        return;  // Base case: if there are no nodes at this level, stop recursion
+    }
 
+    $nextLevelNodes = []; // Array to hold the next level nodes
+    $currentLevel = [];   // Array to hold current level nodes in structured format
+
+    foreach ($currentLevelNodes as $nodeId) {
+        // Query to fetch left and right children of the current node
+        $children = DB::select("SELECT id, child_left,child_right,mobile,name,referral_code FROM usermlms WHERE id = ?", [$nodeId]);
+
+        if (!empty($children)) {
+            $node = $children[0];
+
+            if (empty($node->child_left) && empty($node->child_right)) {
+                $empt = 3; // Both are empty
+            } elseif (empty($node->child_left)) {
+                $empt = 1; // Only child_left is empty
+            } elseif (empty($node->child_right)) {
+                $empt = 2; // Only child_right is empty
+            } else {
+                $empt = 4; // Both are not empty
+            }
+            
+            // Add the current node and its children to the current level structure
+
+            if($empt!=4){
+                $currentLevel[] = [
+                    'id' => $node->id,
+                    'left' => $node->child_left ?? '', 
+                    'right' => $node->child_right ?? '', 
+                    'referral_code'=>$node->referral_code ?? '', 
+                    'name'=> $node->name ?? '', 
+                    'mobile'=> $node->mobile ?? '', 
+                    'empty'=>$empt,
+                ];
+            }
+
+            // Append the left and right children to the next level array
+            if ($node->child_left !== null) {
+                $nextLevelNodes[] = $node->child_left;
+            }
+            if ($node->child_right !== null) {
+                $nextLevelNodes[] = $node->child_right;
+            }
+        }
+    }
+
+    if($currentLevel){
+        $treeLevels[] = $currentLevel;
+    }
+    
+    if (count($treeLevels) > 0) {
+        return;
+    }
+
+    // Recursive call for the next level
+    $this->retrieveLevelNodes1($nextLevelNodes, $treeLevels);
+}
 
 
 }

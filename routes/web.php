@@ -10,8 +10,14 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\SignupController;
 use App\Http\Controllers\TreeController;
 
+// Route::get('/tree', [TreeController::class, 'showTree'])->name('tree.view');
+// Route::post('/signup', [SignupController::class, 'store'])->name('signup.store');
+// Route::get('/signin', [SignupController::class, 'signin'])->name('signup.signin');
+
 Route::get('/tree', [TreeController::class, 'showTree'])->name('tree.view');
+Route::get('/signup', [SignupController::class, 'create'])->name('signup.create');
 Route::post('/signup', [SignupController::class, 'store'])->name('signup.store');
 Route::get('/signin', [SignupController::class, 'signin'])->name('signup.signin');
-
-
+// Route::get('/home', [HomeController::class, 'home'])->name('home.home');
+Route::get('/home', [HomeController::class, 'index']);
+Route::get('/', [HomeController::class, 'index']);
