@@ -13,6 +13,9 @@ class GetAdvisorList extends Controller
 
     public function find(Request $request)
     {
+        $user = auth()->guard('api')->user();
+        print_r($user);
+        die("A1Sdf");
 
         $request->validate([
             'id' => 'required',
@@ -21,6 +24,13 @@ class GetAdvisorList extends Controller
         
 
         $user = Usermlm::where('id', $req['id'])->first();
+        //  $request->user()->token()->revoke();
+        $req1 = json_decode($request->getContent());
+       // print_r($req1);
+        $user1 = auth()->guard('api')->user();
+       // print_r($user1);
+      //  die("ADfa");
+
 
         $getBinaryTreeStructureJson=$this->getBinaryTreeStructureJson($user->id);
 
@@ -32,7 +42,7 @@ class GetAdvisorList extends Controller
  
         //die("ASdfas");
 
-       // $request->user()->token()->revoke();
+       //
         return response()->json([
             'statusCode' => 1,
             'data'=>$getBinaryTreeStructureJson,

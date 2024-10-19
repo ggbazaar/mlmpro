@@ -54,9 +54,9 @@ class UsermlmController extends Controller
         }
 
         // Create token
-        $tokenResult = $user->createToken('Personal Access Token');
-        $accessToken = $tokenResult->plainTextToken; // for Sanctum
-        // $accessToken = $tokenResult->accessToken;  // for Passport
+        $tokenResult = $user->createToken('FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(');
+       // $accessToken = $tokenResult->plainTextToken; // for Sanctum
+        $accessToken = $tokenResult->accessToken;  // for Passport
 
         return response()->json([
             'message' => 'Login successful',

@@ -2,11 +2,16 @@
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory; // Correct import
+use Illuminate\Database\Eloquent\Model;
+
+// use Laravel\Sanctum\HasApiTokens;
+use Laravel\Passport\HasApiTokens;
 
 class Usermlm extends Authenticatable
 {
-    use HasApiTokens, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
     protected $table = 'usermlms';
 
     protected $fillable = [

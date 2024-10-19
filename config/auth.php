@@ -42,7 +42,7 @@ return [
         ],
 
         'api' => [
-            'driver' => 'token',
+            'driver' => 'passport',
             'provider' => 'users',
         ],
     ],
@@ -96,6 +96,7 @@ return [
             'provider' => 'users',
             'table' => 'password_resets',
             'expire' => 60,
+            'throttle' => 60,
         ],
     ],
 
