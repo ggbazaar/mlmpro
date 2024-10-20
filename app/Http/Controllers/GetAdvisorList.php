@@ -162,35 +162,39 @@ public function payment_approved(Request $request)
 
     
 
- 
-
-    public function pairlevel(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'id' => 'required'
-        ]);
-
-      $RDownline=$this->RightDownline($request->id);
-      $RUpline= $this->RightUpline($request->id);
-
-      $LDownline=$this->LeftDownline($request->id);
-      $LUpline= $this->LeftUpline($request->id);
+public function pairlevel(Request $request)
+{
     
-      $PairMatches= $this->checkPairMatches($request->id);
-      $CompleteLevels= $this->checkCompleteLevels2($request->id)-1;
+    $validator = Validator::make($request->all(), [
+        'id' => 'required'
+    ]);
+
+  $RDownline=$this->RightDownline($request->id);
+//   $RUpline= $this->RightUpline($request->id);
+
+  $LDownline=$this->LeftDownline($request->id);
+//   $LUpline= $this->LeftUpline($request->id);
+
+  $PairMatches= $this->checkPairMatches($request->id);
+  $CompleteLevels= $this->checkCompleteLevels2($request->id)-1;
 
 
-      $getAllDescendants=$this->getAllDescendants($request->id);
+  $getAllDescendants=$this->getAllDescendants($request->id);
 
-      $getBinaryTreeStructureJson=$this->getBinaryTreeStructureJson($request->id);
-      
+  $getBinaryTreeStructureJson=$this->getBinaryTreeStructureJson($request->id);
+  
 
-     // $getAllLeftDescendants=$this->getAllLeftDescendants($request->id);
+ // $getAllLeftDescendants=$this->getAllLeftDescendants($request->id);
 
-      //$getAllLeftDescendantsWithSubChildren=$this->getAllLeftDescendantsWithSubChildren($request->id);
+  //$getAllLeftDescendantsWithSubChildren=$this->getAllLeftDescendantsWithSubChildren($request->id);
 
-      return response()->json(['message' => 'Tree successfully', 'PairMatches' => $PairMatches,'CompleteLevels'=> $CompleteLevels,"RDownline"=>$RDownline,"RUpline"=>$RUpline,"LDownline"=>$LDownline,"LUpline"=>$LUpline,"getAllDescendants"=>$getAllDescendants,"getBinaryTreeStructureJson"=>$getBinaryTreeStructureJson], 201);
-    }
+//   return response()->json(['message' => 'Tree successfully', 'PairMatches' => $PairMatches,'CompleteLevels'=> $CompleteLevels,"RDownline"=>$RDownline,"RUpline"=>$RUpline,"LDownline"=>$LDownline,"LUpline"=>$LUpline,"getAllDescendants"=>$getAllDescendants,"getBinaryTreeStructureJson"=>$getBinaryTreeStructureJson], 201);
+
+  return response()->json(['message' => 'Tree successfully', 'PairMatches' => $PairMatches,'CompleteLevels'=> $CompleteLevels,"RDownline"=>$RDownline,"LDownline"=>$LDownline,"getAllDescendants"=>$getAllDescendants,"getBinaryTreeStructureJson"=>$getBinaryTreeStructureJson], 201);
+
+}
+
+     
 
     public function LeftDownline($parent_code){
         //$parent_code = $request->parent_code;  // Initial parent code
@@ -348,26 +352,6 @@ function checkCompleteLevels($tree) {
 
 
 
-public function countPairMatches($userId, $level = 1)
-{
-    // Fetch left and right child for the current user
-    $user = DB::selectOne("SELECT child_left, child_right FROM usermlms WHERE id = ?", [$userId]);
-
-    // If user doesn't exist or has no children, treat it as no match
-    if (!$user || ($user->child_left === null && $user->child_right === null)) {
-        return 0;
-    }
-
-    // Check if there is a pair match at the current node (both children exist)
-    $currentMatch = ($user->child_left !== null && $user->child_right !== null) ? 1 : 0;
-
-    // Recursively check both subtrees (left and right children)
-    $leftMatches = $user->child_left ? $this->countPairMatches($user->child_left, $level + 1) : 0;
-    $rightMatches = $user->child_right ? $this->countPairMatches($user->child_right, $level + 1) : 0;
-
-    // Total matches at current and subsequent levels
-    return $currentMatch + $leftMatches + $rightMatches;
-}
 
 // Method to check total pair matches starting from the root user
 public function checkPairMatches($rootUserId)
@@ -426,27 +410,40 @@ public function getAllDescendants($parent_code) {
 }
 
 // Recursive helper function to find both left and right descendants
-private function retrieveDescendants($node, &$results) {
-    // Query to get left and right children
-    $children = DB::select("SELECT child_left, child_right FROM usermlms WHERE id = ?", [$node]);
 
+private function retrieveDescendants($node, &$results) {
+    // Retrieve the children of the current node
+    $children = DB::select("SELECT id, child_left, child_right, status FROM usermlms WHERE id = ?", [$node]);
+    
+    // Check if children are found
     if (!empty($children)) {
         $child_left = $children[0]->child_left;
         $child_right = $children[0]->child_right;
+        $status = $children[0]->status ?? 0;
 
-        // Process left child
-        if ($child_left !== null && $child_left > 0) {
-            $results[] = $child_left; // Add left child to results
-            $this->retrieveDescendants($child_left, $results); // Recursive call for left child
-        }
+        // Only proceed if the current node has status 1
+        if ($status == 1) {
+            // Check left child
+            if ($child_left !== null && $child_left > 0) {
+                $childLeftStatus = DB::table('usermlms')->where('id', $child_left)->value('status'); // Check left child's status
+                if ($childLeftStatus == 1) {
+                    $results[] = $child_left; // Add left child to results
+                    $this->retrieveDescendants($child_left, $results); // Recursive call for left child
+                }
+            }
 
-        // Process right child
-        if ($child_right !== null && $child_right > 0) {
-            $results[] = $child_right; // Add right child to results
-            $this->retrieveDescendants($child_right, $results); // Recursive call for right child
+            // Check right child
+            if ($child_right !== null && $child_right > 0) {
+                $childRightStatus = DB::table('usermlms')->where('id', $child_right)->value('status'); // Check right child's status
+                if ($childRightStatus == 1) {
+                    $results[] = $child_right; // Add right child to results
+                    $this->retrieveDescendants($child_right, $results); // Recursive call for right child
+                }
+            }
         }
     }
 }
+
 
 
 public function getAllLeftDescendants($parent_code) {
@@ -672,6 +669,48 @@ private function retrieveLevelNodes3($currentLevelNodes, &$treeLevels,$typeStatu
     }
     // Recursive call for the next level
     $this->retrieveLevelNodes3($nextLevelNodes, $treeLevels,$typeStatus);
+}
+
+
+public function countPairMatches($userId, $level = 1)
+{
+    $currentMatch = 0;
+    $leftMatches = 0;
+    $rightMatches = 0;
+
+    // Retrieve the user node
+    $user = DB::selectOne("SELECT child_left, child_right, status FROM usermlms WHERE id = ?", [$userId]);
+
+    // If user not found or has no children with status 1, return 0
+    if (!$user || ($user->child_left === null && $user->child_right === null)) {
+        return 0;
+    }
+
+    // Proceed only if the current user has status 1
+    if ($user->status == 1) {
+        // Check if both children are present and have status 1
+        if ($user->child_left !== null) {
+            $leftChild = DB::selectOne("SELECT status FROM usermlms WHERE id = ?", [$user->child_left]);
+            if ($leftChild && $leftChild->status == 1) {
+                $leftMatches = $this->countPairMatches($user->child_left, $level + 1);
+            }
+        }
+
+        if ($user->child_right !== null) {
+            $rightChild = DB::selectOne("SELECT status FROM usermlms WHERE id = ?", [$user->child_right]);
+            if ($rightChild && $rightChild->status == 1) {
+                $rightMatches = $this->countPairMatches($user->child_right, $level + 1);
+            }
+        }
+
+        // Check if both left and right children exist and have status 1
+        if ($user->child_left !== null && $user->child_right !== null) {
+            $currentMatch = 1; // Both children are present
+        }
+    }
+
+    // Total matches at current and subsequent levels
+    return $currentMatch + $leftMatches + $rightMatches;
 }
 
 

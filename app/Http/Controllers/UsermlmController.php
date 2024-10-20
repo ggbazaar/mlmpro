@@ -122,8 +122,6 @@ public function findbyfield(Request $request)
 }
 
 
-
-
     public function pairlevel(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -419,7 +417,6 @@ function checkCompleteLevels($tree) {
     $completedLevels = $this->minCompleteLevels($tree);
     return "The tree has $completedLevels completely filled levels.";
 }
-
 
 
 public function countPairMatches($userId, $level = 1)

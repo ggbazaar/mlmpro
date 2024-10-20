@@ -36,7 +36,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 //     'middleware' => ['cors', 'auth:api']
 // ], function () {
     Route::post('/create-user', [UsermlmController::class, 'store']);
-    Route::post('/pairlevel', [UsermlmController::class, 'pairlevel']);
+    // Route::post('/pairlevel', [UsermlmController::class, 'pairlevel']);
     Route::post('/findbyfield', [UsermlmController::class, 'findbyfield']);
 
     Route::post('/getadvisorlist', [GetAdvisorList::class, 'find']);
@@ -44,8 +44,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::post('/downline_type', [GetAdvisorList::class, 'downline_type']);
     Route::post('/payment', [GetAdvisorList::class, 'payment']);
     Route::post('/payment_approved', [GetAdvisorList::class, 'payment_approved']);
-
     Route::get('/getkitamount', [GetAdvisorList::class, 'getkitamount']);
+    Route::post('/pairlevel', [GetAdvisorList::class, 'pairlevel']);
+
 
     
 
