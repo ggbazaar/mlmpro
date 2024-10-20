@@ -37,10 +37,20 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 // ], function () {
     Route::post('/create-user', [UsermlmController::class, 'store']);
     Route::post('/pairlevel', [UsermlmController::class, 'pairlevel']);
+    Route::post('/findbyfield', [UsermlmController::class, 'findbyfield']);
+
     Route::post('/getadvisorlist', [GetAdvisorList::class, 'find']);
     Route::post('/downline', [GetAdvisorList::class, 'downline']);
+    Route::post('/downline_type', [GetAdvisorList::class, 'downline_type']);
     Route::post('/payment', [GetAdvisorList::class, 'payment']);
     Route::post('/payment_approved', [GetAdvisorList::class, 'payment_approved']);
+
+    Route::get('/getkitamount', [GetAdvisorList::class, 'getkitamount']);
+
+    
+
+
+
     
 // });
 

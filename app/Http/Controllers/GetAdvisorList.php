@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Usermlm;
 use App\Models\Payment;
+use App\Models\Kitamount;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -33,18 +34,32 @@ class GetAdvisorList extends Controller
     }
 
 
+
+public function getkitamount(Request $request)
+{
+    // Fetching all records from Kitamount
+    $rs = Kitamount::all(); // Added missing semicolon
+
+    return response()->json([
+        'statusCode' => 1,
+        'data' => $rs,
+        'message' => 'Successfully fetched kit amount data' // Updated message to match function purpose
+    ]);
+}
+
+
     public function downline(Request $request)
     {
         $user = auth()->guard('api')->user();
         $request->validate([
             'id' => 'required',
+            'typeStatus' => 'nullable',
         ]);
         $req = $request->only(['id']);
         $umlm = Usermlm::where('id', $req['id'])->first();
         $req1 = json_decode($request->getContent());
-        $getBinaryTreeStructureJson3=$this->getBinaryTreeStructureJson3($umlm->id);
-
-
+        $typeStatus = $request->input('typeStatus', '2');
+        $getBinaryTreeStructureJson3=$this->getBinaryTreeStructureJson3($umlm->id,$typeStatus);
 
         return response()->json([
             'statusCode' => 1,
@@ -52,6 +67,8 @@ class GetAdvisorList extends Controller
             'message' => 'Successfully getadvisorlist fetch out'
         ]);
     }
+
+ 
 
 
     public function payment(Request $request)
@@ -523,7 +540,7 @@ private function retrieveLevelNodes($currentLevelNodes, &$treeLevels) {
 
     foreach ($currentLevelNodes as $nodeId) {
         // Query to fetch left and right children of the current node
-        $children = DB::select("SELECT id, child_left,child_right,mobile,name,referral_code FROM usermlms WHERE id = ?", [$nodeId]);
+        $children = DB::select("SELECT id, child_left,child_right,mobile,name,self_code FROM usermlms WHERE id = ?", [$nodeId]);
 
         if (!empty($children)) {
             $node = $children[0];
@@ -545,7 +562,7 @@ private function retrieveLevelNodes($currentLevelNodes, &$treeLevels) {
                     'id' => $node->id,
                     'left' => $node->child_left ?? '', 
                     'right' => $node->child_right ?? '', 
-                    'referral_code'=>$node->referral_code ?? '', 
+                    'self_code'=>$node->self_code ?? '', 
                     'name'=> $node->name ?? '', 
                     'mobile'=> $node->mobile ?? '', 
                     'empty'=>$empt,
@@ -573,11 +590,11 @@ private function retrieveLevelNodes($currentLevelNodes, &$treeLevels) {
 }
 
 
-public function getBinaryTreeStructureJson3($rootId) {
+public function getBinaryTreeStructureJson3($rootId,$typeStatus=2) {
     $treeLevels = [];  // Array to hold all levels of the tree
 
     // Start level-order traversal from the root node
-    $this->retrieveLevelNodes3([$rootId], $treeLevels);
+    $this->retrieveLevelNodes3([$rootId], $treeLevels,$typeStatus);
 
     // Convert the result to JSON format
     //return json_encode($treeLevels, JSON_PRETTY_PRINT);
@@ -585,7 +602,7 @@ public function getBinaryTreeStructureJson3($rootId) {
 }
 
 // Helper function to retrieve nodes level-wise
-private function retrieveLevelNodes3($currentLevelNodes, &$treeLevels) {
+private function retrieveLevelNodes3($currentLevelNodes, &$treeLevels,$typeStatus=2) {
     if (empty($currentLevelNodes)) {
         return;  // Base case: if there are no nodes at this level, stop recursion
     }
@@ -595,7 +612,7 @@ private function retrieveLevelNodes3($currentLevelNodes, &$treeLevels) {
 
     foreach ($currentLevelNodes as $nodeId) {
         // Query to fetch left and right children of the current node
-        $children = DB::select("SELECT id, child_left,child_right,mobile,name,referral_code FROM usermlms WHERE id = ?", [$nodeId]);
+        $children = DB::select("SELECT id, child_left,child_right,mobile,name,self_code,status FROM usermlms WHERE id = ?", [$nodeId]);
 
         if (!empty($children)) {
             $node = $children[0];
@@ -613,15 +630,30 @@ private function retrieveLevelNodes3($currentLevelNodes, &$treeLevels) {
             // Add the current node and its children to the current level structure
 
           //  if($empt!=4){
+            if($node->status==$typeStatus){
                 $currentLevel[] = [
                     'id' => $node->id,
                     'left' => $node->child_left ?? '', 
                     'right' => $node->child_right ?? '', 
-                    'referral_code'=>$node->referral_code ?? '', 
+                    'self_code'=>$node->self_code ?? '', 
                     'name'=> $node->name ?? '', 
                     'mobile'=> $node->mobile ?? '', 
                     'empty'=>$empt,
+                    'status'=>$node->status?? 0,
                 ];
+            }if($typeStatus==2){
+                $currentLevel[] = [
+                    'id' => $node->id,
+                    'left' => $node->child_left ?? '', 
+                    'right' => $node->child_right ?? '', 
+                    'self_code'=>$node->self_code ?? '', 
+                    'name'=> $node->name ?? '', 
+                    'mobile'=> $node->mobile ?? '', 
+                    'empty'=>$empt,
+                    'status'=>$node->status?? 0,
+                ];
+            }
+
            // }
 
             // Append the left and right children to the next level array
@@ -639,7 +671,7 @@ private function retrieveLevelNodes3($currentLevelNodes, &$treeLevels) {
         $treeLevels[] = $currentLevel;
     }
     // Recursive call for the next level
-    $this->retrieveLevelNodes3($nextLevelNodes, $treeLevels);
+    $this->retrieveLevelNodes3($nextLevelNodes, $treeLevels,$typeStatus);
 }
 
 

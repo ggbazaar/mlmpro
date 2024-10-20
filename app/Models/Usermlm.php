@@ -16,7 +16,7 @@ class Usermlm extends Authenticatable
 
     protected $fillable = [
         'name', 'mobile', 'email', 'whatsapp', 'pan', 'adhar', 
-        'relation', 'relation_name', 'gender', 'dob', 'referral_code', 
+        'relation', 'relation_name', 'gender', 'dob', 'self_code', 
         'used_code', 'side', 'status', 'password', 'level','added_below','parent_code'
     ];
 

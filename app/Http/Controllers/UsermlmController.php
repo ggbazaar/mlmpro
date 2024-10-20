@@ -56,8 +56,7 @@ class UsermlmController extends Controller
 
         if ($user) {
             $userData = $user->toArray();
-            if (array_key_exists('self_code', $userData)) {
-                unset($userData['self_code']);
+            if (array_key_exists('api_token', $userData)) {
                 unset($userData['api_token']);
                 unset($userData['level']);
             }
@@ -89,6 +88,41 @@ class UsermlmController extends Controller
         ], 401);
     }
 }
+
+
+public function findbyfield(Request $request)
+{
+    // Manually creating a validator instance
+    $validator = Validator::make($request->all(), [
+        'field' => 'required|string',
+        'value' => 'required|string',
+    ]);
+
+    // Check if validation fails
+    if ($validator->fails()) {
+        return response()->json(['error' => 'Validation failed', 'message' => $validator->errors()], 400);
+    }
+    // Extract both 'field' and 'value' from the request
+    $req = $request->only(['field', 'value']);
+    // Search in the Usermlm model based on the given field and value
+    $userData = Usermlm::where($req['field'], $req['value'])->first()->toArray();
+
+    foreach ($userData as $key => $value) {
+        if (is_null($value)) {
+            $userData[$key] = ''; // Set to an empty string if null
+        }
+    }
+
+    // Check if the user was found
+    if ($userData) {
+        return response()->json(['message' => 'User details', 'user' => $userData], 200);
+    } else {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+}
+
+
+
 
     public function pairlevel(Request $request)
     {
@@ -132,7 +166,7 @@ class UsermlmController extends Controller
             'relation_name' => 'required|string|max:255',
             'gender' => 'required',
             'dob' => 'required',
-            'referral_code' => 'nullable|string|max:255',
+            'self_code' => 'nullable|string|max:255',
             'used_code' => 'string',
             'status' => 'string',
             'password' => 'required|string|min:8', // password confirmation rule
@@ -190,7 +224,7 @@ class UsermlmController extends Controller
             'relation_name' => $request->relation_name,
             'gender' => $request->gender,
             'dob' => $request->dob,
-            'referral_code' => "GGB" . $id . "2024",
+            'self_code' => "GGB" . $id . "2024",
             'used_code' => $request->used_code,
             'side' => $request->side,
             'status' => 0,
@@ -636,7 +670,7 @@ private function retrieveLevelNodes1($currentLevelNodes, &$treeLevels) {
 
     foreach ($currentLevelNodes as $nodeId) {
         // Query to fetch left and right children of the current node
-        $children = DB::select("SELECT id, child_left,child_right,mobile,name,referral_code FROM usermlms WHERE id = ?", [$nodeId]);
+        $children = DB::select("SELECT id, child_left,child_right,mobile,name,self_code FROM usermlms WHERE id = ?", [$nodeId]);
 
         if (!empty($children)) {
             $node = $children[0];
@@ -658,7 +692,7 @@ private function retrieveLevelNodes1($currentLevelNodes, &$treeLevels) {
                     'id' => $node->id,
                     'left' => $node->child_left ?? '', 
                     'right' => $node->child_right ?? '', 
-                    'referral_code'=>$node->referral_code ?? '', 
+                    'self_code'=>$node->self_code ?? '', 
                     'name'=> $node->name ?? '', 
                     'mobile'=> $node->mobile ?? '', 
                     'empty'=>$empt,
