@@ -160,9 +160,69 @@ public function payment_approved(Request $request)
     }
 }
 
-    
 
 public function pairlevel(Request $request)
+{
+    // Validate request data
+    $request->validate([
+        'id' => 'required',
+        'typeStatus' => 'nullable',
+    ]);
+
+    // Retrieve the children (child_left, child_right, parent_code) from DB
+    $children = DB::select("SELECT child_left, child_right, parent_code FROM usermlms WHERE id = ?", [$request->id]);
+
+    // Initialize default values
+    $child_left = null;
+    $child_right = null;
+    $parent_code = null;
+
+    if (!empty($children)) {
+        $child_left = $children[0]->child_left;
+        $child_right = $children[0]->child_right;
+        $parent_code = $children[0]->parent_code;
+    }
+
+    // Ensure typeStatus has a default value of 1 if null or empty
+    if (is_null($request->typeStatus) || empty($request->typeStatus)) {
+        $request->typeStatus = 1;
+    }
+
+    // Initialize variables to be returned
+    $LDownline = null;
+    $RDownline = null;
+    $CompleteLevels = 0;
+    $PairMatches = 0;
+
+    // Process based on typeStatus
+    if ($request->typeStatus == 2) {
+        $LDownline = $this->MyDownline($child_left);
+        $RDownline = $this->MyDownline($child_right);
+        $CompleteLevels = $this->checkCompleteLevels2($request->id) - 1;
+        $PairMatches = pow(2, $CompleteLevels) - 1;
+    } elseif ($request->typeStatus == 1) {
+        $LDownline = $this->MyDownlineStatus($child_left);
+        $RDownline = $this->MyDownlineStatus($child_right);
+        $CompleteLevels = $this->checkCompleteLevels2Status($request->id) - 1;
+        $PairMatches = pow(2, $CompleteLevels) - 1;
+    } else {
+        return response()->json(['message' => 'Invalid typeStatus value should be only 1 for active,2 for both'], 400);
+    }
+
+    // Return the response as JSON
+    return response()->json([
+        'message' => 'Tree successfully',
+        'LDownline' => $LDownline,
+        'RDownline' => $RDownline,
+        'parent_code' => $parent_code,
+        'PairMatches' => $PairMatches,
+        'CompleteLevels' => $CompleteLevels
+    ], 201);
+}
+
+    
+
+public function pairlevel222(Request $request)
 {
     
     $validator = Validator::make($request->all(), [
@@ -221,28 +281,90 @@ public function pairlevel(Request $request)
        return $results_string;
     } 
 
-    public function RightDownline($parent_code){
-        $pp=$parent_code;
-        $get = DB::select("SELECT child_right FROM usermlms WHERE id =$parent_code");
-        $child_right = null;
+    public function MyDownlineStatus($parent_code) {
         $results = [];
-        do {
-            $get = DB::select("SELECT child_right FROM usermlms WHERE id =$parent_code");
-            if (!empty($get)) {
-                $child_right = $get[0]->child_right;   
-                if ($child_right !== null && $child_right>0) {
-                    $results[] = $child_right;  
-                    $parent_code = $child_right;   
+        $initial_parent = $parent_code;
+    
+        // Use a stack to traverse both left and right children
+        $stack = [$parent_code];
+    
+        while (!empty($stack)) {
+            $current_parent = array_pop($stack);
+    
+            // Add current parent to results
+            $results[] = $current_parent;
+    
+            // Fetch child_left, child_right, and their statuses for the current parent
+            $children = DB::select("SELECT child_left, child_right FROM usermlms WHERE id = ? AND status = 1", [$current_parent]);
+    
+            if (!empty($children)) {
+                $child_left = $children[0]->child_left;
+                $child_right = $children[0]->child_right;
+    
+                // Check status 1 for both child_left and child_right and push them to stack accordingly
+                if (!is_null($child_right) && $child_right > 0) {
+                    $child_right_status = DB::select("SELECT status FROM usermlms WHERE id = ?", [$child_right]);
+                    if (!empty($child_right_status) && $child_right_status[0]->status == 1) {
+                        $stack[] = $child_right;  // Push right child to stack if status is 1
+                    }
                 }
-            } else {
-                $child_right = null;  
+    
+                if (!is_null($child_left) && $child_left > 0) {
+                    $child_left_status = DB::select("SELECT status FROM usermlms WHERE id = ?", [$child_left]);
+                    if (!empty($child_left_status) && $child_left_status[0]->status == 1) {
+                        $stack[] = $child_left;   // Push left child to stack if status is 1
+                    }
+                }
             }
-        } while ($child_right !== null && $child_right>0);
-       array_push($results, $pp);
-       $results_string = implode(', ', $results);
-       //DB::update("UPDATE usermlms SET last_right = $uid WHERE id in($results_string)");
-       return $results_string;
-    } 
+        }
+    
+        // Convert the results array into a string of ids
+        $results_string = implode(', ', $results);
+    
+        // Optionally, update the database for the gathered results (if needed).
+        // DB::update("UPDATE usermlms SET last_processed = ? WHERE id IN($results_string)", [$uid]);
+    
+        return $results_string;
+    }
+
+    public function MyDownline($parent_code){
+        $results = [];
+    $initial_parent = $parent_code;
+
+    // Use a stack to traverse both left and right children
+    $stack = [$parent_code];
+
+    while (!empty($stack)) {
+        $current_parent = array_pop($stack);
+
+        // Add current parent to results
+        $results[] = $current_parent;
+
+        // Fetch child_left and child_right for the current parent
+        $children = DB::select("SELECT child_left, child_right FROM usermlms WHERE id = ?", [$current_parent]);
+
+        if (!empty($children)) {
+            $child_left = $children[0]->child_left;
+            $child_right = $children[0]->child_right;
+
+            // Push right child first so left child is processed first (DFS)
+            if (!is_null($child_right) && $child_right > 0) {
+                $stack[] = $child_right;
+            }
+            if (!is_null($child_left) && $child_left > 0) {
+                $stack[] = $child_left;
+            }
+        }
+    }
+
+        // Convert the results array into a string of ids
+        $results_string = implode(', ', $results);
+
+        // Optionally, update the database for the gathered results (if needed).
+        // DB::update("UPDATE usermlms SET last_processed = ? WHERE id IN($results_string)", [$uid]);
+
+        return $results_string;
+   } 
 
 
     public function LeftUpline($initial_parent_code) {
@@ -363,6 +485,106 @@ public function checkPairMatches($rootUserId)
     // ]);
 }
 
+
+public function minCompleteLevels2Status($rootId) {
+    $currentLevelNodes = [$rootId];  // Start with the root node
+    $completedLevels = 0;
+
+    while (!empty($currentLevelNodes)) {
+        $nextLevelNodes = [];
+        $levelNodeCount = count($currentLevelNodes);  // Get the number of nodes in the current level
+
+        // Check if this level is complete
+        if ($levelNodeCount != pow(2, $completedLevels)) {
+            break;  // If the current level doesn't match the expected number of nodes, stop
+        }
+
+        // Traverse through the nodes in the current level and get their children
+        foreach ($currentLevelNodes as $nodeId) {
+            $children = DB::select("
+                SELECT child_left, child_right 
+                FROM usermlms 
+                WHERE id = ? AND status = 1", 
+                [$nodeId]
+            );
+
+            if (!empty($children)) {
+                $child_left = $children[0]->child_left;
+                $child_right = $children[0]->child_right;
+
+                // Check if child_left and child_right have status 1
+                if (!is_null($child_left) && $child_left > 0) {
+                    $left_child_status = DB::select("
+                        SELECT status 
+                        FROM usermlms 
+                        WHERE id = ?", [$child_left]);
+
+                    if (!empty($left_child_status) && $left_child_status[0]->status == 1) {
+                        $nextLevelNodes[] = $child_left;
+                    }
+                }
+
+                if (!is_null($child_right) && $child_right > 0) {
+                    $right_child_status = DB::select("
+                        SELECT status 
+                        FROM usermlms 
+                        WHERE id = ?", [$child_right]);
+
+                    if (!empty($right_child_status) && $right_child_status[0]->status == 1) {
+                        $nextLevelNodes[] = $child_right;
+                    }
+                }
+            }
+        }
+
+        // Move to the next level
+        $currentLevelNodes = $nextLevelNodes;
+        $completedLevels++;
+    }
+
+    return $completedLevels;
+}
+
+
+public function minCompleteLevels2mmm($rootId) {
+    $currentLevelNodes = [$rootId];  // Start with the root node
+    $completedLevels = 0;
+
+    while (!empty($currentLevelNodes)) {
+        $nextLevelNodes = [];
+        $levelNodeCount = count($currentLevelNodes);  // Get the number of nodes in the current level
+
+        // Check if this level is complete
+        if ($levelNodeCount != pow(2, $completedLevels)) {
+            break;  // If the current level doesn't match the expected number of nodes, stop
+        }
+
+        // Traverse through the nodes in the current level and get their children
+        foreach ($currentLevelNodes as $nodeId) {
+            $children = DB::select("SELECT child_left, child_right FROM usermlms WHERE id = ? AND status = 1", [$nodeId]);
+
+            if (!empty($children)) {
+                $child_left = $children[0]->child_left;
+                $child_right = $children[0]->child_right;
+
+                // Add valid children to the next level's node list
+                if (!is_null($child_left) && $child_left > 0) {
+                    $nextLevelNodes[] = $child_left;
+                }
+                if (!is_null($child_right) && $child_right > 0) {
+                    $nextLevelNodes[] = $child_right;
+                }
+            }
+        }
+
+        // Move to the next level
+        $currentLevelNodes = $nextLevelNodes;
+        $completedLevels++;
+    }
+
+    return $completedLevels;
+}
+
 public function minCompleteLevels2($rootId) {
     $query = "
         WITH RECURSIVE MLMTree AS (
@@ -377,21 +599,20 @@ public function minCompleteLevels2($rootId) {
         SELECT level, COUNT(*) AS node_count
         FROM MLMTree
         GROUP BY level
-        HAVING COUNT(*) = POWER(2, level - 1)  -- Check for complete binary tree level
+        HAVING COUNT(*) = POWER(2, level - 1)  
         ORDER BY level
     ";
-
-      $completedLevels = DB::select($query, ['rootId' => $rootId]);
-
+    $completedLevels = DB::select($query, ['rootId' => $rootId]);
     return count($completedLevels);
-    // return response()->json([
-    //     'ompletedLevels' => count($completedLevels),
-    //     'message' => "The tree has " . count($completedLevels) . " completely filled levels."
-    // ]);
 }
 
 public function checkCompleteLevels2($rootId) {
     return $this->minCompleteLevels2($rootId);
+}
+
+
+public function checkCompleteLevels2Status($rootId) {
+    return $this->minCompleteLevels2Status($rootId);
 }
 
 
