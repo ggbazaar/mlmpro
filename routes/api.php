@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use App\Http\Controllers\UsermlmController;
 use App\Http\Controllers\GetAdvisorList;
+use App\Http\Controllers\CommissionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,7 +48,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::get('/getkitamount', [GetAdvisorList::class, 'getkitamount']);
     Route::post('/pairlevel', [GetAdvisorList::class, 'pairlevel']);
 
-
+    Route::post('/generate_commission', [CommissionController::class, 'generate_commission']);
+    Route::post('/updateLevel', [CommissionController::class, 'updateLevel']);
+    Route::post('/genLevel', [CommissionController::class, 'genLevel']);
     
 
 
