@@ -152,6 +152,12 @@ public function findbyfield(Request $request)
 
     public function store(Request $request)
     {
+          echo $this->CompleteLevel(91);
+    }
+
+
+    public function store11(Request $request)
+    {
         // Validation
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
@@ -168,7 +174,6 @@ public function findbyfield(Request $request)
             'used_code' => 'string',
             'status' => 'string',
             'password' => 'required|string|min:8', // password confirmation rule
-            'level' => 'required|integer',
             'added_below'=>'string',
             'parent_code'=>'string'
         ]);
@@ -178,8 +183,10 @@ public function findbyfield(Request $request)
             return response()->json($validator->errors(), 400);
         }
 
-        $lastUser = Usermlm::latest('id')->first();
-        $id = $lastUser ? $lastUser->id + 1 : 1;
+        //$lastUser = Usermlm::latest('id')->first();
+        $lastUser = Usermlm::max('id'); 
+        $id = $lastUser ? $lastUser + 1 : 1;
+      
 
         $isUnique = DB::table('usermlms')->where('mobile', $request->mobile)->exists();
         $result = $isUnique ? 1 : 0; // 1 if unique, 0 if duplicate
@@ -199,17 +206,17 @@ public function findbyfield(Request $request)
         // if(count($getBinaryTreeStructureJson1)>0){
         //     $nodeAdd=$getBinaryTreeStructureJson1[0][0];
         // }
-         
-        $request->side = $nodeAdd['empty'];
+
+        if($request->side!=1 && $request->side!=2){//agar user ne nhi bheja
+            if($nodeAdd['empty']==3){
+                $request->side = 1;
+            }else{
+                $request->side = $nodeAdd['empty'];
+            }
+        } 
+
         $request->parent_code = $nodeAdd['id'];
         $request->used_code = $sponsoredCode;
-
-        // if($request->side==null){
-        //     $request->side=1;
-        // }
-
-        // print_r($request->parent_code);
-        // die("ASDFasf");
 
         $usermlm = Usermlm::create([
             'name' => $request->name,
@@ -227,7 +234,7 @@ public function findbyfield(Request $request)
             'side' => $request->side,
             'status' => 0,
             'password' =>Hash::make($request->password), // Password encryption
-            'level' => $request->level,
+            'level' => 0,
             'added_below' => $request->added_below,
             'parent_code'=> $request->parent_code,
         ]);
@@ -249,7 +256,7 @@ public function findbyfield(Request $request)
               DB::update("UPDATE usermlms SET child_left = $usermlm->id WHERE id = $pr->last_left");
             }
 
-        }else{
+        }elseif($request->side==2){
             $Downline=$this->RightDownline($request->parent_code);
             $Upline= $this->RightUpline($request->parent_code);
             $results_string = $Downline.",".$Upline;
@@ -259,7 +266,10 @@ public function findbyfield(Request $request)
             }else{
               DB::update("UPDATE usermlms SET child_right = $usermlm->id WHERE id = $pr->last_right");
             }
-        }
+        } 
+
+
+        //CompleteLevel($rootId)
        
         return response()->json(['message' => 'User created successfully', 'user' => $usermlm,'Downline'=> $Downline,'Upline'=>$Upline], 201);
     }
@@ -717,6 +727,38 @@ private function retrieveLevelNodes1($currentLevelNodes, &$treeLevels) {
     // Recursive call for the next level
     $this->retrieveLevelNodes1($nextLevelNodes, $treeLevels);
 }
+
+public function CompleteLevel($childId) {
+    return $this->innerCompleteLevel($childId);
+}
+
+public function innerCompleteLevel22($childId) {
+    $currentNodeId = $childId;  // Start with the child node
+    $completedLevels = 0;
+
+    while (!is_null($currentNodeId)) {
+        // Fetch the parent node for the current node
+        $parentNode = DB::select("SELECT parent_code FROM usermlms WHERE id = $currentNodeId");
+
+        if (empty($parentNode)) {
+            break;  // If no parent found, stop traversing
+        }
+
+        $parentCode = $parentNode[0]->parent_code;
+
+        // Check if the parent node is valid and exists
+        if (!is_null($parentCode) && $parentCode > 0) {
+            $currentNodeId = $parentCode;  // Move to the parent node
+        } else {
+            break;  // If there's no valid parent node, stop
+        }
+
+        $completedLevels++;
+    }
+
+    return $completedLevels;
+}
+
 
 
 }
