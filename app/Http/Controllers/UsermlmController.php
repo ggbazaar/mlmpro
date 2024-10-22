@@ -36,23 +36,17 @@ class UsermlmController extends Controller
 
         // Get the credentials from the request
         $credentials = $request->only(['mobile', 'password']);
-
-        // print_r($credentials);  
-        // die("ADASDD");
-
         // Find the user by their contact (or email)
         $user = Usermlm::where('email', $credentials['mobile'])
                         ->orWhere('mobile', $credentials['mobile'])
                         ->first();
-
         // Check if the user exists and if the password is correct
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
-            //throw new Exception("Invalid Credentials");
+            // Return the response for invalid credentials
             return response()->json([
-                'status'=>"failed",
-                'error' => "Invalid Credentials"
-            ], 401);
-
+                'statusCode' => 0,
+                'message' => "Invalid Credentials"
+            ], 200);
         }
 
         // Create token
@@ -74,6 +68,7 @@ class UsermlmController extends Controller
         }
 
         return response()->json([
+            'statusCode' => 1,
             'message' => 'Login successful.',
             'user' => $userData,
             'access_token' => [
@@ -89,6 +84,7 @@ class UsermlmController extends Controller
     } catch (Exception $e) {
         // Handle the exception and return a custom error message
         return response()->json([
+            'statusCode' => 1,
             'error' => $e->getMessage()
         ], 401);
     }
@@ -190,7 +186,7 @@ public function findbyfield(Request $request)
         $isUnique = DB::table('usermlms')->where('mobile', $request->mobile)->exists();
         $result = $isUnique ? 1 : 0; // 1 if unique, 0 if duplicate
         if($result){
-          return response()->json(['status'=>0,'message' => 'Mobile number already exist'], 409); // 409 Conflict
+          return response()->json(['statusCode'=>0,'message' => 'Mobile number already exist'], 409); // 409 Conflict
         }
 
         $sponsoredCode=$request->parent_code;
@@ -270,7 +266,7 @@ public function findbyfield(Request $request)
 
         //CompleteLevel($rootId)
        
-        return response()->json(['message' => 'User created successfully', 'user' => $usermlm,'Downline'=> $Downline,'Upline'=>$Upline], 201);
+        return response()->json(['statusCode'=>1,'message' => 'User created successfully', 'user' => $usermlm], 201);
     }
 
     public function LeftDownline($parent_code){
