@@ -47,7 +47,12 @@ class UsermlmController extends Controller
 
         // Check if the user exists and if the password is correct
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
-            throw new Exception("Invalid Credentials");
+            //throw new Exception("Invalid Credentials");
+            return response()->json([
+                'status'=>"failed",
+                'error' => "Invalid Credentials"
+            ], 401);
+
         }
 
         // Create token
@@ -151,12 +156,6 @@ public function findbyfield(Request $request)
     }
 
     public function store(Request $request)
-    {
-          echo $this->CompleteLevel(91);
-    }
-
-
-    public function store11(Request $request)
     {
         // Validation
         $validator = Validator::make($request->all(), [

@@ -21,6 +21,14 @@ class CommissionController extends Controller
     {
         // Authenticate the user
         $user = auth()->guard('api')->user();
+        if(!$user){
+            return response()->json([
+                "statusCode"=> 1,
+                'error' => "Unauthorized User"
+            ], 401);
+
+        }
+        //print_r($user); die("Asdadff");
     
         // Validate the request input (if necessary)
         // $request->validate([
@@ -44,7 +52,7 @@ class CommissionController extends Controller
                     ->update(['level' => $completeLevels]); // Update the level
     
                 // Calculate commission details
-                $totalAmount = $completeLevels * 100;
+                $totalAmount = 300; //$completeLevels * 300;
                 $serviceCharge = $totalAmount * 0.10; // 10% of total amount
                 $payableAmount = $totalAmount - $serviceCharge; // Subtract service charge from total amount
     
