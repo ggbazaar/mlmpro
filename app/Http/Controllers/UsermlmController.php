@@ -186,7 +186,7 @@ public function findbyfield(Request $request)
         $isUnique = DB::table('usermlms')->where('mobile', $request->mobile)->exists();
         $result = $isUnique ? 1 : 0; // 1 if unique, 0 if duplicate
         if($result){
-          return response()->json(['statusCode'=>0,'message' => 'Mobile number already exist'], 409); // 409 Conflict
+          return response()->json(['statusCode'=>0,'message' => 'Mobile number already exist'], 200); // 409 Conflict
         }
 
         $sponsoredCode=$request->parent_code;
@@ -749,6 +749,279 @@ public function innerCompleteLevel22($childId) {
         }
 
         $completedLevels++;
+    }
+
+    return $completedLevels;
+}
+
+public function MyDownline1Sts($parent_code) {
+    $results = [];
+    $initial_parent = $parent_code;
+
+    // Use a stack to traverse both left and right children
+    $stack = [$parent_code];
+
+    while (!empty($stack)) {
+        $current_parent = array_pop($stack);
+
+        // Fetch child_left, child_right, and status for the current parent
+        $children = DB::select("SELECT child_left, child_right, status FROM usermlms WHERE id = ?", [$current_parent]);
+
+        // Ensure we have valid children data
+        if (!empty($children)) {
+            $child_left = $children[0]->child_left;
+            $child_right = $children[0]->child_right;
+            $current_status = $children[0]->status; // Get the status for the current parent
+
+            // Add current parent with its status to results
+            if($current_status==1){
+                //$results[] = "$current_parent (Status: $current_status)";
+                $results[] = $current_parent;
+            }
+
+            // Push right child first so left child is processed first (DFS)
+            if (!is_null($child_right) && $child_right > 0) {
+                $stack[] = $child_right;
+            }
+            if (!is_null($child_left) && $child_left > 0) {
+                $stack[] = $child_left;
+            }
+        }
+    }
+
+    // Convert the results array into a string
+    //$results_string = implode(', ', $results);
+
+    // Optionally, update the database for the gathered results (if needed).
+    // DB::update("UPDATE usermlms SET last_processed = ? WHERE id IN($results_string)", [$uid]);
+    return $results;
+   // return $results_string;
+}
+
+public function advisorList() {
+    // Fetch advisor list from the usermlms table
+    $authUser = auth()->guard('api')->user();
+        if(!$authUser){
+            return response()->json([
+                "statusCode"=> 0,
+                'error' => "Unauthorized User"
+            ], 200);
+
+        }
+        $userId=$authUser->id;
+        $users = Usermlm::select('name', 'id', 'child_left', 'child_right', 'self_code', 'parent_code', 'status')
+        ->where('id', $userId)
+        ->get();
+
+      $LDownline = $this->MyDownline1Sts($users[0]->child_left);
+      $RDownline = $this->MyDownline1Sts($users[0]->child_right);
+      $Down=array_merge($LDownline,$RDownline);
+
+      $x = Usermlm::select('name', 'id', 'self_code', 'parent_code', 'status')
+        ->whereIn('id', $Down) // Use whereIn with the merged array
+        ->get();
+
+      // Return the result as a JSON response
+    return response()->json([
+        'statusCode' => 1,
+        // 'data1' => $LDownline,
+        // 'data2' => $RDownline,
+        // 'data4'=>$Down,
+        'data' => $x
+
+    ], 200);
+}
+
+
+public function buplineList() {
+    // Start with the child node
+    $childId = 103;
+    $uplineList = [];
+    
+    // Fetch the parent nodes until parent_code is 0
+    while ($childId != 0) {
+        // Get the parent node for the current child
+        $result = DB::select("SELECT id, name, parent_code FROM usermlms WHERE id = ?", [$childId]);
+
+        // If no result found, break the loop
+        if (empty($result)) {
+            break;
+        }
+
+        // Get the first result (assuming there's only one result)
+        $node = $result[0];
+        $completedLevel=$this->minCompleteLevels1Status($node->id);
+        
+
+        // Add the current node to the upline list
+        $uplineList[] = [
+            'id' => $node->id,
+            'name' => $node->name,
+            'completeLevel'=>$completedLevel,
+            'parent_code' => $node->parent_code
+        ];
+
+        // Set the next childId to the parent_code for the next iteration
+        $childId = $node->parent_code;
+    }
+
+    // Return the full upline list as a response
+    return response()->json([
+        'statusCode' => 1,
+        'data' => $uplineList
+    ], 200);
+}
+
+public function checkCompleteLevels1Status($rootId) {
+    return $this->minCompleteLevels1Status($rootId);
+}
+
+public function minCompleteLevels1Status222($rootId) {
+    $currentLevelNodes = [$rootId];  // Start with the root node
+    $completedLevels = 0;
+
+    while (!empty($currentLevelNodes)) {
+        $nextLevelNodes = [];
+        $levelNodeCount = count($currentLevelNodes);  // Get the number of nodes in the current level
+
+        // Check if this level is complete
+        if ($levelNodeCount != pow(2, $completedLevels)) {
+            break;  // If the current level doesn't match the expected number of nodes, stop
+        }
+
+        // Traverse through the nodes in the current level and get their children
+        foreach ($currentLevelNodes as $nodeId) {
+            $children = DB::select("
+                SELECT child_left, child_right 
+                FROM usermlms 
+                WHERE id = ? AND status = 1", 
+                [$nodeId]
+            );
+
+            if (!empty($children)) {
+                $child_left = $children[0]->child_left;
+                $child_right = $children[0]->child_right;
+
+                // Check if child_left and child_right have status 1
+                if (!is_null($child_left) && $child_left > 0) {
+                    $left_child_status = DB::select("
+                        SELECT status 
+                        FROM usermlms 
+                        WHERE id = ?", [$child_left]);
+
+                    if (!empty($left_child_status) && $left_child_status[0]->status == 1) {
+                        $nextLevelNodes[] = $child_left;
+                    }
+                }
+
+                if (!is_null($child_right) && $child_right > 0) {
+                    $right_child_status = DB::select("
+                        SELECT status 
+                        FROM usermlms 
+                        WHERE id = ?", [$child_right]);
+
+                    if (!empty($right_child_status) && $right_child_status[0]->status == 1) {
+                        $nextLevelNodes[] = $child_right;
+                    }
+                }
+            }
+        }
+        $currentLevelNodes = $nextLevelNodes;
+        $completedLevels++;
+    }
+
+    return $completedLevels;
+}
+
+
+
+public function minCompleteLevels1Status($rootId) {
+    $currentLevelNodes = [$rootId];  // Start with the root node
+    $completedLevels = 0;
+     
+
+    while (!empty($currentLevelNodes)) {
+        $nextLevelNodes = [];
+        $levelNodeCount = count($currentLevelNodes);  // Get the number of nodes in the current level
+
+        // Check if this level is complete
+        if ($levelNodeCount != pow(2, $completedLevels)) {
+            break;  // If the current level doesn't match the expected number of nodes, stop
+        }
+
+        // Initialize a flag to check if both children are present for all nodes
+        $allChildrenComplete = true;
+         
+       // print_r($currentLevelNodes); die("ADfasdf");
+        // Traverse through the nodes in the current level and get their children
+        foreach ($currentLevelNodes as $nodeId) {
+            // echo $nodeId;
+            // echo "FFF";
+            $children = DB::select("
+                SELECT child_left, child_right 
+                FROM usermlms 
+                WHERE id = ? AND status = 1", 
+                [$nodeId]
+            );
+
+            if (!empty($children)) {
+                 $child_left = $children[0]->child_left;
+                 $child_right = $children[0]->child_right;
+
+                // print_r($children); die("ADfasdf");
+
+                //if($child_left && $child_right){
+                  $hasValidChildren = true; // Flag for the current node's children status
+                // }else{
+                //   $hasValidChildren = false; 
+                // }
+
+                // Check left child
+                if (!is_null($child_left) && $child_left > 0) {
+                    $left_child_status = DB::select("
+                        SELECT status 
+                        FROM usermlms 
+                        WHERE id = ?", [$child_left]);
+
+                    if (empty($left_child_status) || $left_child_status[0]->status != 1) {
+                        $hasValidChildren = false; // Mark as invalid if the left child isn't active
+                    } else {
+                        $nextLevelNodes[] = $child_left; // Add valid left child to next level
+                    }
+                } else {
+                    $hasValidChildren = false; // Mark as invalid if left child does not exist
+                }
+
+                // Check right child
+                if (!is_null($child_right) && $child_right > 0) {
+                    $right_child_status = DB::select("
+                        SELECT status 
+                        FROM usermlms 
+                        WHERE id = ?", [$child_right]);
+
+                    if (empty($right_child_status) || $right_child_status[0]->status != 1) {
+                        $hasValidChildren = false; // Mark as invalid if the right child isn't active
+                    } else {
+                        $nextLevelNodes[] = $child_right; // Add valid right child to next level
+                    }
+                } else {
+                    $hasValidChildren = false; // Mark as invalid if right child does not exist
+                }
+
+                // Check if both children are valid
+                if (!$hasValidChildren) {
+                    $allChildrenComplete = false; // If any node lacks valid children, break the level completion
+                }
+            }
+        }
+
+        // Increment completed levels only if all nodes had valid children
+        if ($allChildrenComplete) {
+            $completedLevels++;
+        }
+
+        // Update current level nodes for the next iteration
+        $currentLevelNodes = $nextLevelNodes;
     }
 
     return $completedLevels;

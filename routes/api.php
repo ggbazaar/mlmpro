@@ -40,6 +40,13 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     // Route::post('/pairlevel', [UsermlmController::class, 'pairlevel']);
     Route::post('/findbyfield', [UsermlmController::class, 'findbyfield']);
 
+    Route::post('/advisorList', [UsermlmController::class, 'advisorList']);
+    Route::post('/buplineList', [UsermlmController::class, 'buplineList']);
+
+
+
+
+
     Route::post('/getadvisorlist', [GetAdvisorList::class, 'find']);
     Route::post('/downline', [GetAdvisorList::class, 'downline']);
     Route::post('/downline_type', [GetAdvisorList::class, 'downline_type']);
