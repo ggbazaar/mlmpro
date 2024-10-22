@@ -16,6 +16,69 @@ class CommissionController extends Controller
 {
 
 
+    public function generateLevel(Request $request)
+    {
+        $user = auth()->guard('api')->user();
+        if(!$user){
+            return response()->json([
+                "statusCode"=> 1,
+                'error' => "Unauthorized User"
+            ], 401);
+
+        }
+        $userIds = Usermlm::where('status', 1)->pluck('id'); // Assuming 'id' is the primary key
+        $insertedCount = 0; 
+        foreach ($userIds as $userId) {
+            $completeLevels = $this->checkCompleteLevels1Status($userId) - 1; // Calculate complete levels
+            if ($completeLevels >= 0 && $completeLevels <=6 ) {
+                DB::table('usermlms')
+                    ->where('id', $userId)
+                    ->where('status', 1) // Only update users with status = 1
+                    ->update(['level' => $completeLevels]); // Update the level
+                $totalAmount = 300; //$completeLevels * 300;
+                $serviceCharge = $totalAmount * 0.10; // 10% of total amount
+                $payableAmount = $totalAmount - $serviceCharge; // Subtract service charge from total amount
+                if ($userId && $completeLevels) {
+                    $existingCommission = DB::table('commissions')
+                        ->where('user_id', $userId)
+                        ->where('level', $completeLevels)
+                        ->first();
+                    if (!$existingCommission) {
+                        $result=DB::table('commissions')->insert([
+                            'user_id' => $userId,
+                            'purchase_id' => $request->pay_id ?? "11", // Default to "11" if pay_id is not provided
+                            'level' => $completeLevels, // Assuming 'level' is a field in the commissions table
+                            'level_commission' => $totalAmount,
+                            'total_amount' => $totalAmount,
+                            'service_charge' => $serviceCharge,
+                            'payable_amount' => $payableAmount,
+                            'status' => 1, // 1: Approve, 2: Paid, 3: Reject, 4: Pending
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                        if ($result) {
+                            $insertedCount++;
+                        }
+                    } else {
+                        // You can handle the case where a commission entry already exists
+                        // For example, you might want to update the record instead
+                        // DB::table('commissions')->where('id', $existingCommission->id)->update([...]);
+                    }
+                }
+            }
+        }
+    
+        // Assuming you want to return some data about the commission structure
+        $getBinaryTreeStructureJson = []; // Populate this if necessary
+    
+        return response()->json([
+            'statusCode' => 1,
+            'data' => $insertedCount,
+            'message' => 'Successfully generated commissions for all users'
+        ]);
+    }
+    
+
 
     public function genLevel(Request $request)
     {

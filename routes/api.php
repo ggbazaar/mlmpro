@@ -51,6 +51,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::post('/generate_commission', [CommissionController::class, 'generate_commission']);
     Route::post('/updateLevel', [CommissionController::class, 'updateLevel']);
     Route::post('/genLevel', [CommissionController::class, 'genLevel']);
+
+    Route::post('/generateLevel', [CommissionController::class, 'generateLevel']);
     
 
 
