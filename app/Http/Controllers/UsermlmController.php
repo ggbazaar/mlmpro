@@ -967,7 +967,7 @@ public function uplineListBreakFirstZero(Request $request) {
 
         // Set the next childId to the parent_code for the next iteration
         $childId = $node->parent_code;
-        if($completedLevel==0){
+        if($completedLevel==0 && $node->id!=$req['id']){
             break;
         }
     }
