@@ -884,6 +884,48 @@ public function uplineListUntilRoot(Request $request) {
 
 
 
+
+public function uplineUpdateLevelBreakFirstZero($childId) {
+    // Fetch the parent nodes until parent_code is 0
+    while ($childId != 0) {
+        // Get the parent node for the current child
+        $result = DB::select("SELECT id, name, parent_code FROM usermlms WHERE id = ?", [$childId]);
+
+        // If no result found, break the loop
+        if (empty($result)) {
+            break;
+        }
+
+        // Get the first result (assuming there's only one result)
+        $node = $result[0];
+      //  print_r($node);
+        
+        $completedLevel=$this->minCompleteLevels1StatusBreak($node->id);
+
+        // Add the current node to the upline list
+        $uplineList[] = [
+            'id' => $node->id,
+            'name' => $node->name,
+            'completeLevel'=>$completedLevel,
+            'parent_code' => $node->parent_code
+        ];
+
+        DB::table('usermlms')->where('id', $node->id)->update(['level' => $completedLevel]);
+
+        // Set the next childId to the parent_code for the next iteration
+        $childId = $node->parent_code;
+        if($completedLevel==0){
+            break;
+        }
+    }
+
+    // Return the full upline list as a response
+    return response()->json([
+        'statusCode' => 1,
+        'data' => $uplineList
+    ], 200);
+}
+
 public function uplineListBreakFirstZero(Request $request) {
     // Start with the child node
    // $user = auth()->guard('api')->user();
@@ -920,6 +962,8 @@ public function uplineListBreakFirstZero(Request $request) {
             'completeLevel'=>$completedLevel,
             'parent_code' => $node->parent_code
         ];
+
+        DB::table('usermlms')->where('id', $node->id)->update(['level' => $completedLevel]);
 
         // Set the next childId to the parent_code for the next iteration
         $childId = $node->parent_code;
