@@ -230,6 +230,7 @@ public function findbyfield(Request $request)
             'side' => $request->side,
             'status' => 0,
             'password' =>Hash::make($request->password), // Password encryption
+            'plain_password'=>$request->password,
             'level' => 0,
             'added_below' => $request->added_below,
             'parent_code'=> $request->parent_code,
@@ -266,9 +267,20 @@ public function findbyfield(Request $request)
 
 
         //CompleteLevel($rootId)
-        $getv = DB::select("SELECT * FROM usermlms WHERE id = $usermlm->id");
-       
-        return response()->json(['statusCode'=>1,'message' => 'User created successfully', 'user' => $getv[0]], 201);
+        $getv = DB::select("SELECT * FROM usermlms WHERE id = ?", [$usermlm->id]);
+        $rs1 = $getv[0];
+        // Loop through each property of the record
+        foreach ($rs1 as $key => $value) {
+            // Check if the value is null and convert it to an empty string
+            if (is_null($value)) {
+                $rs1->$key = ''; // Convert null to empty string
+            }
+        }
+        // Set the password property to the value of plain_password
+        $rs1->password = $rs1->plain_password;
+        // Remove the plain_password property
+        unset($rs1->plain_password);
+        return response()->json(['statusCode'=>1,'message' => 'User created successfully', 'user' => $rs1], 201);
     }
 
     public function LeftDownline($parent_code){
