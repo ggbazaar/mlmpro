@@ -76,16 +76,24 @@ public function getkitamount(Request $request)
         // Validate the incoming request data
         $request->validate([
             'user_id' => 'required|integer',
-            'amount' => 'required|numeric|min:0.01',
+            'kit_id' => 'required|integer',
             'pay_type' => 'required|string|max:50',
             'remark' => 'required|string'
         ]);
+
+        $kit= DB::select("SELECT * FROM kit_amounts WHERE id = $request->kit_id");
+        // Check if the record exists
+        if (empty($kit)) {
+            // Record does not exist, show error
+            return response()->json([ 'statusCode' => 0,'error' => 'Kit not found'], 404);
+        }
     
         try {
             // Create a new payment record
             Payment::create([
                 'user_id' => $request->user_id, // User ID
-                'amount' => $request->amount, // Amount in decimal
+                'kit_id'=>$request->kit_id,
+                'amount' => $kit[0]->amount, // Amount in decimal
                 'pay_type' => $request->pay_type, // Payment type
                 'remark' => $request->remark, // Any remark
                 'date' => now(), // Set current date and time for the payment

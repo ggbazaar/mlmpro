@@ -17,6 +17,7 @@ class Payment extends Authenticatable
     // Specify the columns that are mass assignable
     protected $fillable = [
         'user_id',
+        'kit_id',
         'amount',
         'pay_type',
         'remark',

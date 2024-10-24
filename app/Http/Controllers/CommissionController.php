@@ -1472,6 +1472,51 @@ public function countPairMatches($userId, $level = 1)
 }
 
 
+public function commissionlist(Request $request) {
+    $request->validate([
+        'user_id' => 'required'        
+    ]);
+     
+    $rs = DB::select("SELECT * FROM commissions WHERE user_id = $request->user_id");
+    $total_paid = [];
+    $total_unpaid = [];
+
+    // Loop through each commission record
+    foreach ($rs as $record) {
+        // Check the status and categorize commissions
+        if ($record->status == 1) {
+            $total_paid[] = $record->level_commission; // Collect paid commissions
+        } else if ($record->status == 2) {
+            $total_unpaid[] = $record->level_commission; // Collect unpaid commissions
+        }
+    }
+
+    // Calculate total paid and unpaid commissions separately
+    $total_paid_amount = array_sum($total_paid); // Total of paid commissions
+    $total_unpaid_amount = array_sum($total_unpaid); // Total of unpaid commissions
+
+    // Calculate overall total
+    $total = $total_paid_amount + $total_unpaid_amount;
+
+    $rsm['total']=$total;
+    $rsm['paid']=$total_paid_amount;
+    $rsm['unpaid']=$total_unpaid_amount;
+
+    return response()->json([
+        'statusCode' => 1,
+        'data'=>$rsm      
+    ], 200); 
+
+
+    //die("ASDFASDf");
+   // $tree = $this->buildTree($rootId);
+    // Return the result as an array or JSON if needed
+   // return $tree;  // Or json_encode($tree, JSON_PRETTY_PRINT) for JSON format
+}
+
+
+
+
 public function Tree($rootId) {
     $tree = $this->buildTree($rootId);
     // Return the result as an array or JSON if needed

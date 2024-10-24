@@ -63,6 +63,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::post('/generateLevel', [CommissionController::class, 'generateLevel']);
 
     Route::put('/updateUserDetails/{user_id}', [UserMlmController::class, 'updateUserDetails']);
+    Route::post('/commissionlist', [CommissionController::class, 'commissionlist']);
+
+    Route::post('/dashboard', [UsermlmController::class, 'dashboard']);
+
 
 
 
