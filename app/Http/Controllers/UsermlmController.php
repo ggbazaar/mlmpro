@@ -266,8 +266,9 @@ public function findbyfield(Request $request)
 
 
         //CompleteLevel($rootId)
+        $getv = DB::select("SELECT * FROM usermlms WHERE id = $usermlm->id");
        
-        return response()->json(['statusCode'=>1,'message' => 'User created successfully', 'user' => $usermlm], 201);
+        return response()->json(['statusCode'=>1,'message' => 'User created successfully', 'user' => $getv[0]], 201);
     }
 
     public function LeftDownline($parent_code){
