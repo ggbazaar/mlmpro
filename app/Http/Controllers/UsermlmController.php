@@ -157,20 +157,21 @@ public function findbyfield(Request $request)
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'mobile' => 'required|string|max:15',
-            'email' => 'required|email|max:255|unique:users',
-            'whatsapp' => 'required|string|max:15',
-            'pan' => 'required|string|max:10',
-            'adhar' => 'required|string|max:12',
-            'relation' => 'required|string|max:255',
-            'relation_name' => 'required|string|max:255',
-            'gender' => 'required',
-            'dob' => 'required',
+            'email' => 'nullable|email|max:255|unique:users',
+            'whatsapp' => 'nullable|max:15',
+            'pan' => 'nullable|max:10',
+            'adhar' => 'nullable|max:12',
+            'relation' => 'nullable|max:255',
+            'relation_name' => 'nullable|string|max:255',
+            'gender' => 'nullable',
+            'dob' => 'nullable',
             'self_code' => 'nullable|string|max:255',
-            'used_code' => 'string',
-            'status' => 'string',
+            'used_code' => 'nullable',
+            'status' => 'nullable',
             'password' => 'required|string|min:8', // password confirmation rule
-            'added_below'=>'string',
-            'parent_code'=>'string'
+            'added_below'=>'nullable',
+            'parent_code'=>'required|string',
+             
         ]);
 
         // Handle validation failure
@@ -1309,6 +1310,72 @@ public function minCompleteLevels1Status22211($rootId) {
 
     return $completedLevels;
 }
+
+public function updateUserDetails(Request $request, $user_id)
+{
+    // Fetch the user based on user_id
+    $user = Usermlm::find($user_id);
+
+    if (!$user) {
+        return response()->json(['error' => 'User not found'], 404);
+    }
+
+    // Update the fields only if they are present in the request
+    if ($request->has('name')) {
+        $user->name = $request->input('name');
+    }
+
+    if ($request->has('mobile')) {
+        $user->mobile = $request->input('mobile');
+    }
+
+    if ($request->has('email')) {
+        $user->email = $request->input('email');
+    }
+
+    if ($request->has('whatsapp')) {
+        $user->whatsapp = $request->input('whatsapp');
+    }
+
+    if ($request->has('pan')) {
+        $user->pan = $request->input('pan');
+    }
+
+    if ($request->has('adhar')) {
+        $user->adhar = $request->input('adhar');
+    }
+
+    if ($request->has('relation')) {
+        $user->relation = $request->input('relation');
+    }
+
+    if ($request->has('relation_name')) {
+        $user->relation_name = $request->input('relation_name');
+    }
+
+    if ($request->has('gender')) {
+        $user->gender = $request->input('gender');
+    }
+
+    if ($request->has('dob')) {
+        $user->dob = $request->input('dob');
+    }
+
+    if ($request->has('password')) {
+        // Hash the password before storing
+        $user->password = Hash::make($request->input('password'));
+    }
+
+    // Save the updated user data
+    $user->save();
+
+    return response()->json([
+        'statusCode' => 1,
+        'message' => 'User information updated successfully',
+        'data' => $user
+    ], 200);
+}
+
 
 
 
