@@ -131,82 +131,85 @@ public function getkitamount(Request $request)
     }
 
 
-
-public function payment_approved(Request $request)
-{   
-    // Validate incoming request
-    $request->validate([
-        'pay_id' => 'required|integer',      // Payment ID
-        'approve_by' => 'required|integer',  // Approving user ID
-    ]);
-
-    try {
-        // Check if the approving user exists
-        $approver = DB::table('usermlms')->where('id', $request->approve_by)->first();
-        if (!$approver) {
-            return response()->json([
-                'statusCode' => 0,
-                'message' => 'Approver not found'
-            ], 200);  // 404 Not Found
-        }
-
-       
-
-        // Find the payment by ID
-        $payment = Payment::find($request->pay_id);
-
-       
-
-        if (!$payment) {
-            return response()->json([
-                'statusCode' => 0,
-                'message' => 'Payment not found'
-            ], 200);  // 404 Not Found
-        }
-
-
-      
-        // Update the payment details
-        $payment->approve_by = $approver->name;
-        $payment->status = 1;  // Approve status
-        $payment->approve_date = now();  // Set approval date
-        $pp = $payment->save();
-        if ($pp) {
-            // $this->uplineListBreakFirstZero($payment->user_id);
-            DB::table('usermlms')->where('id', $payment->user_id)->update(['status' => 1]);
-            $commi=$this->uplineListBreakFirstZero($payment->user_id,$request->pay_id);    
-            // Payment saved successfully
-            $whouser = DB::table('usermlms')->where('id', $payment->user_id)->first();
-
-            return response()->json([
-                'statusCode' => 1,
-                'data'=>$pp,
-                'data_approver'=>$approver,
-                'data_payment'=>$payment,
-                'data_user'=>$whouser,
-                'data_comm'=>$commi,
-                'success' => true,
-                'message' => 'Payment processed successfully.'
+    public function payment_approved(Request $request)
+    {
+        // Get the authenticated admin user
+        $admin = Auth::guard('admin')->user();
+    
+        // Check if the user is an admin
+        if ($admin && $admin->role == 'admin' && $admin->username == 'admin') {
+            // Validate incoming request
+            $request->validate([
+                'pay_id' => 'required|integer',      // Payment ID
+                'approve_by' => 'required|integer',  // Approving user ID
             ]);
+    
+            try {
+                // Check if the approving user exists
+                $approver = DB::table('usermlms')->where('id', $request->approve_by)->first();
+                if (!$approver) {
+                    return response()->json([
+                        'statusCode' => 0,
+                        'message' => 'Approver not found'
+                    ], 404);  // 404 Not Found
+                }
+    
+                // Find the payment by ID
+                $payment = Payment::find($request->pay_id);
+                if (!$payment) {
+                    return response()->json([
+                        'statusCode' => 0,
+                        'message' => 'Payment not found'
+                    ], 404);  // 404 Not Found
+                }
+    
+                // Update the payment details
+                $payment->approve_by = $approver->name;
+                $payment->status = 1;  // Approve status
+                $payment->approve_date = now();  // Set approval date
+    
+                // Save the payment
+                if ($payment->save()) {
+                    // Update user status after approval
+                    DB::table('usermlms')->where('id', $payment->user_id)->update(['status' => 1]);
+                    $commi = $this->uplineListBreakFirstZero($payment->user_id, $request->pay_id);
+                    
+                    // Get the user data
+                    $whouser = DB::table('usermlms')->where('id', $payment->user_id)->first();
+    
+                    return response()->json([
+                        'statusCode' => 1,
+                        'data' => $payment,
+                        'data_approver' => $approver,
+                        'data_user' => $whouser,
+                        'data_comm' => $commi,
+                        'success' => true,
+                        'message' => 'Payment processed successfully.'
+                    ]);
+                } else {
+                    // Payment failed to save
+                    return response()->json([
+                        'statusCode' => 0,
+                        'success' => false,
+                        'message' => 'Failed to process payment. Please try again.'
+                    ], 500);
+                }
+            } catch (\Exception $e) {
+                // Return an error response if something goes wrong
+                return response()->json([
+                    'statusCode' => 0,
+                    'message' => 'Failed to approve payment',
+                    'error' => $e->getMessage()  // For debugging, remove in production
+                ], 500);
+            }
         } else {
-            // Payment failed to save
             return response()->json([
                 'statusCode' => 0,
-                'success' => false,
-                'message' => 'Failed to process payment. Please try again.'
-            ]);
+                'message' => 'Unauthorized action.',
+            ], 403);  // 403 Forbidden
         }
-
-    } catch (\Exception $e) {
-        // Return an error response if something goes wrong
-        return response()->json([
-            'statusCode' => 0,
-            'message' => 'Failed to approve payment',
-            'error' => $e->getMessage()  // For debugging, remove in production
-        ], 500);
     }
-}
-
+    
 
 public function pairlevel(Request $request)
 {

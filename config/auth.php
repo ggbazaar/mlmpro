@@ -16,6 +16,7 @@ return [
     'defaults' => [
         'guard' => 'web',
         'passwords' => 'users',
+        'adminpasswords' => 'admins',
     ],
 
     /*
@@ -45,6 +46,11 @@ return [
             'driver' => 'passport',
             'provider' => 'users',
         ],
+
+        'admin' => [
+            'driver' => 'passport',
+            'provider' => 'admins',
+        ],
     ],
 
     /*
@@ -69,6 +75,10 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\Usermlm::class,
         ],
+        'admins' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\Admin::class,
+            ],
 
         // 'users' => [
         //     'driver' => 'database',

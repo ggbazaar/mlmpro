@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Usermlm;
+use App\Models\Admin;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,47 @@ class UsermlmController extends Controller
         ]);
     }
 
+    public function adminSignin(Request $request)
+    {
+        try {
+            // Validate the request
+            $credentials = $request->validate([
+                'username' => 'required|string',
+                'password' => 'required|string',
+            ]);
+    
+            // Attempt to find the admin by username
+            $useradmin = Admin::where('username', $credentials['username'])->first();
+    
+            // Check if the user exists and the password is correct
+            if ($useradmin && $useradmin->password === $credentials['password']) {
+                // Generate an access token (assuming you are using Laravel Passport or Sanctum)
+                $accessToken = $useradmin->createToken('AdminFKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(')->accessToken;
+                return response()->json([
+                    'statusCode' => 1,
+                    'message' => 'Login successful.',
+                    'user' => [
+                        'username' => $useradmin->username,
+                        'role' => $useradmin->role,
+                    ],
+                    'access_token' => [
+                        'token' => $accessToken,
+                        'token_type' => 'Bearer',
+                    ],
+                ], 200);
+            }
+    
+            // Unauthorized response if credentials are incorrect
+            return response()->json(['statusCode' => 0, 'error' => 'Unauthorized'], 401);
+        } catch (\Exception $e) {
+            return response()->json([
+                'statusCode' => 0,
+                'message' => 'An error occurred during login.',
+                'error' => $e->getMessage(),
+            ], 500); // Changed to 500 for server errors
+        }
+    }
+    
 
     public function signin(Request $request)
 {
