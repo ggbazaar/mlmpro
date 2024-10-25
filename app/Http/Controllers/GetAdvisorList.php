@@ -1542,6 +1542,8 @@ public function minCompleteLevels1StatusBreak($rootId) {
         // Update current level nodes for the next iteration
         $currentLevelNodes = $nextLevelNodes;
     }
+    
+    DB::table('usermlms')->where('id', $rootId)->update(['level' => $completedLevels]);
 
     return $completedLevels;
 }
