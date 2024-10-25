@@ -160,9 +160,9 @@ public function payment_approved(Request $request)
         $pp = $payment->save();
         if ($pp) {
             // $this->uplineListBreakFirstZero($payment->user_id);
+            DB::table('usermlms')->where('id', $payment->user_id)->update(['status' => 1]);
             $commi=$this->uplineListBreakFirstZero($payment->user_id,$request->pay_id);    
             // Payment saved successfully
-            DB::table('usermlms')->where('id', $payment->user_id)->update(['status' => 1]);
             $whouser = DB::table('usermlms')->where('id', $payment->user_id)->first();
 
             return response()->json([
