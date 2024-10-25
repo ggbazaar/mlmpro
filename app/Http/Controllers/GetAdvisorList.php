@@ -159,7 +159,8 @@ public function payment_approved(Request $request)
         $payment->approve_date = now();  // Set approval date
         $pp = $payment->save();
         if ($pp) {
-            $this->uplineListBreakFirstZero($payment->user_id);
+            // $this->uplineListBreakFirstZero($payment->user_id);
+            $commi=$this->uplineListBreakFirstZero($payment->user_id,$request->pay_id);    
             // Payment saved successfully
             DB::table('usermlms')->where('id', $payment->user_id)->update(['status' => 1]);
             $whouser = DB::table('usermlms')->where('id', $payment->user_id)->first();
@@ -170,6 +171,7 @@ public function payment_approved(Request $request)
                 'data_approver'=>$approver,
                 'data_payment'=>$payment,
                 'data_user'=>$whouser,
+                'data_comm'=>$commi,
                 'success' => true,
                 'message' => 'Payment processed successfully.'
             ]);
@@ -1313,7 +1315,95 @@ private function buildTree($nodeId) {
 }
 
 
-public function uplineListBreakFirstZero($childId) {
+public function uplineListBreakFirstZero($childId,$payId) {
+    $req=[];
+    $req['id']=$childId;
+    $uplineList = [];
+    while ($childId != 0) {
+        $result = DB::select("SELECT id, name, parent_code FROM usermlms WHERE id = ?", [$childId]);
+        if (empty($result)) {
+            break;
+        }
+        $node = $result[0];
+        $completedLevel=$this->minCompleteLevels1StatusBreak($node->id);
+        $uplineList[] = [
+            'id' => $node->id,
+            'name' => $node->name,
+            'completeLevel'=>$completedLevel,
+            'parent_code' => $node->parent_code
+        ];
+        DB::table('usermlms')->where('id', $node->id)->update(['level' => $completedLevel]);
+        $existingCommission='';
+      
+        if ($node->id && $completedLevel>0) {
+            // Select the commission entry based on user_id and level
+            $existingCommission = DB::table('commissions')
+                ->where('user_id', $node->id)
+                ->where('level', $completedLevel)
+                ->first();
+                
+
+            if (!$existingCommission) {
+                // If no existing record is found, insert the new commission data
+                $totalAmount = 300; //$completeLevels * 300;
+                $serviceCharge = $totalAmount * 0.10; // 10% of total amount
+                $payableAmount = $totalAmount - $serviceCharge; 
+                DB::table('commissions')->insert([
+                    'user_id' => $node->id,
+                    'purchase_id' => $payId, // Default to "11" if pay_id is not provided
+                    'level' => $completedLevel, // Assuming 'level' is a field in the commissions table
+                    'level_commission' => $totalAmount,
+                    'total_amount' => $totalAmount,
+                    'service_charge' => $serviceCharge,
+                    'payable_amount' => $payableAmount,
+                    'status' => 1, // 1: Approve, 2: Paid, 3: Reject, 4: Pending
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+        $childId = $node->parent_code;
+        if($completedLevel==0 && $node->id!=$req['id']){
+            break;
+        }
+    }
+    return response()->json([
+        'statusCode' => 1,
+        'data' => $uplineList
+    ], 200);
+}
+
+public function uplineListBreakFirstZero_mmmmm($childId) {
+    $req=[];
+    $req['id']=$childId;
+    $uplineList = [];
+    while ($childId != 0) {
+        $result = DB::select("SELECT id, name, parent_code FROM usermlms WHERE id = ?", [$childId]);
+        if (empty($result)) {
+            break;
+        }
+        $node = $result[0];
+        $completedLevel=$this->minCompleteLevels1StatusBreak($node->id);
+        $uplineList[] = [
+            'id' => $node->id,
+            'name' => $node->name,
+            'completeLevel'=>$completedLevel,
+            'parent_code' => $node->parent_code
+        ];
+        DB::table('usermlms')->where('id', $node->id)->update(['level' => $completedLevel]);
+        $childId = $node->parent_code;
+        if($completedLevel==0 && $node->id!=$req['id']){
+            break;
+        }
+    }
+    return response()->json([
+        'statusCode' => 1,
+        'data' => $uplineList
+    ], 200);
+}
+
+
+public function uplineListBreakFirstZero333($childId) {
     // echo $childId;
     // die("Adasf");
     // Start with the child node
