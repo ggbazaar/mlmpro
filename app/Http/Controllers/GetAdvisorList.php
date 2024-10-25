@@ -90,7 +90,7 @@ public function getkitamount(Request $request)
     
         try {
             // Create a new payment record
-            Payment::create([
+           $pay=Payment::create([
                 'user_id' => $request->user_id, // User ID
                 'kit_id'=>$request->kit_id,
                 'amount' => $kit[0]->amount, // Amount in decimal
@@ -103,6 +103,7 @@ public function getkitamount(Request $request)
             // Return a success response
             return response()->json([
                 'statusCode' => 1,
+                'data'=>$pay,
                 'message' => 'Payment added successfully'
             ]);
     
@@ -133,19 +134,25 @@ public function payment_approved(Request $request)
             return response()->json([
                 'statusCode' => 0,
                 'message' => 'Approver not found'
-            ], 404);  // 404 Not Found
+            ], 200);  // 404 Not Found
         }
+
+       
 
         // Find the payment by ID
         $payment = Payment::find($request->pay_id);
+
+       
 
         if (!$payment) {
             return response()->json([
                 'statusCode' => 0,
                 'message' => 'Payment not found'
-            ], 404);  // 404 Not Found
+            ], 200);  // 404 Not Found
         }
 
+
+      
         // Update the payment details
         $payment->approve_by = $approver->name;
         $payment->status = 1;  // Approve status
@@ -154,13 +161,22 @@ public function payment_approved(Request $request)
         if ($pp) {
             $this->uplineListBreakFirstZero($payment->user_id);
             // Payment saved successfully
+            DB::table('usermlms')->where('id', $payment->user_id)->update(['status' => 1]);
+            $whouser = DB::table('usermlms')->where('id', $payment->user_id)->first();
+
             return response()->json([
+                'statusCode' => 1,
+                'data'=>$pp,
+                'data_approver'=>$approver,
+                'data_payment'=>$payment,
+                'data_user'=>$whouser,
                 'success' => true,
                 'message' => 'Payment processed successfully.'
             ]);
         } else {
             // Payment failed to save
             return response()->json([
+                'statusCode' => 0,
                 'success' => false,
                 'message' => 'Failed to process payment. Please try again.'
             ]);
@@ -1298,6 +1314,8 @@ private function buildTree($nodeId) {
 
 
 public function uplineListBreakFirstZero($childId) {
+    // echo $childId;
+    // die("Adasf");
     // Start with the child node
    // $user = auth()->guard('api')->user();
     // $request->validate([
@@ -1306,6 +1324,8 @@ public function uplineListBreakFirstZero($childId) {
     // ]);
     // $req = $request->only(['id']);
     //$childId =$req['id'];
+    $req=[];
+    $req['id']=$childId;
 
    // $childId = 103;
     $uplineList = [];

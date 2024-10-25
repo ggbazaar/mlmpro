@@ -1428,8 +1428,8 @@ public function dashboard(Request $request){
 
 $rsm['total_team'] =$totalTeam;
 
-$rsm['active_left_side'] = empty($LDownline1['status_1']) ? 0 : count($LDownline1['status_1']);
-$rsm['active_right_side'] = empty($RDownline1['status_1']) ? 0 : count($RDownline1['status_1']);
+$rsm['active_left_side'] = empty($LDownline['status_1']) ? 0 : count($LDownline['status_1']);
+$rsm['active_right_side'] = empty($RDownline['status_1']) ? 0 : count($RDownline['status_1']);
  
 $rsm['active'] = (empty($LDownline1['status_1']) ? 0 : count($LDownline1['status_1'])) +
                  (empty($RDownline1['status_1']) ? 0 : count($RDownline1['status_1']));
@@ -1438,22 +1438,33 @@ $rsm['inactive'] = $totalTeam - ((empty($LDownline1['status_1']) ? 0 : count($LD
 
 // Assuming $totalUsers is an array of user IDs, you need to join them into a comma-separated string
 $totalUsers = implode(',', array_merge($LDownline['status_1'], $RDownline['status_1']));
-    $query = "SELECT 
+    // Base query
+        $query = "SELECT 
         usermlms.id AS userId,
         payments.id AS payId,
         payments.amount AS pamount,
         usermlms.status AS userStatus, 
         payments.status AS payStatus 
-    FROM 
+        FROM 
         payments
-    JOIN 
-        usermlms ON payments.user_id = usermlms.id
-    WHERE 
-        usermlms.id IN ($totalUsers) 
-        AND payments.status = 1";
-    $results = DB::select($query);
-   // $rsm['total_business']=$results;
-    $rsm['total_business'] = array_sum(array_column($results, 'pamount'));
+        JOIN 
+        usermlms ON payments.user_id = usermlms.id";
+
+        // Add conditions based on `$totalUsers`
+        $conditions = [];
+        if (!empty($totalUsers)) {
+        $conditions[] = "usermlms.id IN ($totalUsers)";
+        }
+        $conditions[] = "payments.status = 1";
+
+        // Append conditions if any exist
+        if (!empty($conditions)) {
+        $query .= " WHERE " . implode(" AND ", $conditions);
+        }
+
+        // Execute the query and calculate the total business
+        $results = DB::select($query);
+        $rsm['total_business'] = array_sum(array_column($results, 'pamount'));
 
     $rs = DB::select("SELECT * FROM commissions WHERE user_id = $request->user_id");
     $total_paid = [];
