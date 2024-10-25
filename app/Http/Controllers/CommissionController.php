@@ -19,13 +19,13 @@ class CommissionController extends Controller
     public function generateLevel(Request $request)
     {
         $user = auth()->guard('api')->user();
-        if(!$user){
-            return response()->json([
-                "statusCode"=> 1,
-                'error' => "Unauthorized User"
-            ], 401);
+        // if(!$user){
+        //     return response()->json([
+        //         "statusCode"=> 1,
+        //         'error' => "Unauthorized User"
+        //     ], 401);
 
-        }
+        // }
         $userIds = Usermlm::where('status', 1)->pluck('id'); // Assuming 'id' is the primary key
         $insertedCount = 0; 
         foreach ($userIds as $userId) {
@@ -84,13 +84,13 @@ class CommissionController extends Controller
     {
         // Authenticate the user
         $user = auth()->guard('api')->user();
-        if(!$user){
-            return response()->json([
-                "statusCode"=> 1,
-                'error' => "Unauthorized User"
-            ], 401);
+        // if(!$user){
+        //     return response()->json([
+        //         "statusCode"=> 1,
+        //         'error' => "Unauthorized User"
+        //     ], 401);
 
-        }
+        // }
         //print_r($user); die("Asdadff");
     
         // Validate the request input (if necessary)

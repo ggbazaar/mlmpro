@@ -105,8 +105,21 @@ public function findbyfield(Request $request)
     }
     // Extract both 'field' and 'value' from the request
     $req = $request->only(['field', 'value']);
+    $userData = Usermlm::where($req['field'], $req['value'])->first();
     // Search in the Usermlm model based on the given field and value
-    $userData = Usermlm::where($req['field'], $req['value'])->first()->toArray();
+    if ($userData) {
+        $userData = $userData->toArray();
+        
+        foreach ($userData as $key => $value) {
+            if (is_null($value)) {
+                $userData[$key] = ''; // Set to an empty string if null
+            }
+        }
+    } else {
+        $userData = []; // or handle the "no data found" scenario as needed
+    } 
+    
+  
 
     foreach ($userData as $key => $value) {
         if (is_null($value)) {
@@ -116,9 +129,9 @@ public function findbyfield(Request $request)
 
     // Check if the user was found
     if ($userData) {
-        return response()->json(['message' => 'User details', 'user' => $userData], 200);
+        return response()->json(['statusCode'=>1,'message' => 'User details', 'user' => $userData], 200);
     } else {
-        return response()->json(['message' => 'User not found'], 404);
+        return response()->json(['statusCode'=>0,'message' => 'User not found'], 200);
     }
 }
 
@@ -1473,9 +1486,9 @@ $totalUsers = implode(',', array_merge($LDownline['status_1'], $RDownline['statu
     // Loop through each commission record
     foreach ($rs as $record) {
         // Check the status and categorize commissions
-        if ($record->status == 1) {
+        if ($record->status == 2) {
             $total_paid[] = $record->level_commission; // Collect paid commissions
-        } else if ($record->status == 2) {
+        } else if ($record->status == 1) {
             $total_unpaid[] = $record->level_commission; // Collect unpaid commissions
         }
     }
