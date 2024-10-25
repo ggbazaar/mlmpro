@@ -57,10 +57,15 @@ public function getkitamount(Request $request)
         ]);
         $req = $request->only(['id']);
         $umlm = Usermlm::where('id', $req['id'])->first();
+        if(!$umlm){
+            return response()->json([
+                'statusCode' => 0,
+                'message' => 'User Id not exist fetch out'
+            ]);
+        }
         $req1 = json_decode($request->getContent());
         $typeStatus = $request->input('typeStatus', '2');
         $getBinaryTreeStructureJson3=$this->getBinaryTreeStructureJson3($umlm->id,$typeStatus);
-
         return response()->json([
             'statusCode' => 1,
             'data'=>$getBinaryTreeStructureJson3,
