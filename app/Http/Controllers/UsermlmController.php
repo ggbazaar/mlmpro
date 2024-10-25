@@ -1412,6 +1412,103 @@ public function dashboard(Request $request){
 
     $LDownline = $this->MyDown($users[0]->child_left); 
     $RDownline = $this->MyDown($users[0]->child_right);
+
+
+    $LDownline1 = $this->MyDownStatus1($users[0]->child_left); 
+    $RDownline1 = $this->MyDownStatus1($users[0]->child_right);
+
+
+    
+  // Initialize the total team, left side, right side, and inactive counts
+  $totalTeam=(empty($LDownline['status_0']) ? 0 : count($LDownline['status_0'])) +
+  (empty($LDownline['status_1']) ? 0 : count($LDownline['status_1'])) +
+  (empty($RDownline['status_0']) ? 0 : count($RDownline['status_0'])) +
+  (empty($RDownline['status_1']) ? 0 : count($RDownline['status_1']));
+
+
+$rsm['total_team'] =$totalTeam;
+
+$rsm['active_left_side'] = empty($LDownline1['status_1']) ? 0 : count($LDownline1['status_1']);
+$rsm['active_right_side'] = empty($RDownline1['status_1']) ? 0 : count($RDownline1['status_1']);
+ 
+$rsm['active'] = (empty($LDownline1['status_1']) ? 0 : count($LDownline1['status_1'])) +
+                 (empty($RDownline1['status_1']) ? 0 : count($RDownline1['status_1']));
+$rsm['inactive'] = $totalTeam - ((empty($LDownline1['status_1']) ? 0 : count($LDownline1['status_1'])) +
+                 (empty($RDownline1['status_1']) ? 0 : count($RDownline1['status_1'])));
+
+// Assuming $totalUsers is an array of user IDs, you need to join them into a comma-separated string
+$totalUsers = implode(',', array_merge($LDownline['status_1'], $RDownline['status_1']));
+    $query = "SELECT 
+        usermlms.id AS userId,
+        payments.id AS payId,
+        payments.amount AS pamount,
+        usermlms.status AS userStatus, 
+        payments.status AS payStatus 
+    FROM 
+        payments
+    JOIN 
+        usermlms ON payments.user_id = usermlms.id
+    WHERE 
+        usermlms.id IN ($totalUsers) 
+        AND payments.status = 1";
+    $results = DB::select($query);
+   // $rsm['total_business']=$results;
+    $rsm['total_business'] = array_sum(array_column($results, 'pamount'));
+
+    $rs = DB::select("SELECT * FROM commissions WHERE user_id = $request->user_id");
+    $total_paid = [];
+    $total_unpaid = [];
+
+    // Loop through each commission record
+    foreach ($rs as $record) {
+        // Check the status and categorize commissions
+        if ($record->status == 1) {
+            $total_paid[] = $record->level_commission; // Collect paid commissions
+        } else if ($record->status == 2) {
+            $total_unpaid[] = $record->level_commission; // Collect unpaid commissions
+        }
+    }
+
+    // Calculate total paid and unpaid commissions separately
+    $total_paid_amount = array_sum($total_paid); // Total of paid commissions
+    $total_unpaid_amount = array_sum($total_unpaid); // Total of unpaid commissions
+
+    // Calculate overall total
+    $totalcomm = $total_paid_amount + $total_unpaid_amount;
+
+    $rsm['myTotalCommission']=$totalcomm;
+    $rsm['myPaidCommission']=$total_paid_amount;
+    $rsm['myPendingCommission']=$total_unpaid_amount;
+
+    return response()->json([
+        'statusCode' => 1,
+        'data'=>$rsm,
+        'users'=>$users      
+    ], 200); 
+}
+
+
+public function dashboard22(Request $request){
+
+    $request->validate([
+        'user_id' => 'required'        
+    ]);
+
+    // $users = Usermlm::select('name', 'id', 'child_left', 'child_right', 'self_code', 'parent_code', 'status')
+    // ->where('id', $request->user_id)
+    // ->get();
+    $users = Usermlm::select('usermlms.name', 'usermlms.id', 'usermlms.child_left', 'usermlms.child_right', 'usermlms.self_code', 'usermlms.parent_code', 'usermlms.status')
+    ->join('payments', 'payments.user_id', '=', 'usermlms.id')
+    ->where('usermlms.id', $request->user_id)
+    ->where('payments.status', 1)
+    ->get();
+
+    if ($users->isEmpty()) {
+        return response()->json(['statusCode'=>0,'message' => 'No users found with active payments.','data'=>$request->user_id], 404);
+    }
+
+    $LDownline = $this->MyDown($users[0]->child_left); 
+    $RDownline = $this->MyDown($users[0]->child_right);
     
   // Initialize the total team, left side, right side, and inactive counts
 $rsm['total_team'] = (empty($LDownline['status_0']) ? 0 : count($LDownline['status_0'])) +
