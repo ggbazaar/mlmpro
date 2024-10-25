@@ -78,7 +78,6 @@ public function getkitamount(Request $request)
 
     public function payment(Request $request)
     {
-        // Validate the incoming request data
         $request->validate([
             'user_id' => 'required|integer',
             'kit_id' => 'required|integer',
@@ -87,12 +86,21 @@ public function getkitamount(Request $request)
         ]);
 
         $kit= DB::select("SELECT * FROM kit_amounts WHERE id = $request->kit_id");
-        // Check if the record exists
         if (empty($kit)) {
-            // Record does not exist, show error
-            return response()->json([ 'statusCode' => 0,'error' => 'Kit not found'], 404);
+            return response()->json([ 'statusCode' => 0,'error' => 'Kit not found. Verify selection and retry.'], 200);
         }
-    
+        //echo "SELECT * FROM usermlms WHERE id = $request->user_id";
+
+        $users= DB::select("SELECT * FROM usermlms WHERE id = $request->user_id");
+        if (empty($users)) {
+            return response()->json([ 'statusCode' => 0,'error' => 'User not found. Please check and try again.'], 200);
+        }
+
+        $pusers= DB::select("SELECT * FROM payments WHERE id = $request->user_id");
+        if (!empty($pusers)) {
+            return response()->json([ 'statusCode' => 0,'error' => 'Payment already processed. Contact support if needed..'], 200);
+        }
+
         try {
             // Create a new payment record
            $pay=Payment::create([
@@ -109,16 +117,16 @@ public function getkitamount(Request $request)
             return response()->json([
                 'statusCode' => 1,
                 'data'=>$pay,
-                'message' => 'Payment added successfully'
+                'message' => 'Payment completed. Thank you!'
             ]);
     
         } catch (\Exception $e) {
             // Return an error response if something goes wrong
             return response()->json([
                 'statusCode' => 0,
-                'message' => 'Failed to add payment',
+                'message' => 'Payment to already add payment',
                 'error' => $e->getMessage() // For debugging, remove in production
-            ], 500);
+            ], 200);
         }
     }
 

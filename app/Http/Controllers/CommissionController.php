@@ -331,7 +331,7 @@ public function getkitamount(Request $request)
                 'statusCode' => 0,
                 'message' => 'Failed to add payment',
                 'error' => $e->getMessage() // For debugging, remove in production
-            ], 500);
+            ], 200);
         }
     }
 
@@ -383,7 +383,7 @@ public function payment_approved(Request $request)
             'statusCode' => 0,
             'message' => 'Failed to approve payment',
             'error' => $e->getMessage()  // For debugging, remove in production
-        ], 500);
+        ], 200);
     }
 }
 
