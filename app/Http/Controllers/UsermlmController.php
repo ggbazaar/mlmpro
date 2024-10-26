@@ -1533,10 +1533,10 @@ $totalUsers = implode(',', array_merge($LDownline['status_1'], $RDownline['statu
     // Loop through each commission record
     foreach ($rs as $record) {
         // Check the status and categorize commissions
-        if ($record->status == 2) {
-            $total_paid[] = $record->level_commission; // Collect paid commissions
-        } else if ($record->status == 1) {
-            $total_unpaid[] = $record->level_commission; // Collect unpaid commissions
+        if ($record->status == 1) {
+            $total_unpaid[] = $record->level_commission; // Collect paid commissions
+        } else if ($record->status == 2) {
+            $total_paid[] = $record->level_commission; // Collect unpaid commissions
         }
     }
 
@@ -1547,9 +1547,9 @@ $totalUsers = implode(',', array_merge($LDownline['status_1'], $RDownline['statu
     // Calculate overall total
     $totalcomm = $total_paid_amount + $total_unpaid_amount;
 
-    $rsm['myTotalCommission']=$totalcomm;
-    $rsm['myPaidCommission']=$total_paid_amount;
-    $rsm['myPendingCommission']=$total_unpaid_amount;
+    $rsm['total']=$totalcomm;
+    $rsm['paid']=$total_paid_amount;
+    $rsm['unpaid']=$total_unpaid_amount;
 
     return response()->json([
         'statusCode' => 1,

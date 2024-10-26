@@ -1485,9 +1485,9 @@ public function commissionlist(Request $request) {
     foreach ($rs as $record) {
         // Check the status and categorize commissions
         if ($record->status == 1) {
-            $total_paid[] = $record->level_commission; // Collect paid commissions
+            $total_unpaid[] = $record->level_commission; // Collect paid commissions
         } else if ($record->status == 2) {
-            $total_unpaid[] = $record->level_commission; // Collect unpaid commissions
+            $total_paid[] = $record->level_commission; // Collect unpaid commissions
         }
     }
     // Calculate total paid and unpaid commissions separately

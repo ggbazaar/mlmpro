@@ -49,7 +49,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::post('/downline', [GetAdvisorList::class, 'downline']);
     Route::post('/downline_type', [GetAdvisorList::class, 'downline_type']);
     Route::post('/payment', [GetAdvisorList::class, 'payment']);
-    Route::post('/payment_approved', [GetAdvisorList::class, 'payment_approved']);
     Route::get('/getkitamount', [GetAdvisorList::class, 'getkitamount']);
     Route::post('/pairlevel', [GetAdvisorList::class, 'pairlevel']);
 
@@ -65,6 +64,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::post('/dashboard', [UsermlmController::class, 'dashboard']);
 
 
+    Route::post('/payment_approved', [GetAdvisorList::class, 'payment_approved']);
 
 
     
