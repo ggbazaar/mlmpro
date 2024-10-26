@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class UsermlmController extends Controller
 {
@@ -1466,8 +1467,16 @@ public function adminDashboard(Request $request) {
 
     // Fetch total commissions (sum of all commissions' amount)
     $totalComm = DB::table('commissions')->sum('payable_amount');
+
+
     $totalCommUnpaid = DB::table('commissions')->where('status', 1)->sum('payable_amount');
+ //   $todaykitRequest = DB::table('payments')->where('status', 0)->count();  creted_at today 2024-10-25 11:11:33	
+
     $totalCommPaid = DB::table('commissions')->where('status', 2)->sum('payable_amount');
+
+    $totalkitRequest = DB::table('payments')->where('status', 0)->count();
+    $todaykitRequest = DB::table('payments')->where('status', 0)->whereDate('created_at', Carbon::today())->count();
+    //$todaykitRequest =0;
 
     // Prepare data for the dashboard
     $ds = [];
@@ -1478,6 +1487,9 @@ public function adminDashboard(Request $request) {
     $ds['totalComm'] = $totalComm;
     $ds['totalCommPaid'] = $totalCommPaid;
     $ds['totalCommUnpaid'] = $totalCommUnpaid;
+    $ds['totalkitRequest'] = $totalkitRequest;
+    $ds['todaykitRequest'] = $todaykitRequest;
+
 
 
     return response()->json([
