@@ -20,7 +20,7 @@ class Usermlm extends Authenticatable
         'used_code', 'side', 'status', 'password', 'level','added_below','parent_code','plain_password'
     ];
 
-    protected $hidden = [
-        'password',
-    ];
+    // protected $hidden = [
+    //     'password',
+    // ];
 }

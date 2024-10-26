@@ -1490,7 +1490,6 @@ public function commissionlist(Request $request) {
             $total_unpaid[] = $record->level_commission; // Collect unpaid commissions
         }
     }
-
     // Calculate total paid and unpaid commissions separately
     $total_paid_amount = array_sum($total_paid); // Total of paid commissions
     $total_unpaid_amount = array_sum($total_unpaid); // Total of unpaid commissions

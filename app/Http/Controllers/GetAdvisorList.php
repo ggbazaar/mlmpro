@@ -48,6 +48,59 @@ public function getkitamount(Request $request)
 }
 
 
+
+public function commissionlist(Request $request) {
+    $request->validate([
+        'user_id' => 'required'        
+    ]);
+     
+    $rs = DB::select("SELECT * FROM commissions WHERE user_id = $request->user_id");
+    $total_paid = [];
+    $total_unpaid = [];
+
+    // Loop through each commission record
+    foreach ($rs as $record) {
+        // Check the status and categorize commissions
+        if ($record->status == 1) {
+            $total_paid[] = $record->level_commission; // Collect paid commissions
+        } else if ($record->status == 2) {
+            $total_unpaid[] = $record->level_commission; // Collect unpaid commissions
+        }
+    }
+    // Calculate total paid and unpaid commissions separately
+    $total_paid_amount = array_sum($total_paid); // Total of paid commissions
+    $total_unpaid_amount = array_sum($total_unpaid); // Total of unpaid commissions
+
+    // Calculate overall total
+    $total = $total_paid_amount + $total_unpaid_amount;
+
+    $rsm['total']=$total;
+    $rsm['paid']=$total_paid_amount;
+    $rsm['unpaid']=$total_unpaid_amount;
+    $rsm['commissionDetail']=$rs;
+
+    $umlm = Usermlm::where('id', $request->user_id)->first();
+    if(!$umlm){
+        return response()->json([
+            'statusCode' => 0,
+            'message' => 'User Id not exist fetch out'
+        ]);
+    }
+    $typeStatus = 1;
+    // $getBinaryTreeStructureJson3=$this->getBinaryTreeStructureJson3($umlm->id,$typeStatus);
+    $getBinaryTreeStructureJson3=$this->commissionPaid($umlm->id,$typeStatus);
+    return response()->json([
+        'statusCode' => 1,
+        'data'=>$rsm           
+    ], 200); 
+
+    //die("ASDFASDf");
+   // $tree = $this->buildTree($rootId);
+    // Return the result as an array or JSON if needed
+   // return $tree;  // Or json_encode($tree, JSON_PRETTY_PRINT) for JSON format
+}
+
+
     public function downline(Request $request)
     {
         $user = auth()->guard('api')->user();
@@ -134,10 +187,11 @@ public function getkitamount(Request $request)
     public function payment_approved(Request $request)
     {
         // Get the authenticated admin user
-        $admin = Auth::guard('admin')->user();
+       // $admin = Auth::guard('admin')->user();
+       $admin = Auth::guard('api')->user();
     
         // Check if the user is an admin
-        if ($admin && $admin->role == 'admin' && $admin->username == 'admin') {
+        if ($admin && $admin->role == 2 && $admin->mobile == 7985003120) {
             // Validate incoming request
             $request->validate([
                 'pay_id' => 'required|integer',      // Payment ID
@@ -1179,6 +1233,10 @@ public function getBinaryTreeStructureJson3($rootId,$typeStatus=2) {
     return $treeLevels;
 }
 
+
+
+
+
 // Helper function to retrieve nodes level-wise
 private function retrieveLevelNodes3($currentLevelNodes, &$treeLevels,$typeStatus=2) {
     if (empty($currentLevelNodes)) {
@@ -1250,6 +1308,82 @@ private function retrieveLevelNodes3($currentLevelNodes, &$treeLevels,$typeStatu
     }
     // Recursive call for the next level
     $this->retrieveLevelNodes3($nextLevelNodes, $treeLevels,$typeStatus);
+}
+
+
+
+public function commissionPaid($rootId,$typeStatus=1) {
+    $treeLevels = [];  // Array to hold all levels of the tree
+    $this->commissionPaidUserList([$rootId], $treeLevels,$typeStatus);
+    return $treeLevels;
+}
+
+public function commissionPaidUserList($currentLevelNodes, &$treeLevels,$typeStatus=1) {
+    if (empty($currentLevelNodes)) {
+        return;  // Base case: if there are no nodes at this level, stop recursion
+    }
+    $typeStatus=1;
+    $nextLevelNodes = []; // Array to hold the next level nodes
+    $currentLevel = [];   // Array to hold current level nodes in structured format
+
+    foreach ($currentLevelNodes as $nodeId) {
+        // Query to fetch left and right children of the current node
+      //  $children = DB::select("SELECT id, child_left,child_right,mobile,name,self_code,status FROM usermlms WHERE id = ?", [$nodeId]);
+     
+      $children = DB::select("
+      SELECT usermlms.id, usermlms.child_left, usermlms.child_right, usermlms.mobile, usermlms.name, usermlms.self_code, usermlms.status,
+             payments.user_id, payments.kit_id, payments.amount, payments.pay_type, payments.remark, payments.date, payments.status as payment_status,
+             payments.approve_by, payments.approve_date, payments.created_at
+      FROM usermlms
+      LEFT JOIN payments ON usermlms.id = payments.user_id
+      WHERE usermlms.id = ?", [$nodeId]);
+
+        if (!empty($children)) {
+            $node = $children[0];
+
+            if (empty($node->child_left) && empty($node->child_right)) {
+                $empt = 3; // Both are empty
+            } elseif (empty($node->child_left)) {
+                $empt = 1; // Only child_left is empty
+            } elseif (empty($node->child_right)) {
+                $empt = 2; // Only child_right is empty
+            } else {
+                $empt = 4; // Both are not empty
+            }
+    
+            $currentLevel[] = [
+                'id' => $node->id,
+                'left' => $node->child_left ?? '', 
+                'right' => $node->child_right ?? '', 
+                'self_code'=>$node->self_code ?? '', 
+                'name'=> $node->name ?? '', 
+                'mobile'=> $node->mobile ?? '', 
+                'empty'=>$empt,
+                'status'=>$node->status?? 0,
+                'planName'=>'Kit Payment',
+                'planamount'=>$node->amount,
+                'paidDate'=>$node->date,
+            ];
+           
+
+           // }
+
+            // Append the left and right children to the next level array
+            if ($node->child_left !== null) {
+                $nextLevelNodes[] = $node->child_left;
+            }
+            if ($node->child_right !== null) {
+                $nextLevelNodes[] = $node->child_right;
+            }
+        }
+    }
+
+    // Append the current level nodes to the tree structure
+    if($currentLevel){
+        $treeLevels[] = $currentLevel;
+    }
+    // Recursive call for the next level
+    $this->commissionPaidUserList($nextLevelNodes, $treeLevels,$typeStatus);
 }
 
 

@@ -40,7 +40,8 @@ class UsermlmController extends Controller
                     'statusCode' => 1,
                     'message' => 'Login successful.',
                     'user' => [
-                        'username' => $useradmin->username,
+                        'id'=>$useradmin->id,
+                        'name' => $useradmin->username,
                         'role' => $useradmin->role,
                     ],
                     'access_token' => [
@@ -83,7 +84,10 @@ class UsermlmController extends Controller
                         ->orWhere('mobile', $credentials['mobile'])
                         ->first();
         // Check if the user exists and if the password is correct
-        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+         
+        // die("Dadsd");
+      //  if (!$user || !Hash::check($credentials['password'], $user->password)) {
+        if ($user && $credentials['password'] !== $user->password) {
             // Return the response for invalid credentials
             return response()->json([
                 'statusCode' => 0,
@@ -97,6 +101,7 @@ class UsermlmController extends Controller
 
         if ($user) {
             $userData = $user->toArray();
+            //$userData['role']='user';
             if (array_key_exists('api_token', $userData)) {
                 unset($userData['api_token']);
                 unset($userData['level']);
@@ -1549,7 +1554,7 @@ $totalUsers = implode(',', array_merge($LDownline['status_1'], $RDownline['statu
     return response()->json([
         'statusCode' => 1,
         'data'=>$rsm,
-        'users'=>$users      
+        'users'=>$users[0]      
     ], 200); 
 }
 
