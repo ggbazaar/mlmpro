@@ -62,6 +62,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     // Route::post('/commissionlist', [CommissionController::class, 'commissionlist']);
 
     Route::post('/dashboard', [UsermlmController::class, 'dashboard']);
+    Route::post('/adminDashboard', [UsermlmController::class, 'adminDashboard']);
 
 
     Route::post('/payment_approved', [GetAdvisorList::class, 'payment_approved']);

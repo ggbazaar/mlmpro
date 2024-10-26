@@ -1451,6 +1451,41 @@ public function updateUserDetails(Request $request, $user_id)
 
 
 
+public function adminDashboard(Request $request) {
+    // Fetch total users
+    $totalUsers = DB::table('usermlms')->count();
+
+    // Fetch total active users
+    $totalActive = DB::table('usermlms')->where('status', 1)->count();
+
+    // Fetch total inactive users
+    $totalInactive = DB::table('usermlms')->where('status', 0)->count();
+
+    // Fetch total business (sum of all payments' amount)
+    $totalBusiness = DB::table('payments')->where('status', 1)->sum('amount');
+
+    // Fetch total commissions (sum of all commissions' amount)
+    $totalComm = DB::table('commissions')->sum('payable_amount');
+    $totalCommUnpaid = DB::table('commissions')->where('status', 1)->sum('payable_amount');
+    $totalCommPaid = DB::table('commissions')->where('status', 2)->sum('payable_amount');
+
+    // Prepare data for the dashboard
+    $ds = [];
+    $ds['totalUser'] = $totalUsers-1;  //for admin
+    $ds['totalActive'] = $totalActive;
+    $ds['totalInactive'] = $totalInactive;
+    $ds['totalBusiness'] = $totalBusiness;
+    $ds['totalComm'] = $totalComm;
+    $ds['totalCommPaid'] = $totalCommPaid;
+    $ds['totalCommUnpaid'] = $totalCommUnpaid;
+
+
+    return response()->json([
+        'statusCode' => 1,
+        'data'=>$ds
+    ], 200); 
+}
+
 public function dashboard(Request $request){
 
     $request->validate([
