@@ -1525,6 +1525,17 @@ public function adminGeneratePins(Request $request)
     $pinsData = [];
     $generatedCount = 0; // Counter for generated unique pins
 
+    $buyer_id = Usermlm::find($buyer);
+
+    if(!$buyer_id){
+        return response()->json([
+            'statusCode' => 0,
+            'message' => "User does not exist.",
+            'data' => null,
+        ], 200); // You might want to change the status code as per your API design
+    }
+
+
     while ($generatedCount < $numberOfPins) {
         do {
             // Generate a unique PIN code
@@ -1539,6 +1550,7 @@ public function adminGeneratePins(Request $request)
             'pin' => $pinCode,
             'buyer_id' => $buyer,
             'generated_by' => $generatedBy,
+            'used_by'=>0,
             'created_at' => NOW(),
             'updated_at' => NOW()
         ];
@@ -1547,7 +1559,7 @@ public function adminGeneratePins(Request $request)
     }
     
     DB::table('pins')->insert($pinsData);
-    return response()->json(['statusCode'=>1,'message' => "$numberOfPins pins have been generated successfully.","da"=>$pinsData], 200);
+    return response()->json(['statusCode'=>1,'message' => "$numberOfPins pins have been generated successfully.","data"=>$pinsData], 200);
 }
 
 public function adminDashboard(Request $request) {
@@ -1894,7 +1906,91 @@ public function MyDownStatus1($parent_code) {
 }
 
 
+public function adminGetPins(Request $request)
+{
 
+    $request->validate([
+        'buyer_id' => 'required|integer',
+    ]);
+
+    $buyerId = $request->buyer_id; // Get buyer_id from the request
+
+
+    // Perform a raw SQL join query to get pins with user information
+    $pins = DB::table('pins')
+        ->leftJoin('usermlms', 'pins.used_by', '=', 'usermlms.id') // Join on the used_by column
+        ->select(
+            'pins.id',
+            'pins.buyer_id',
+            'pins.created_at',
+            'pins.generated_by',
+            'pins.pin',
+            'pins.updated_at',
+            'usermlms.name as user_name',      // Select user name
+            'usermlms.self_code as user_code'  // Select user self_code
+        )
+        ->where('pins.buyer_id', $buyerId) // Filter by buyer_id
+        ->get();
+
+    // Map the results to include used_by field structure
+    $pins = $pins->map(function ($pin) {
+        return [
+            'id' => $pin->id,
+            'buyer_id' => $pin->buyer_id,
+            'created_at' => $pin->created_at,
+            'generated_by' => $pin->generated_by,
+            'pin' => $pin->pin,
+            'updated_at' => $pin->updated_at,
+            'used_by' => $pin->user_name ? [
+                'name' => $pin->user_name,
+                'self_code' => $pin->user_code,
+            ] : 0,
+        ];
+    });
+
+    // Return the pins as a JSON response
+    return response()->json([
+        'statusCode' => 1,
+        'data' => $pins,
+        'message' => 'Pins retrieved successfully!'
+    ], 200); // 200 OK
+}
+
+
+public function adminGenAmountPin(Request $request)
+{
+    // Validate the incoming request
+    $request->validate([
+        'numberOfPins' => 'required|integer|min:1', // Ensure it's a positive integer
+    ]);
+
+    // Get the number of pins from the request
+    $numberOfPins = $request->input('numberOfPins');
+
+    // Fetch the amount from the kit_amounts table where status is 1
+    $amount = DB::table('kit_amounts')
+                ->where('status', 1)
+                ->value('amount'); // This will return the first row's amount
+
+    // Check if amount was found
+    if ($amount === null) {
+        return response()->json([
+            'statusCode' => 0,
+            'message' => 'No active amounts found.',
+            'data' => null,
+        ], 200);
+    }
+
+    // Calculate the total amount
+    $totalAmount = $numberOfPins * $amount;
+
+    // Return the total amount in a JSON response
+    return response()->json([
+        'statusCode' => 1,
+        'message' => 'Total amount calculated successfully.',
+        'totalAmount' => $totalAmount,
+    ], 200);
+}
 
 
 

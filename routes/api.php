@@ -65,6 +65,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::post('/adminDashboard', [UsermlmController::class, 'adminDashboard']);
     Route::post('/adminGeneratePins', [UsermlmController::class, 'adminGeneratePins']);
     Route::post('/adminCheckPin', [UsermlmController::class, 'adminCheckPin']);
+    Route::post('/adminGetPins', [UsermlmController::class, 'adminGetPins']);
+    Route::post('/adminGenAmountPin', [UsermlmController::class, 'adminGenAmountPin']);
 
 
     Route::post('/payment_approved', [GetAdvisorList::class, 'payment_approved']);
