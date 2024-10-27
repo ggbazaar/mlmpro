@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use App\Models\Usermlm;
 use App\Models\Payment;
 use App\Models\Kitamount;
+use App\Models\Pin;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -126,30 +127,174 @@ public function commissionlist(Request $request) {
         ]);
     }
 
- 
+
+    public function findUpline($childId)
+    {
+        $upline = []; // To store the upline hierarchy
+    
+        while ($childId) {
+            // Fetch user details based on child ID
+            $result = DB::select("SELECT id, name, parent_code FROM usermlms WHERE id = ?", [$childId]);
+    
+            if (empty($result)) {
+                // Break the loop if no user is found
+                break;
+            }
+    
+            // Get the user's information
+            $user = $result[0];
+    
+            // Add the user to the upline list
+            $upline[] = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'parent_code' => $user->parent_code,
+            ];
+    
+            // Update the childId to the parent_code of the current user
+            $childId = $user->parent_code; // Assuming parent_code is the ID of the parent
+        }
+    
+        return $upline; // Return the upline hierarchy
+    }
+    
+    public function adminCheckPin($pin_code,$user_id)
+    {
+        // // Validate the incoming request
+        // $request->validate([
+        //     'pin_code' => 'required',
+        //     'user_id' => 'required',   //childId
+        // ]);
+    
+         $uplines=$this->findUpline($user_id);
+        // print_r($uplines);
+         $buyerIds = array_column($uplines, 'parent_code');
+        // print_r($buyerIds);
+        // Check if the PIN exists for the given user_id and that it hasn't been used
+        $pin = Pin::where('pin', $pin_code)
+            ->whereIn('buyer_id', $buyerIds) 
+            ->first(); // Get the first matching record
+        // Return a response based on the existence of the PIN
+
+        //print_r($pin);
+       // die("Asdfa");
+
+        if ($pin) {
+            if ($pin->used_by === 0) { // Check if the PIN hasn't been used
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
 
 
     public function payment(Request $request)
     {
+        // Validate the incoming request
         $request->validate([
             'user_id' => 'required|integer',
             'kit_id' => 'required|integer',
             'pay_type' => 'required|string|max:50',
-            'remark' => 'required|string'
+            'remark' => 'required|string',
+            'pin_code' => 'required|string', // Assuming pin_code is also passed in the request
         ]);
+    
+        // Check if the kit exists
+        $kit = DB::table('kit_amounts')->where('id', $request->kit_id)->first();
+        if (empty($kit)) {
+            return response()->json(['statusCode' => 0, 'error' => 'Kit not found. Verify selection and retry.'], 404);
+        }
+    
+        // Check if the user exists
+        $user = DB::table('usermlms')->where('id', $request->user_id)->first();
+        if (empty($user)) {
+            return response()->json(['statusCode' => 0, 'error' => 'User not found. Please check and try again.'], 404);
+        }
+    
+        // Check if the payment has already been processed for the user
+        $paymentExists = DB::table('payments')->where('user_id', $request->user_id)->exists();
+        if ($paymentExists) {
+            return response()->json(['statusCode' => 0, 'error' => 'Payment already processed. Contact support if needed.'], 400);
+        }
+    
+        // Process payment type 10
+        if ($request->pay_type == 10) {
+            $pinCheck = $this->adminCheckPin($request->pin_code, $request->user_id);
+            //var_dump($pinCheck); die("Asdfa");
+    
+            if ($pinCheck) {
+                try {
+                    // Create a new payment record
+                    $payment = Payment::create([
+                        'user_id' => $request->user_id,
+                        'kit_id' => $request->kit_id,
+                        'amount' => $kit->amount, // Amount in decimal
+                        'pay_type' => $request->pay_type,
+                        'pin_code' => $request->pin_code, // Use the correct pin_code field
+                        'remark' => "Pin-".$request->remark,
+                        'date' => now(),
+                        'status' => 0,
+                    ]);
 
-        $kit= DB::select("SELECT * FROM kit_amounts WHERE id = $request->kit_id");
+                    // Mark the pin as used
+                    DB::table('pins')->where('pin', $request->pin_code)->update(['used_by' => $request->user_id]);
+
+                    DB::table('usermlms')->where('id', $payment->user_id)->update(['status' => 1]);
+                    $commi = $this->uplineListBreakFirstZero($payment->user_id, $payment->pay_id);
+    
+                    // Return a success response
+                    return response()->json([
+                        'statusCode' => 1,
+                        'data' => $payment,
+                        'data_comm'=>$commi,
+                        'message' => 'Payment completed. Thank you!'
+                    ], 201); // 201 Created
+    
+                } catch (\Exception $e) {
+                    // Return an error response if something goes wrong
+                    return response()->json([
+                        'statusCode' => 0,
+                        'message' => 'Failed to process payment.',
+                        'error' => config('app.debug') ? $e->getMessage() : 'An error occurred. Please try again later.' // Conditional error message for debugging
+                    ], 500); // 500 Internal Server Error
+                }
+            }
+            return response()->json(['statusCode' => 0, 'message' => 'Invalid PIN. Payment could not be completed.'], 200); // 403 Forbidden
+        }else{
+            $this->paymentWithoutPin($request->user_id,$request->kit_id,$request->pay_type,$request->remark);
+        }
+    
+        return response()->json(['statusCode' => 0, 'message' => 'Invalid payment type. Payment could not be completed.'], 400); // 400 Bad Request
+    }
+    
+
+ 
+
+
+    public function paymentWithoutPin($user_id,$kit_id,$pay_type,$remark)
+    {
+        // $request->validate([
+        //     'user_id' => 'required|integer',
+        //     'kit_id' => 'required|integer',
+        //     'pay_type' => 'required|string|max:50',
+        //     'remark' => 'required|string'
+        // ]);
+
+        $kit= DB::select("SELECT * FROM kit_amounts WHERE id = $kit_id");
         if (empty($kit)) {
             return response()->json([ 'statusCode' => 0,'error' => 'Kit not found. Verify selection and retry.'], 200);
         }
         //echo "SELECT * FROM usermlms WHERE id = $request->user_id";
 
-        $users= DB::select("SELECT * FROM usermlms WHERE id = $request->user_id");
+        $users= DB::select("SELECT * FROM usermlms WHERE id = $user_id");
         if (empty($users)) {
             return response()->json([ 'statusCode' => 0,'error' => 'User not found. Please check and try again.'], 200);
         }
 
-        $pusers= DB::select("SELECT * FROM payments WHERE id = $request->user_id");
+        $pusers= DB::select("SELECT * FROM payments WHERE id = $user_id");
         if (!empty($pusers)) {
             return response()->json([ 'statusCode' => 0,'error' => 'Payment already processed. Contact support if needed..'], 200);
         }
@@ -157,11 +302,11 @@ public function commissionlist(Request $request) {
         try {
             // Create a new payment record
            $pay=Payment::create([
-                'user_id' => $request->user_id, // User ID
-                'kit_id'=>$request->kit_id,
+                'user_id' => $user_id, // User ID
+                'kit_id'=>$kit_id,
                 'amount' => $kit[0]->amount, // Amount in decimal
-                'pay_type' => $request->pay_type, // Payment type
-                'remark' => $request->remark, // Any remark
+                'pay_type' => $pay_type, // Payment type
+                'remark' => $remark, // Any remark
                 'date' => now(), // Set current date and time for the payment
                 'status'=>0,
             ]);
@@ -191,7 +336,7 @@ public function commissionlist(Request $request) {
        $admin = Auth::guard('api')->user();
     
         // Check if the user is an admin
-        if ($admin && $admin->role == 2 && $admin->mobile == 7985003120) {
+        if ($admin && $admin->role == 2 ) {
             // Validate incoming request
             $request->validate([
                 'pay_id' => 'required|integer',      // Payment ID

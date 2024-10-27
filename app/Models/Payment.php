@@ -23,6 +23,7 @@ class Payment extends Authenticatable
         'remark',
         'date',
         'status',
+        'pin_code',
         'approve_by',
         'approve_date',
         'created_at',

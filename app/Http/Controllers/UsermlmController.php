@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class UsermlmController extends Controller
 {
@@ -292,7 +293,7 @@ public function findbyfield(Request $request)
             'used_code' => $request->used_code,
             'side' => $request->side,
             'status' => 0,
-            'password' =>Hash::make($request->password), // Password encryption
+            'password' =>$request->password, // Password encryption
             'plain_password'=>$request->password,
             'level' => 0,
             'added_below' => $request->added_below,
@@ -1452,6 +1453,65 @@ public function updateUserDetails(Request $request, $user_id)
     ], 200);
 }
 
+public function findUpline($childId)
+{
+    $upline = []; // To store the upline hierarchy
+
+    while ($childId) {
+        // Fetch user details based on child ID
+        $result = DB::select("SELECT id, name, parent_code FROM usermlms WHERE id = ?", [$childId]);
+
+        if (empty($result)) {
+            // Break the loop if no user is found
+            break;
+        }
+
+        // Get the user's information
+        $user = $result[0];
+
+        // Add the user to the upline list
+        $upline[] = [
+            'id' => $user->id,
+            'name' => $user->name,
+            'parent_code' => $user->parent_code,
+        ];
+
+        // Update the childId to the parent_code of the current user
+        $childId = $user->parent_code; // Assuming parent_code is the ID of the parent
+    }
+
+    return $upline; // Return the upline hierarchy
+}
+
+public function adminCheckPin(Request $request)
+{
+    // Validate the incoming request
+    $request->validate([
+        'pin_code' => 'required',
+        'user_id' => 'required',   //childId
+    ]);
+
+     $uplines=$this->findUpline($request->user_id);
+     $buyerIds = array_column($uplines, 'id');
+    // Check if the PIN exists for the given user_id and that it hasn't been used
+    $pin = Pin::where('pin', $request->pin_code)
+        ->whereIn('buyer_id', $buyerIds) 
+        ->first(); // Get the first matching record
+    // Return a response based on the existence of the PIN
+    if ($pin) {
+        if ($pin->used_by === 0) { // Check if the PIN hasn't been used
+            return response()->json(['statusCode' => 1, 'message' => 'PIN is valid and unused.'], 200);
+        } else {
+            return response()->json(['statusCode' => 0, 'message' => 'PIN is already use    d.'], 200);
+        }
+    } else {
+        return response()->json(['statusCode' => 0, 'message' => 'PIN is invalid.'], 200);
+    }
+}
+
+
+
+
 public function adminGeneratePins(Request $request)
 {
     $request->validate([
@@ -1463,18 +1523,29 @@ public function adminGeneratePins(Request $request)
     $generatedBy = $request->generated_by;
     $buyer = $request->buyer;
     $pinsData = [];
-    for ($i = 0; $i < $numberOfPins; $i++) {
-        $pinCode = 'GGB' . strtoupper(Str::random(5));
+    $generatedCount = 0; // Counter for generated unique pins
+
+    while ($generatedCount < $numberOfPins) {
+        do {
+            // Generate a unique PIN code
+            $pinCode = 'GGB' . strtoupper(Str::random(5));
+
+            // Check if the PIN already exists in the database
+            $exists = DB::table('pins')->where('pin', $pinCode)->exists();
+        } while ($exists); // Repeat if the PIN already exists
+
+        // If unique, add it to the pinsData array
         $pinsData[] = [
             'pin' => $pinCode,
             'buyer_id' => $buyer,
             'generated_by' => $generatedBy,
-            'created_at'=>NOW(),
-            'updated_at'=>NOW()
-          ];
-         // echo $sql="INSERT INTO pins (pin, buyer_id, generated_by, created_at, updated_at) VALUES ('$pinCode', '$buyer', '$generatedBy', NOW(), NOW())";
-         // DB::insert($sql);
+            'created_at' => NOW(),
+            'updated_at' => NOW()
+        ];
+
+        $generatedCount++; // Increment the count of successfully generated unique pins
     }
+    
     DB::table('pins')->insert($pinsData);
     return response()->json(['statusCode'=>1,'message' => "$numberOfPins pins have been generated successfully.","da"=>$pinsData], 200);
 }

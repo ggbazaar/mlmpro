@@ -43,7 +43,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::post('/advisorList', [UsermlmController::class, 'advisorList']);
     Route::post('/uplineListUntilRoot', [UsermlmController::class, 'uplineListUntilRoot']);
     Route::post('/uplineListBreakFirstZero', [UsermlmController::class, 'uplineListBreakFirstZero']);
-    Route::post('/admin', [UsermlmController::class, 'adminSignin']);
+    //Route::post('/admin', [UsermlmController::class, 'adminSignin']);
 
     Route::post('/getadvisorlist', [GetAdvisorList::class, 'find']);
     Route::post('/downline', [GetAdvisorList::class, 'downline']);
@@ -64,6 +64,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::post('/dashboard', [UsermlmController::class, 'dashboard']);
     Route::post('/adminDashboard', [UsermlmController::class, 'adminDashboard']);
     Route::post('/adminGeneratePins', [UsermlmController::class, 'adminGeneratePins']);
+    Route::post('/adminCheckPin', [UsermlmController::class, 'adminCheckPin']);
 
 
     Route::post('/payment_approved', [GetAdvisorList::class, 'payment_approved']);
