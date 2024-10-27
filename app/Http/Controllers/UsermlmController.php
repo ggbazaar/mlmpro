@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Usermlm;
 use App\Models\Admin;
+use App\Models\Pin;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class UsermlmController extends Controller
 {
@@ -1450,7 +1452,32 @@ public function updateUserDetails(Request $request, $user_id)
     ], 200);
 }
 
-
+public function adminGeneratePins(Request $request)
+{
+    $request->validate([
+        'numberOfPins' => 'required|integer|min:1',
+        'generated_by' => 'required|integer',
+        'buyer' => 'required|integer',
+    ]);
+    $numberOfPins = $request->numberOfPins;
+    $generatedBy = $request->generated_by;
+    $buyer = $request->buyer;
+    $pinsData = [];
+    for ($i = 0; $i < $numberOfPins; $i++) {
+        $pinCode = 'GGB' . strtoupper(Str::random(5));
+        $pinsData[] = [
+            'pin' => $pinCode,
+            'buyer_id' => $buyer,
+            'generated_by' => $generatedBy,
+            'created_at'=>NOW(),
+            'updated_at'=>NOW()
+          ];
+         // echo $sql="INSERT INTO pins (pin, buyer_id, generated_by, created_at, updated_at) VALUES ('$pinCode', '$buyer', '$generatedBy', NOW(), NOW())";
+         // DB::insert($sql);
+    }
+    DB::table('pins')->insert($pinsData);
+    return response()->json(['statusCode'=>1,'message' => "$numberOfPins pins have been generated successfully.","da"=>$pinsData], 200);
+}
 
 public function adminDashboard(Request $request) {
     // Fetch total users
