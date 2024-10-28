@@ -203,13 +203,25 @@ public function commissionlist(Request $request) {
     public function payment(Request $request)
     {
         // Validate the incoming request
-        $request->validate([
+        // $request->validate([
+        //     'user_id' => 'required|integer',
+        //     'kit_id' => 'required|integer',
+        //     'pay_type' => 'required|string|max:50',
+        //     'remark' => 'required|string',
+        //     'pin_code' => 'required|string', // Assuming pin_code is also passed in the request
+        // ]);
+
+        $validator = Validator::make($request->all(), [
             'user_id' => 'required|integer',
             'kit_id' => 'required|integer',
             'pay_type' => 'required|string|max:50',
             'remark' => 'required|string',
-            'pin_code' => 'required|string', // Assuming pin_code is also passed in the request
+            'pin_code' => 'nullable', // Assuming pin_code is also passed in the request
         ]);
+
+        if ($validator->fails()) {
+            return response()->json(['statusCode' => 0,'error' => 'Validation failed', 'message' => $validator->errors()], 200);
+        }
     
         // Check if the kit exists
         $kit = DB::table('kit_amounts')->where('id', $request->kit_id)->first();
@@ -231,9 +243,15 @@ public function commissionlist(Request $request) {
     
         // Process payment type 10
         if ($request->pay_type == 10) {
+            $validator = Validator::make($request->all(), [
+                'pin_code' => 'required|string', // Assuming pin_code is also passed in the request
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json(['statusCode' => 0,'error' => 'Validation failed', 'message' => $validator->errors()], 200);
+            }
             $pinCheck = $this->adminCheckPin($request->pin_code, $request->user_id);
             //var_dump($pinCheck); die("Asdfa");
-    
             if ($pinCheck) {
                 try {
                     // Create a new payment record

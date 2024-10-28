@@ -133,7 +133,7 @@ class CommissionController extends Controller
                         // If no existing record is found, insert the new commission data
                         DB::table('commissions')->insert([
                             'user_id' => $userId,
-                            'purchase_id' => $request->pay_id ?? "11", // Default to "11" if pay_id is not provided
+                            'purchase_id' => $request->pay_id ?? 0, // Default to "11" if pay_id is not provided
                             'level' => $completeLevels, // Assuming 'level' is a field in the commissions table
                             'level_commission' => $totalAmount,
                             'total_amount' => $totalAmount,
@@ -198,7 +198,7 @@ public function updateLevel(Request $request)
         'statusCode' => 1,
         'data' => $getBinaryTreeStructureJson,
         'message' => 'Successfully generated commissions for all users'
-    ]);
+    ],200);
 }
 
 
@@ -256,7 +256,7 @@ public function generate_commission11(Request $request)
         'statusCode' => 1,
         'data' => $getBinaryTreeStructureJson,
         'message' => 'Successfully generated commissions for all users'
-    ]);
+    ],200);
 }
 
 
@@ -271,7 +271,7 @@ public function getkitamount(Request $request)
         'statusCode' => 1,
         'data' => $rs,
         'message' => 'Successfully fetched kit amount data' // Updated message to match function purpose
-    ]);
+    ],200);
 }
 
 
@@ -292,7 +292,7 @@ public function getkitamount(Request $request)
             'statusCode' => 1,
             'data'=>$getBinaryTreeStructureJson3,
             'message' => 'Successfully getadvisorlist fetch out'
-        ]);
+        ],200);
     }
 
  
@@ -440,7 +440,7 @@ public function pairlevel(Request $request)
         $CompleteLevels = $this->checkCompleteLevels0Status($request->id) - 1;
         $PairMatches = pow(2, $CompleteLevels) - 1;
     }  else {
-        return response()->json(['message' => 'Invalid typeStatus value should be only 1 for active,2 for both'], 400);
+        return response()->json(['statusCode' => 0,'message' => 'Invalid typeStatus value should be only 1 for active,2 for both'], 200);
     }
 
     $Tree=$this->Tree($request->id);
@@ -487,7 +487,7 @@ public function pairlevel222(Request $request)
 
 //   return response()->json(['message' => 'Tree successfully', 'PairMatches' => $PairMatches,'CompleteLevels'=> $CompleteLevels,"RDownline"=>$RDownline,"RUpline"=>$RUpline,"LDownline"=>$LDownline,"LUpline"=>$LUpline,"getAllDescendants"=>$getAllDescendants,"getBinaryTreeStructureJson"=>$getBinaryTreeStructureJson], 201);
 
-  return response()->json(['statusCode' => 0,'message' => 'Tree successfully', 'PairMatches' => $PairMatches,'CompleteLevels'=> $CompleteLevels,"RDownline"=>$RDownline,"LDownline"=>$LDownline,"getAllDescendants"=>$getAllDescendants,"getBinaryTreeStructureJson"=>$getBinaryTreeStructureJson], 201);
+  return response()->json(['statusCode' => 0,'message' => 'Tree successfully', 'PairMatches' => $PairMatches,'CompleteLevels'=> $CompleteLevels,"RDownline"=>$RDownline,"LDownline"=>$LDownline,"getAllDescendants"=>$getAllDescendants,"getBinaryTreeStructureJson"=>$getBinaryTreeStructureJson], 200);
 
 }
 
