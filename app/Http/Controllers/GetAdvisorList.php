@@ -241,8 +241,9 @@ public function commissionlist(Request $request) {
             return response()->json(['statusCode' => 0, 'error' => 'Payment already processed. Contact support if needed.'], 200);
         }
     
+       // print_r($request->pay_type); die("ASdfasdf");
         // Process payment type 10
-        if ($request->pay_type == 10) {
+        if ($request->pay_type==10) {
             $validator = Validator::make($request->all(), [
                 'pin_code' => 'required|string', // Assuming pin_code is also passed in the request
             ]);
@@ -263,7 +264,7 @@ public function commissionlist(Request $request) {
                         'pin_code' => $request->pin_code, // Use the correct pin_code field
                         'remark' => "Pin-".$request->remark,
                         'date' => now(),
-                        'status' => 0,
+                        'status' => 1,  //for viaPinCode
                     ]);
 
                     // Mark the pin as used
@@ -272,8 +273,6 @@ public function commissionlist(Request $request) {
                     DB::table('usermlms')->where('id', $payment->user_id)->update(['status' => 1]);
                     $commi = $this->uplineListBreakFirstZero($payment->user_id, $payment->pay_id);
 
-                     
-    
                     // Return a success response
                     return response()->json([
                         'statusCode' => 1,
@@ -293,7 +292,20 @@ public function commissionlist(Request $request) {
             }
             return response()->json(['statusCode' => 0, 'message' => 'Invalid PIN. Payment could not be completed.'], 200); // 403 Forbidden
         }else{
-            $this->paymentWithoutPin($request->user_id,$request->kit_id,$request->pay_type,$request->remark);
+            $PayRs=$this->paymentWithoutPin($request->user_id,$request->kit_id,$request->pay_type,$request->remark);
+            if($PayRs){
+                return response()->json([
+                    'statusCode' => 1,
+                    'data'=>$PayRs,
+                    'message' => 'Payment completed. Thank you!'
+                ], 200);
+            }else{
+                return response()->json([
+                    'statusCode' => 0,
+                    'message' => 'Payment to already add payment',
+                    'error' => $e->getMessage() // For debugging, remove in production
+                ], 200);
+            }
         }
     
         return response()->json(['statusCode' => 0, 'message' => 'Invalid payment type. Payment could not be completed.'], 200); // 400 Bad Request
@@ -341,19 +353,21 @@ public function commissionlist(Request $request) {
             ]);
     
             // Return a success response
-            return response()->json([
-                'statusCode' => 1,
-                'data'=>$pay,
-                'message' => 'Payment completed. Thank you!'
-            ], 200);
+            // return response()->json([
+            //     'statusCode' => 1,
+            //     'data'=>$pay,
+            //     'message' => 'Payment completed. Thank you!'
+            // ], 200);
+            return $pay;
     
         } catch (\Exception $e) {
             // Return an error response if something goes wrong
-            return response()->json([
-                'statusCode' => 0,
-                'message' => 'Payment to already add payment',
-                'error' => $e->getMessage() // For debugging, remove in production
-            ], 200);
+            // return response()->json([
+            //     'statusCode' => 0,
+            //     'message' => 'Payment to already add payment',
+            //     'error' => $e->getMessage() // For debugging, remove in production
+            // ], 200);
+            return false;
         }
     }
 
