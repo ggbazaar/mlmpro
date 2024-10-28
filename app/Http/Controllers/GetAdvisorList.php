@@ -51,9 +51,18 @@ public function getkitamount(Request $request)
 
 
 public function commissionlist(Request $request) {
-    $request->validate([
-        'user_id' => 'required'        
+    // $validator=$request->validate([
+    //     'user_id' => 'required'        
+    // ]);
+
+    $validator = Validator::make($request->all(), [
+        'user_id' => 'required'     
     ]);
+
+    if ($validator->fails()) {
+        return response()->json(['statusCode' => 0,'error' => 'Validation failed', 'message' => $validator->errors()], 200);
+    }
+    
      
     $rs = DB::select("SELECT * FROM commissions WHERE user_id = $request->user_id");
     $total_paid = [];
