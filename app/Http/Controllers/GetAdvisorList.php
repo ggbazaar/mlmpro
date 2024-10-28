@@ -271,6 +271,8 @@ public function commissionlist(Request $request) {
 
                     DB::table('usermlms')->where('id', $payment->user_id)->update(['status' => 1]);
                     $commi = $this->uplineListBreakFirstZero($payment->user_id, $payment->pay_id);
+
+                     
     
                     // Return a success response
                     return response()->json([
@@ -355,6 +357,31 @@ public function commissionlist(Request $request) {
         }
     }
 
+    public function PowerLeg($user_id){
+        // Retrieve the parent_id for the given user_id
+        $dk=[];
+        $parent_id = DB::table('usermlms')->where('id', $user_id)->value('parent_id');
+        $dk['parent_id']=$parent_id;
+        // Check if parent_id exists
+        if ($parent_id) {
+            // Retrieve the powerleg value of the parent
+            $powerleg = DB::table('usermlms')->where('id', $parent_id)->value('powerleg');
+            $dk['powerleg']=$powerleg;
+            // Check if powerleg has a valid value (non-null or non-zero)
+            if ($powerleg) {
+                // Powerleg exists, perform necessary actions here
+                return $dk;
+            } else {
+                // Powerleg is null or zero, handle accordingly
+                return false;
+            }
+        } else {
+            // Handle cases where parent_id does not exist or is null
+            return false;
+        }
+    }
+    
+
 
     public function payment_approved(Request $request)
     {
@@ -399,7 +426,7 @@ public function commissionlist(Request $request) {
                     // Update user status after approval
                     DB::table('usermlms')->where('id', $payment->user_id)->update(['status' => 1]);
                     $commi = $this->uplineListBreakFirstZero($payment->user_id, $request->pay_id);
-                    
+                                      
                     // Get the user data
                     $whouser = DB::table('usermlms')->where('id', $payment->user_id)->first();
     
@@ -1682,6 +1709,24 @@ public function uplineListBreakFirstZero($childId,$payId) {
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
+
+                $powerLeg=$this->PowerLeg($node->id);
+                print_r($powerLeg);
+                die("ASdfa");
+                if($powerLeg['parent_id']){
+                    DB::table('commissions')->insert([
+                        'user_id' => $node->id,
+                        'purchase_id' => $payId, // Default to "11" if pay_id is not provided
+                        'level' => $completedLevel, // Assuming 'level' is a field in the commissions table
+                        'level_commission' => $totalAmount,
+                        'total_amount' => $totalAmount,
+                        'service_charge' => $serviceCharge,
+                        'payable_amount' => $payableAmount,
+                        'status' => 1, // 1: Approve, 2: Paid, 3: Reject, 4: Pending
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
             }
         }
         $childId = $node->parent_code;
@@ -1870,7 +1915,33 @@ public function minCompleteLevels1StatusBreak($rootId) {
     return $completedLevels;
 }
 
+public function AdminKitRequest(Request $request) {
+    // Validate the request
+    $validator = Validator::make($request->all(), [
+        'status' => 'required|numeric',
+    ]);
 
+    if ($validator->fails()) {
+        return response()->json([
+            'statusCode' => 0,
+            'error' => 'Validation failed',
+            'message' => $validator->errors()
+        ], 200);
+    }
+
+    // Fetch records with the specified status
+    $records = DB::table('payments')
+        ->join('usermlms', 'usermlms.id', '=', 'payments.user_id')
+        ->where('payments.status', $request->status)
+        ->select('payments.*', 'usermlms.name') // Select fields from both tables as needed
+        ->get();
+
+    return response()->json([
+        'statusCode' => 1,
+        'data' => $records,
+        'message' => 'Successfully fetched records'
+    ], 200);
+}
 
 
 

@@ -1594,16 +1594,28 @@ public function adminDashboard(Request $request) {
     // Prepare data for the dashboard
     $ds = [];
     $ds['totalUser'] = $totalUsers-1;  //for admin
+    $ds['todayUser'] = 0;  //for admin
+
     $ds['totalActive'] = $totalActive;
+    $ds['todayActive'] = 0;
+
     $ds['totalInactive'] = $totalInactive;
+    $ds['todayInactive'] = 0;
+
     $ds['totalBusiness'] = $totalBusiness;
+    $ds['todayBusiness'] = 0;
+
     $ds['totalComm'] = $totalComm;
+    $ds['todayComm'] = 0;
+
     $ds['totalCommPaid'] = $totalCommPaid;
+    $ds['todayCommPaid'] = 0;
+
     $ds['totalCommUnpaid'] = $totalCommUnpaid;
+    $ds['todayCommUnpaid'] = 0;
+
     $ds['totalkitRequest'] = $totalkitRequest;
-    $ds['todaykitRequest'] = $todaykitRequest;
-
-
+    $ds['todaykitRequest'] = 0;
 
     return response()->json([
         'statusCode' => 1,
@@ -1631,9 +1643,7 @@ public function dashboard(Request $request){
         return response()->json(['statusCode' => 0,'error' => 'Validation failed', 'message' => $validator->errors()], 200);
     }
 
-    // $users = Usermlm::select('name', 'id', 'child_left', 'child_right', 'self_code', 'parent_code', 'status')
-    // ->where('id', $request->user_id)
-    // ->get();
+   
     $users = Usermlm::select('usermlms.name', 'usermlms.id', 'usermlms.child_left', 'usermlms.child_right', 'usermlms.self_code', 'usermlms.parent_code', 'usermlms.status')
     ->join('payments', 'payments.user_id', '=', 'usermlms.id')
     ->where('usermlms.id', $request->user_id)
@@ -1641,15 +1651,37 @@ public function dashboard(Request $request){
     ->get();
 
     if ($users->isEmpty()) {
-        return response()->json(['statusCode'=>0,'message' => 'No users found with active payments.','data'=>$request->user_id], 200);
+        // return response()->json(['statusCode'=>0,'message' => 'No users found with active payments.','data'=>$request->user_id], 200);
+        $users = Usermlm::select('name', 'id', 'child_left', 'child_right', 'self_code', 'parent_code', 'status')
+            ->where('id', $request->user_id)
+            ->get();
     }
 
-    $LDownline = $this->MyDown($users[0]->child_left); 
-    $RDownline = $this->MyDown($users[0]->child_right);
+   
+   
+    $LDownline['status_0']=[];
+    $LDownline['status_1']=[];
+
+    $LDownline1['status_0']=[];
+    $LDownline1['status_1']=[];
 
 
-    $LDownline1 = $this->MyDownStatus1($users[0]->child_left); 
-    $RDownline1 = $this->MyDownStatus1($users[0]->child_right);
+    $RDownline['status_0']=[];
+    $RDownline['status_1']=[];
+
+
+    $RDownline1['status_0']=[];
+    $RDownline1['status_1']=[];
+
+
+    if($users[0]->child_left){
+        $LDownline = $this->MyDown($users[0]->child_left); 
+        $LDownline1 = $this->MyDownStatus1($users[0]->child_left); 
+    }
+    if($users[0]->child_right){
+        $RDownline = $this->MyDown($users[0]->child_right);
+        $RDownline1 = $this->MyDownStatus1($users[0]->child_right);
+    }
 
 
     
