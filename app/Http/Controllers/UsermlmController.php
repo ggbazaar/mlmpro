@@ -56,21 +56,19 @@ class UsermlmController extends Controller
             }
     
             // Unauthorized response if credentials are incorrect
-            return response()->json(['statusCode' => 0, 'error' => 'Unauthorized'], 401);
+            return response()->json(['statusCode' => 0, 'error' => 'Unauthorized'], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'statusCode' => 0,
                 'message' => 'An error occurred during login.',
                 'error' => $e->getMessage(),
-            ], 500); // Changed to 500 for server errors
+            ], 200); // Changed to 500 for server errors
         }
     }
     
 
-    public function signin(Request $request)
+public function signin(Request $request)
 {
-   
-
     try {
         // Validate the request inputs
         $request->validate([
@@ -79,17 +77,21 @@ class UsermlmController extends Controller
             'remember_me' => 'boolean'
         ]);
 
-
-
         // Get the credentials from the request
         $credentials = $request->only(['mobile', 'password']);
         // Find the user by their contact (or email)
         $user = Usermlm::where('email', $credentials['mobile'])
                         ->orWhere('mobile', $credentials['mobile'])
                         ->first();
+
+         if(!$user){
+            return response()->json([
+                'statusCode' => 0,
+                'message' => "Invalid Credentials "
+            ], 200);
+         }               
         // Check if the user exists and if the password is correct
          
-        // die("Dadsd");
       //  if (!$user || !Hash::check($credentials['password'], $user->password)) {
         if ($user && $credentials['password'] !== $user->password) {
             // Return the response for invalid credentials
@@ -135,9 +137,9 @@ class UsermlmController extends Controller
     } catch (Exception $e) {
         // Handle the exception and return a custom error message
         return response()->json([
-            'statusCode' => 1,
+            'statusCode' => 0,
             'error' => $e->getMessage()
-        ], 401);
+        ], 200);
     }
 }
 
@@ -152,7 +154,7 @@ public function findbyfield(Request $request)
 
     // Check if validation fails
     if ($validator->fails()) {
-        return response()->json(['error' => 'Validation failed', 'message' => $validator->errors()], 400);
+        return response()->json(['statusCode' => 0,'error' => 'Validation failed', 'message' => $validator->errors()], 200);
     }
     // Extract both 'field' and 'value' from the request
     $req = $request->only(['field', 'value']);
@@ -212,7 +214,7 @@ public function findbyfield(Request $request)
 
       //$getAllLeftDescendantsWithSubChildren=$this->getAllLeftDescendantsWithSubChildren($request->id);
 
-      return response()->json(['message' => 'Tree successfully', 'PairMatches' => $PairMatches,'CompleteLevels'=> $CompleteLevels,"RDownline"=>$RDownline,"RUpline"=>$RUpline,"LDownline"=>$LDownline,"LUpline"=>$LUpline,"getAllDescendants"=>$getAllDescendants,"getBinaryTreeStructureJson"=>$getBinaryTreeStructureJson], 201);
+      return response()->json(['statusCode' => 1,'message' => 'Tree successfully', 'PairMatches' => $PairMatches,'CompleteLevels'=> $CompleteLevels,"RDownline"=>$RDownline,"RUpline"=>$RUpline,"LDownline"=>$LDownline,"LUpline"=>$LUpline,"getAllDescendants"=>$getAllDescendants,"getBinaryTreeStructureJson"=>$getBinaryTreeStructureJson], 200);
     }
 
     public function store(Request $request)
@@ -240,7 +242,8 @@ public function findbyfield(Request $request)
 
         // Handle validation failure
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return response()->json(['statusCode' => 0,'error' => 'Validation failed', 'message' => $validator->errors()], 200);
+            //return response()->json($validator->errors(), 200);
         }
 
         //$lastUser = Usermlm::latest('id')->first();
@@ -259,7 +262,7 @@ public function findbyfield(Request $request)
         $getBinaryTreeStructureJson1 = $this->getBinaryTreeStructureJson1($sponsoredCode);
         $nodeAdd = !empty($getBinaryTreeStructureJson1) ? $getBinaryTreeStructureJson1[0][0] : null;
         if (!$nodeAdd) {
-            return response()->json(['status' => 0, 'message' => 'Parent code not found or invalid'], 404); // 404 Not Found
+            return response()->json(['status' => 0, 'message' => 'Parent code not found or invalid'], 200); // 404 Not Found
         }
 
         // $getBinaryTreeStructureJson1=$this->getBinaryTreeStructureJson1($request->parent_code);
@@ -344,7 +347,7 @@ public function findbyfield(Request $request)
         $rs1->password = $rs1->plain_password;
         // Remove the plain_password property
         unset($rs1->plain_password);
-        return response()->json(['statusCode'=>1,'message' => 'User created successfully', 'user' => $rs1], 201);
+        return response()->json(['statusCode'=>1,'message' => 'User created successfully', 'user' => $rs1], 200);
     }
 
     public function LeftDownline($parent_code){
@@ -1394,7 +1397,7 @@ public function updateUserDetails(Request $request, $user_id)
     $user = Usermlm::find($user_id);
 
     if (!$user) {
-        return response()->json(['error' => 'User not found'], 404);
+        return response()->json(['statusCode'=>0,'error' => 'User not found'], 200);
     }
 
     // Update the fields only if they are present in the request
@@ -1610,9 +1613,23 @@ public function adminDashboard(Request $request) {
 
 public function dashboard(Request $request){
 
-    $request->validate([
-        'user_id' => 'required'        
+    // $request->validate([
+    //     'user_id' => 'required'        
+    // ]);
+
+    // if ($validator->fails()) {
+    //     return response()->json(['error' => 'Validation failed', 'message' => $validator->errors()], 200);
+    // }
+
+
+    $validator = Validator::make($request->all(), [
+        'user_id' => 'required'
     ]);
+
+    // Check if validation fails
+    if ($validator->fails()) {
+        return response()->json(['statusCode' => 0,'error' => 'Validation failed', 'message' => $validator->errors()], 200);
+    }
 
     // $users = Usermlm::select('name', 'id', 'child_left', 'child_right', 'self_code', 'parent_code', 'status')
     // ->where('id', $request->user_id)
@@ -1624,7 +1641,7 @@ public function dashboard(Request $request){
     ->get();
 
     if ($users->isEmpty()) {
-        return response()->json(['statusCode'=>0,'message' => 'No users found with active payments.','data'=>$request->user_id], 404);
+        return response()->json(['statusCode'=>0,'message' => 'No users found with active payments.','data'=>$request->user_id], 200);
     }
 
     $LDownline = $this->MyDown($users[0]->child_left); 
@@ -1732,7 +1749,7 @@ public function dashboard22(Request $request){
     ->get();
 
     if ($users->isEmpty()) {
-        return response()->json(['statusCode'=>0,'message' => 'No users found with active payments.','data'=>$request->user_id], 404);
+        return response()->json(['statusCode'=>0,'message' => 'No users found with active payments.','data'=>$request->user_id], 200);
     }
 
     $LDownline = $this->MyDown($users[0]->child_left); 

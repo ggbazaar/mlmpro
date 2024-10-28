@@ -75,7 +75,7 @@ class CommissionController extends Controller
             'statusCode' => 1,
             'data' => $insertedCount,
             'message' => 'Successfully generated commissions for all users'
-        ]);
+        ],200);
     }
     
 
@@ -159,7 +159,7 @@ class CommissionController extends Controller
             'statusCode' => 1,
             'data' => $getBinaryTreeStructureJson,
             'message' => 'Successfully generated commissions for all users'
-        ]);
+        ],200);
     }
     
 
@@ -323,7 +323,7 @@ public function getkitamount(Request $request)
             return response()->json([
                 'statusCode' => 1,
                 'message' => 'Payment added successfully'
-            ]);
+            ],200);
     
         } catch (\Exception $e) {
             // Return an error response if something goes wrong
@@ -352,7 +352,7 @@ public function payment_approved(Request $request)
             return response()->json([
                 'statusCode' => 0,
                 'message' => 'Approver not found'
-            ], 404);  // 404 Not Found
+            ], 200);  // 404 Not Found
         }
 
         // Find the payment by ID
@@ -362,7 +362,7 @@ public function payment_approved(Request $request)
             return response()->json([
                 'statusCode' => 0,
                 'message' => 'Payment not found'
-            ], 404);  // 404 Not Found
+            ], 200);  // 404 Not Found
         }
 
         // Update the payment details
@@ -375,7 +375,7 @@ public function payment_approved(Request $request)
         return response()->json([
             'statusCode' => 1,
             'message' => 'Payment approved successfully'
-        ]);
+        ],200);
 
     } catch (\Exception $e) {
         // Return an error response if something goes wrong
@@ -446,6 +446,7 @@ public function pairlevel(Request $request)
     $Tree=$this->Tree($request->id);
     // Return the response as JSON
     return response()->json([
+        'statusCode' => 0,
         'message' => 'Tree successfully',
         'LDownline' => $LDownline,
         'RDownline' => $RDownline,
@@ -453,8 +454,7 @@ public function pairlevel(Request $request)
         'PairMatches' => $PairMatches,
         'CompleteLevels' => $CompleteLevels,
         'Tree' => $Tree,
-
-    ], 201);
+    ], 200);
 }
 
     
@@ -487,7 +487,7 @@ public function pairlevel222(Request $request)
 
 //   return response()->json(['message' => 'Tree successfully', 'PairMatches' => $PairMatches,'CompleteLevels'=> $CompleteLevels,"RDownline"=>$RDownline,"RUpline"=>$RUpline,"LDownline"=>$LDownline,"LUpline"=>$LUpline,"getAllDescendants"=>$getAllDescendants,"getBinaryTreeStructureJson"=>$getBinaryTreeStructureJson], 201);
 
-  return response()->json(['message' => 'Tree successfully', 'PairMatches' => $PairMatches,'CompleteLevels'=> $CompleteLevels,"RDownline"=>$RDownline,"LDownline"=>$LDownline,"getAllDescendants"=>$getAllDescendants,"getBinaryTreeStructureJson"=>$getBinaryTreeStructureJson], 201);
+  return response()->json(['statusCode' => 0,'message' => 'Tree successfully', 'PairMatches' => $PairMatches,'CompleteLevels'=> $CompleteLevels,"RDownline"=>$RDownline,"LDownline"=>$LDownline,"getAllDescendants"=>$getAllDescendants,"getBinaryTreeStructureJson"=>$getBinaryTreeStructureJson], 201);
 
 }
 

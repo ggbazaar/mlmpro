@@ -31,7 +31,7 @@ class GetAdvisorList extends Controller
             'statusCode' => 1,
             'data'=>$getBinaryTreeStructureJson,
             'message' => 'Successfully getadvisorlist fetch out'
-        ]);
+        ],200);
     }
 
 
@@ -45,7 +45,7 @@ public function getkitamount(Request $request)
         'statusCode' => 1,
         'data' => $rs,
         'message' => 'Successfully fetched kit amount data' // Updated message to match function purpose
-    ]);
+    ],200);
 }
 
 
@@ -85,7 +85,7 @@ public function commissionlist(Request $request) {
         return response()->json([
             'statusCode' => 0,
             'message' => 'User Id not exist fetch out'
-        ]);
+        ],200);
     }
     $typeStatus = 1;
     // $getBinaryTreeStructureJson3=$this->getBinaryTreeStructureJson3($umlm->id,$typeStatus);
@@ -115,7 +115,7 @@ public function commissionlist(Request $request) {
             return response()->json([
                 'statusCode' => 0,
                 'message' => 'User Id not exist fetch out'
-            ]);
+            ],200);
         }
         $req1 = json_decode($request->getContent());
         $typeStatus = $request->input('typeStatus', '2');
@@ -124,7 +124,7 @@ public function commissionlist(Request $request) {
             'statusCode' => 1,
             'data'=>$getBinaryTreeStructureJson3,
             'message' => 'Successfully getadvisorlist fetch out'
-        ]);
+        ],200);
     }
 
 
@@ -205,19 +205,19 @@ public function commissionlist(Request $request) {
         // Check if the kit exists
         $kit = DB::table('kit_amounts')->where('id', $request->kit_id)->first();
         if (empty($kit)) {
-            return response()->json(['statusCode' => 0, 'error' => 'Kit not found. Verify selection and retry.'], 404);
+            return response()->json(['statusCode' => 0, 'error' => 'Kit not found. Verify selection and retry.'], 200);
         }
     
         // Check if the user exists
         $user = DB::table('usermlms')->where('id', $request->user_id)->first();
         if (empty($user)) {
-            return response()->json(['statusCode' => 0, 'error' => 'User not found. Please check and try again.'], 404);
+            return response()->json(['statusCode' => 0, 'error' => 'User not found. Please check and try again.'], 200);
         }
     
         // Check if the payment has already been processed for the user
         $paymentExists = DB::table('payments')->where('user_id', $request->user_id)->exists();
         if ($paymentExists) {
-            return response()->json(['statusCode' => 0, 'error' => 'Payment already processed. Contact support if needed.'], 400);
+            return response()->json(['statusCode' => 0, 'error' => 'Payment already processed. Contact support if needed.'], 200);
         }
     
         // Process payment type 10
@@ -251,7 +251,7 @@ public function commissionlist(Request $request) {
                         'data' => $payment,
                         'data_comm'=>$commi,
                         'message' => 'Payment completed. Thank you!'
-                    ], 201); // 201 Created
+                    ], 200); // 201 Created
     
                 } catch (\Exception $e) {
                     // Return an error response if something goes wrong
@@ -259,7 +259,7 @@ public function commissionlist(Request $request) {
                         'statusCode' => 0,
                         'message' => 'Failed to process payment.',
                         'error' => config('app.debug') ? $e->getMessage() : 'An error occurred. Please try again later.' // Conditional error message for debugging
-                    ], 500); // 500 Internal Server Error
+                    ], 200); // 500 Internal Server Error
                 }
             }
             return response()->json(['statusCode' => 0, 'message' => 'Invalid PIN. Payment could not be completed.'], 200); // 403 Forbidden
@@ -267,7 +267,7 @@ public function commissionlist(Request $request) {
             $this->paymentWithoutPin($request->user_id,$request->kit_id,$request->pay_type,$request->remark);
         }
     
-        return response()->json(['statusCode' => 0, 'message' => 'Invalid payment type. Payment could not be completed.'], 400); // 400 Bad Request
+        return response()->json(['statusCode' => 0, 'message' => 'Invalid payment type. Payment could not be completed.'], 200); // 400 Bad Request
     }
     
 
@@ -316,7 +316,7 @@ public function commissionlist(Request $request) {
                 'statusCode' => 1,
                 'data'=>$pay,
                 'message' => 'Payment completed. Thank you!'
-            ]);
+            ], 200);
     
         } catch (\Exception $e) {
             // Return an error response if something goes wrong
@@ -350,7 +350,7 @@ public function commissionlist(Request $request) {
                     return response()->json([
                         'statusCode' => 0,
                         'message' => 'Approver not found'
-                    ], 404);  // 404 Not Found
+                    ], 200);  // 404 Not Found
                 }
     
                 // Find the payment by ID
@@ -359,7 +359,7 @@ public function commissionlist(Request $request) {
                     return response()->json([
                         'statusCode' => 0,
                         'message' => 'Payment not found'
-                    ], 404);  // 404 Not Found
+                    ], 200);  // 404 Not Found
                 }
     
                 // Update the payment details
@@ -384,14 +384,14 @@ public function commissionlist(Request $request) {
                         'data_comm' => $commi,
                         'success' => true,
                         'message' => 'Payment processed successfully.'
-                    ]);
+                    ], 200);
                 } else {
                     // Payment failed to save
                     return response()->json([
                         'statusCode' => 0,
                         'success' => false,
                         'message' => 'Failed to process payment. Please try again.'
-                    ], 500);
+                    ], 200);
                 }
             } catch (\Exception $e) {
                 // Return an error response if something goes wrong
@@ -399,13 +399,13 @@ public function commissionlist(Request $request) {
                     'statusCode' => 0,
                     'message' => 'Failed to approve payment',
                     'error' => $e->getMessage()  // For debugging, remove in production
-                ], 500);
+                ], 200);
             }
         } else {
             return response()->json([
                 'statusCode' => 0,
                 'message' => 'Unauthorized action.',
-            ], 403);  // 403 Forbidden
+            ], 200);  // 403 Forbidden
         }
     }
     
@@ -462,12 +462,13 @@ public function pairlevel(Request $request)
         $CompleteLevels = $this->checkCompleteLevels0Status($request->id) - 1;
         $PairMatches = pow(2, $CompleteLevels) - 1;
     }  else {
-        return response()->json(['message' => 'Invalid typeStatus value should be only 1 for active,2 for both'], 400);
+        return response()->json(['statusCode' => 0,'message' => 'Invalid typeStatus value should be only 1 for active,2 for both'], 200);
     }
 
     $Tree=$this->Tree($request->id);
     // Return the response as JSON
     return response()->json([
+        'statusCode' => 0,
         'message' => 'Tree successfully',
         'LDownline' => $LDownline,
         'RDownline' => $RDownline,
@@ -475,8 +476,7 @@ public function pairlevel(Request $request)
         'PairMatches' => $PairMatches,
         'CompleteLevels' => $CompleteLevels,
         'Tree' => $Tree,
-
-    ], 201);
+    ], 200);
 }
 
     
@@ -509,7 +509,7 @@ public function pairlevel222(Request $request)
 
 //   return response()->json(['message' => 'Tree successfully', 'PairMatches' => $PairMatches,'CompleteLevels'=> $CompleteLevels,"RDownline"=>$RDownline,"RUpline"=>$RUpline,"LDownline"=>$LDownline,"LUpline"=>$LUpline,"getAllDescendants"=>$getAllDescendants,"getBinaryTreeStructureJson"=>$getBinaryTreeStructureJson], 201);
 
-  return response()->json(['message' => 'Tree successfully', 'PairMatches' => $PairMatches,'CompleteLevels'=> $CompleteLevels,"RDownline"=>$RDownline,"LDownline"=>$LDownline,"getAllDescendants"=>$getAllDescendants,"getBinaryTreeStructureJson"=>$getBinaryTreeStructureJson], 201);
+  return response()->json(['statusCode' => 0,'message' => 'Tree successfully', 'PairMatches' => $PairMatches,'CompleteLevels'=> $CompleteLevels,"RDownline"=>$RDownline,"LDownline"=>$LDownline,"getAllDescendants"=>$getAllDescendants,"getBinaryTreeStructureJson"=>$getBinaryTreeStructureJson], 200);
 
 }
 
@@ -932,7 +932,7 @@ public function pairlevel222(Request $request)
 
         return response()->json([
             'depth' => $depth
-        ]);
+        ],200);
     }
 
 
