@@ -371,27 +371,47 @@ public function commissionlist(Request $request) {
         }
     }
 
-    public function PowerLeg($user_id){
-        // Retrieve the parent_id for the given user_id
+    public function funPowerLeg($user_id){
+       
+        // Retrieve the parent_code for the given user_id
         $dk=[];
-        $parent_id = DB::table('usermlms')->where('id', $user_id)->value('parent_id');
-        $dk['parent_id']=$parent_id;
-        // Check if parent_id exists
-        if ($parent_id) {
+        $dk['powerlegCommission']=false; //ismain
+        $parent_code = DB::table('usermlms')->where('id', $user_id)->value('parent_code');
+      
+      //  print_r($parent_code); die("Ada");
+        $dk['user_id']=$user_id;
+        $dk['parent_code']=$parent_code;
+        // Check if parent_code exists
+        if ($parent_code) {
             // Retrieve the powerleg value of the parent
-            $powerleg = DB::table('usermlms')->where('id', $parent_id)->value('powerleg');
-            $dk['powerleg']=$powerleg;
-            // Check if powerleg has a valid value (non-null or non-zero)
-            if ($powerleg) {
-                // Powerleg exists, perform necessary actions here
-                return $dk;
-            } else {
-                // Powerleg is null or zero, handle accordingly
-                return false;
+            $powerLegData = DB::table('usermlms')
+            ->where('id', $parent_code)
+            ->select('powerleg', 'child_left', 'child_right')
+            ->first();
+
+            $dk['powerleg']=$powerLegData->powerleg;
+            $dk['child_left']=$powerLegData->child_left;
+            $dk['child_right']=$powerLegData->child_right;
+
+            if($powerLegData->powerleg==1){
+                if($powerLegData->child_left==$user_id){
+                    // return true;
+                    $dk['powerlegCommission']=true;
+                    return $dk;
+                }else{
+                    return $dk;
+                }
+            }else if($powerLegData->powerleg==2){
+                if($powerLegData->child_right==$user_id){
+                    // return true;
+                    $dk['powerlegCommission']=true;
+                    return $dk;
+                }else{
+                    return $dk;
+                }
             }
         } else {
-            // Handle cases where parent_id does not exist or is null
-            return false;
+            return $dk;
         }
     }
     
@@ -1711,6 +1731,8 @@ public function uplineListBreakFirstZero($childId,$payId) {
                 $totalAmount = 300; //$completeLevels * 300;
                 $serviceCharge = $totalAmount * 0.10; // 10% of total amount
                 $payableAmount = $totalAmount - $serviceCharge; 
+                $pleg=$this->funPowerLeg($node->id);
+                //print_R($pleg); die("Asdfa");
                 DB::table('commissions')->insert([
                     'user_id' => $node->id,
                     'purchase_id' => $payId, // Default to "11" if pay_id is not provided
@@ -1724,12 +1746,11 @@ public function uplineListBreakFirstZero($childId,$payId) {
                     'updated_at' => now(),
                 ]);
 
-                $powerLeg=$this->PowerLeg($node->id);
-                print_r($powerLeg);
-                die("ASdfa");
-                if($powerLeg['parent_id']){
+              
+                if (!empty($pleg) && !empty($pleg['powerlegCommission'])) {
                     DB::table('commissions')->insert([
-                        'user_id' => $node->id,
+                        'user_id' => $pleg['parent_code'],
+                        'powerleg_child' => $node->id,
                         'purchase_id' => $payId, // Default to "11" if pay_id is not provided
                         'level' => $completedLevel, // Assuming 'level' is a field in the commissions table
                         'level_commission' => $totalAmount,
@@ -1737,6 +1758,7 @@ public function uplineListBreakFirstZero($childId,$payId) {
                         'service_charge' => $serviceCharge,
                         'payable_amount' => $payableAmount,
                         'status' => 1, // 1: Approve, 2: Paid, 3: Reject, 4: Pending
+                        'remark' => "ByPowerLeg " . json_encode($pleg),
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
