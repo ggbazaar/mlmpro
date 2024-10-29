@@ -337,7 +337,7 @@ public function getkitamount(Request $request)
 
 
 
-public function payment_approved(Request $request)
+public function payment_approvedxxx(Request $request)
 {   
     // Validate incoming request
     $request->validate([
