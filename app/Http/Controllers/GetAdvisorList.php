@@ -1969,7 +1969,7 @@ public function AdminKitRequest(Request $request) {
     $records = DB::table('payments')
         ->join('usermlms', 'usermlms.id', '=', 'payments.user_id')
         ->where('payments.status', $request->status)
-        ->select('payments.*', 'usermlms.name') // Select fields from both tables as needed
+        ->select('payments.*', 'usermlms.name','usermlms.mobile') // Select fields from both tables as needed
         ->get();
 
     return response()->json([

@@ -1567,55 +1567,65 @@ public function adminGeneratePins(Request $request)
 
 public function adminDashboard(Request $request) {
     // Fetch total users
+     $today = Carbon::today()->toDateString();
+    //die("ASDFA");
+
     $totalUsers = DB::table('usermlms')->count();
+    $todayUsers = DB::select("SELECT COUNT(*) as sums FROM usermlms WHERE DATE(created_at) = ?", [$today]);
+
 
     // Fetch total active users
     $totalActive = DB::table('usermlms')->where('status', 1)->count();
+    $todayActive = DB::select("SELECT COUNT(*) as sums FROM usermlms WHERE status = 1 AND DATE(created_at) = ?", [$today]);
 
     // Fetch total inactive users
     $totalInactive = DB::table('usermlms')->where('status', 0)->count();
+    $todayInactive = DB::select("SELECT COUNT(*) as sums FROM usermlms WHERE status = 0 AND DATE(created_at) = ?", [$today]);
 
     // Fetch total business (sum of all payments' amount)
     $totalBusiness = DB::table('payments')->where('status', 1)->sum('amount');
+    $todayBusiness = DB::select("SELECT SUM(amount) as sums FROM payments WHERE status = 1 AND DATE(created_at) = ?", [$today]);
 
     // Fetch total commissions (sum of all commissions' amount)
     $totalComm = DB::table('commissions')->sum('payable_amount');
-
+    //$todayComm = DB::table('commissions')->sum('payable_amount')->whereDate('created_at5', Carbon::today())->count();
+    $todayComm = DB::select("SELECT SUM(payable_amount) as sums FROM commissions WHERE DATE(created_at) = '$today'");
 
     $totalCommUnpaid = DB::table('commissions')->where('status', 1)->sum('payable_amount');
- //   $todaykitRequest = DB::table('payments')->where('status', 0)->count();  creted_at today 2024-10-25 11:11:33	
+    $todayCommUnpaid = DB::select("SELECT SUM(payable_amount) as sums FROM commissions WHERE status = 1 AND DATE(created_at) = ?", [$today]);
 
     $totalCommPaid = DB::table('commissions')->where('status', 2)->sum('payable_amount');
+    $todayCommPaid = DB::select("SELECT SUM(payable_amount) as sums FROM commissions WHERE status = 2 AND DATE(created_at) = ?", [$today]);
 
-    $totalkitRequest = DB::table('payments')->where('status', 0)->count();
-    $todaykitRequest = DB::table('payments')->where('status', 0)->whereDate('created_at', Carbon::today())->count();
+    $totalkitRequest = DB::table('payments')->count();
+    $todaykitRequest = DB::table('payments')->whereDate('created_at', Carbon::today())->count();
     //$todaykitRequest =0;
 
     // Prepare data for the dashboard
     $ds = [];
     $ds['totalUser'] = $totalUsers-1;  //for admin
-    $ds['todayUser'] = 0;  //for admin
+    $ds['todayUser'] = $todayUsers[0]->sums;  //for admin
 
     $ds['totalActive'] = $totalActive;
-    $ds['todayActive'] = 0;
+    $ds['todayActive'] =  $todayActive[0]->sums;
 
     $ds['totalInactive'] = $totalInactive;
-    $ds['todayInactive'] = 0;
+    $ds['todayInactive'] = $todayInactive[0]->sums;
 
     $ds['totalBusiness'] = $totalBusiness;
-    $ds['todayBusiness'] = 0;
+    $ds['todayBusiness'] = $todayBusiness[0]->sums;
 
     $ds['totalComm'] = $totalComm;
-    $ds['todayComm'] = 0;
+    $ds['todayComm'] = $todayComm[0]->sums;
 
     $ds['totalCommPaid'] = $totalCommPaid;
-    $ds['todayCommPaid'] = 0;
+    $ds['todayCommPaid'] = $todayCommPaid[0]->sums??0;  // $todayComm[0]->sums;
 
     $ds['totalCommUnpaid'] = $totalCommUnpaid;
-    $ds['todayCommUnpaid'] = 0;
+    $ds['todayCommUnpaid'] = $todayCommUnpaid[0]->sums;  
 
     $ds['totalkitRequest'] = $totalkitRequest;
-    $ds['todaykitRequest'] = 0;
+    $ds['todaykitRequest'] = $todaykitRequest;
 
     return response()->json([
         'statusCode' => 1,
