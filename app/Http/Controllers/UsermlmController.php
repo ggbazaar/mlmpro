@@ -219,6 +219,7 @@ public function findbyfield(Request $request)
 
     public function store(Request $request)
     {
+
         // Validation
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
@@ -247,10 +248,17 @@ public function findbyfield(Request $request)
         }
 
         //$lastUser = Usermlm::latest('id')->first();
-        $lastUser = Usermlm::max('id'); 
-        $id = $lastUser ? $lastUser + 1 : 1;
-      
+        $lastUser = Usermlm::max('id')?? 0;
+        if ($lastUser == 0) {
+            $sql = "INSERT INTO `usermlms` (`id`, `child_left`, `child_right`, `last_left`, `last_right`, `name`, `level`, `paid_level`, `self_code`, `mobile`, `email`, `whatsapp`, `pan`, `adhar`, `relation`, `relation_name`, `gender`, `used_code`, `dob`, `referral_code`, `parent_code`, `role`, `side`, `powerleg`, `parent_id`, `status`, `password`, `plain_password`, `api_token`, `added_below`, `created_at`, `updated_at`) 
+            VALUES 
+            (1, '', '', '', '', 'Admin', 0, NULL, '', '7985003120', 'admin@gmail.com', '', '', '', '', '', 'Male', '', '31/10/1989', NULL, '0', '2', 0, NULL, NULL, 1, 'password@123', NULL, NULL, NULL, '2024-10-28 11:41:41', '2024-10-28 11:41:41'),
+            (2, '', '', '', '', 'Root', 0, NULL, 'GGB22024', '8800318153', 'ggbroot@gmail.com', '', '', '', '', 'root', 'Male', '0', '31/10/1989', NULL, '0', '1', 0, NULL, NULL, 1, 'password@123', NULL, NULL, NULL, '2024-10-29 16:21:05', '2024-10-29 16:21:05')";
+            DB::statement($sql);
+            $lastUser = Usermlm::max('id')?? 0;
+        }
 
+        $id = $lastUser ? $lastUser + 1 : 1;
         $isUnique = DB::table('usermlms')->where('mobile', $request->mobile)->exists();
         $result = $isUnique ? 1 : 0; // 1 if unique, 0 if duplicate
         if($result){
