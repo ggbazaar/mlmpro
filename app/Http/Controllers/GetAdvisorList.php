@@ -238,7 +238,7 @@ public function commissionlist(Request $request) {
         // Check if the payment has already been processed for the user
         $paymentExists = DB::table('payments')->where('user_id', $request->user_id)->exists();
         if ($paymentExists) {
-            return response()->json(['statusCode' => 0, 'error' => 'Payment already processed. Contact support if needed.'], 200);
+            return response()->json(['statusCode' => 0, 'error' => 'Payment already processed.. Contact support if needed.'], 200);
         }
     
        // print_r($request->pay_type); die("ASdfasdf");
@@ -335,9 +335,10 @@ public function commissionlist(Request $request) {
             return response()->json([ 'statusCode' => 0,'error' => 'User not found. Please check and try again.'], 200);
         }
 
-        $pusers= DB::select("SELECT * FROM payments WHERE id = $user_id");
+        //$pusers= DB::select("SELECT * FROM payments WHERE id = $user_id");
+        $pusers = DB::table('payments')->where('user_id', $user_id)->exists();
         if (!empty($pusers)) {
-            return response()->json([ 'statusCode' => 0,'error' => 'Payment already processed. Contact support if needed..'], 200);
+            return response()->json([ 'statusCode' => 0,'error' => 'Payment already processed., Contact support if needed..'], 200);
         }
 
         try {
@@ -1979,6 +1980,42 @@ public function AdminKitRequest(Request $request) {
     ], 200);
 }
 
+
+public function AdminSetpowerleg(Request $request)
+    {
+        // Validate the incoming request
+        // $request->validate([
+        //     'user_id' => 'required|integer|exists:usermlms,id',
+        //     'powerleg' => 'required|integer'
+        // ]);
+
+
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|integer|exists:usermlms,id',
+            'powerleg' => 'required|integer'
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'statusCode' => 0,
+                'error' => 'Validation failed',
+                'message' => $validator->errors()
+            ], 200);
+        }
+
+        // Find the user by user_id
+        $user = Usermlm::find($request->user_id);
+
+        // Update the powerleg field
+        $user->powerleg = $request->powerleg;
+        $user->save();
+
+        // Return a response
+        return response()->json([
+            'message' => 'Powerleg updated successfully',
+            'user' => $user
+        ], 200);
+    }
 
 
 }
