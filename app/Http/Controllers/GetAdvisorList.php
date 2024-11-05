@@ -220,25 +220,25 @@ public function commissionlist(Request $request) {
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['statusCode' => 0,'error' => 'Validation failed', 'message' => $validator->errors()], 200);
+            return response()->json(['statusCode' => 0,'message' => 'Validation failed', 'error' => $validator->errors()], 200);
         }
     
         // Check if the kit exists
         $kit = DB::table('kit_amounts')->where('id', $request->kit_id)->first();
         if (empty($kit)) {
-            return response()->json(['statusCode' => 0, 'error' => 'Kit not found. Verify selection and retry.'], 200);
+            return response()->json(['statusCode' => 0, 'message' => 'Kit not found. Verify selection and retry.'], 200);
         }
     
         // Check if the user exists
         $user = DB::table('usermlms')->where('id', $request->user_id)->first();
         if (empty($user)) {
-            return response()->json(['statusCode' => 0, 'error' => 'User not found. Please check and try again.'], 200);
+            return response()->json(['statusCode' => 0, 'message' => 'User not found. Please check and try again.'], 200);
         }
     
         // Check if the payment has already been processed for the user
         $paymentExists = DB::table('payments')->where('user_id', $request->user_id)->exists();
         if ($paymentExists) {
-            return response()->json(['statusCode' => 0, 'error' => 'Payment already processed.. Contact support if needed.'], 200);
+            return response()->json(['statusCode' => 0, 'message' => 'Payment already processed.. Contact support if needed.'], 200);
         }
     
        // print_r($request->pay_type); die("ASdfasdf");

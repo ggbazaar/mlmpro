@@ -16,6 +16,7 @@ class Kitamount extends Authenticatable
         'title',
         'description',
         'amount',
+        'bv',
         'status', 
         'created_at',
         'updated_at'

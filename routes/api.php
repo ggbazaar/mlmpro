@@ -48,6 +48,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
     Route::post('/getadvisorlist', [GetAdvisorList::class, 'find']);
     Route::post('/downline', [GetAdvisorList::class, 'downline']);
+    Route::post('/myChild', [UsermlmController::class, 'myChild']);
+    
     Route::post('/downline_type', [GetAdvisorList::class, 'downline_type']);
     Route::post('/payment', [GetAdvisorList::class, 'payment']);
     Route::get('/getkitamount', [GetAdvisorList::class, 'getkitamount']);

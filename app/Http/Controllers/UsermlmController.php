@@ -1730,10 +1730,15 @@ public function dashboard(Request $request){
     if($users[0]->child_left){
         $LDownline = $this->MyDown($users[0]->child_left); 
         $LDownline1 = $this->MyDownStatus1($users[0]->child_left); 
+
+        $LDownlineToday = $this->MyDownToday($users[0]->child_left); 
+        $LDownline1Today = $this->MyDownStatus1Today($users[0]->child_left); 
     }
     if($users[0]->child_right){
         $RDownline = $this->MyDown($users[0]->child_right);
         $RDownline1 = $this->MyDownStatus1($users[0]->child_right);
+        $RDownlineToday = $this->MyDownToday($users[0]->child_right);
+        $RDownline1Today = $this->MyDownStatus1Today($users[0]->child_right);
     }
 
 
@@ -1743,6 +1748,20 @@ public function dashboard(Request $request){
   (empty($LDownline['status_1']) ? 0 : count($LDownline['status_1'])) +
   (empty($RDownline['status_0']) ? 0 : count($RDownline['status_0'])) +
   (empty($RDownline['status_1']) ? 0 : count($RDownline['status_1']));
+
+  $totalTeamToday=(empty($LDownlineToday['status_0']) ? 0 : count($LDownlineToday['status_0'])) +
+  (empty($LDownlineToday['status_1']) ? 0 : count($LDownlineToday['status_1'])) +
+  (empty($RDownlineToday['status_0']) ? 0 : count($RDownlineToday['status_0'])) +
+  (empty($RDownlineToday['status_1']) ? 0 : count($RDownlineToday['status_1']));
+
+
+  
+
+$rsm['today_total_team']=$totalTeamToday;
+$rsm['today_active_left_side']=empty($LDownlineToday['status_1']) ? 0 : count($LDownlineToday['status_1']);
+$rsm['today_active_right_side']=empty($RDownlineToday['status_1']) ? 0 : count($RDownlineToday['status_1']);
+
+
 
 
 $rsm['total_team'] =$totalTeam;
@@ -1754,6 +1773,12 @@ $rsm['active'] = (empty($LDownline1['status_1']) ? 0 : count($LDownline1['status
                  (empty($RDownline1['status_1']) ? 0 : count($RDownline1['status_1']));
 $rsm['inactive'] = $totalTeam - ((empty($LDownline1['status_1']) ? 0 : count($LDownline1['status_1'])) +
                  (empty($RDownline1['status_1']) ? 0 : count($RDownline1['status_1'])));
+
+
+$rsm['today_active']=(empty($LDownline1Today['status_1']) ? 0 : count($LDownline1Today['status_1'])) +
+(empty($RDownline1Today['status_1']) ? 0 : count($RDownline1Today['status_1']));
+$rsm['today_inactive']= $totalTeamToday - ((empty($LDownline1Today['status_1']) ? 0 : count($LDownline1Today['status_1'])) +
+(empty($RDownline1Today['status_1']) ? 0 : count($RDownline1Today['status_1'])));
 
 // Assuming $totalUsers is an array of user IDs, you need to join them into a comma-separated string
 $totalUsers = implode(',', array_merge($LDownline['status_1'], $RDownline['status_1']));
@@ -1784,6 +1809,8 @@ $totalUsers = implode(',', array_merge($LDownline['status_1'], $RDownline['statu
         // Execute the query and calculate the total business
         $results = DB::select($query);
         $rsm['total_business'] = array_sum(array_column($results, 'pamount'));
+        
+        $rsm['total_businessToday'] = array_sum(array_column($results, 'pamount'));
 
     $rs = DB::select("SELECT * FROM commissions WHERE user_id = $request->user_id");
     $total_paid = [];
@@ -1809,6 +1836,10 @@ $totalUsers = implode(',', array_merge($LDownline['status_1'], $RDownline['statu
     $rsm['total']=$totalcomm;
     $rsm['paid']=$total_paid_amount;
     $rsm['unpaid']=$total_unpaid_amount;
+
+    $rsm['today_total']=0;
+    $rsm['today_paid']=0;
+    $rsm['today_unpaid']=0;
 
     return response()->json([
         'statusCode' => 1,
@@ -1949,6 +1980,67 @@ public function MyDown($parent_code) {
 }
 
 
+
+
+public function MyDownToday($parent_code) {
+    // Arrays to hold child IDs for each status
+    $results_status_0 = [];
+    $results_status_1 = [];
+
+    // Initialize the stack with the given parent code
+    $stack = [$parent_code];
+
+    while (!empty($stack)) {
+        // Pop the last parent from the stack
+        $current_parent = array_pop($stack);
+        // Fetch the children details from the database
+
+        $children = DB::select("SELECT child_left, child_right, status FROM usermlms WHERE id = ? AND DATE(created_at) = CURDATE()", [$current_parent]);
+
+        // $children = DB::select("SELECT 
+        //     usermlms.child_left, 
+        //     usermlms.child_right, 
+        //     usermlms.status, 
+        //     payments.status AS payment_status 
+        // FROM 
+        //     usermlms
+        // LEFT JOIN 
+        //     payments ON payments.user_id = usermlms.id
+        // WHERE 
+        //     usermlms.id = $current_parent and payments.status=1");
+
+        // Check if children were found
+        if (!empty($children)) {
+            // Get child IDs and current status
+            $child_left = $children[0]->child_left;
+            $child_right = $children[0]->child_right;
+            $current_status = $children[0]->status; 
+
+            // Add the current parent to the respective results based on its status
+            if ($current_status == 0) {
+                $results_status_0[] = $current_parent; // Add to status 0 array
+            } else if ($current_status == 1) {
+                $results_status_1[] = $current_parent; // Add to status 1 array
+            }
+
+            // Add children to the stack for further processing
+            if (!is_null($child_right) && $child_right > 0) {
+                $stack[] = $child_right;
+            }
+            if (!is_null($child_left) && $child_left > 0) {
+                $stack[] = $child_left;
+            }
+        }
+    }
+
+    // Return both arrays as part of an associative array
+    return [
+        'status_0' => $results_status_0,
+        'status_1' => $results_status_1,
+    ];
+}
+
+
 public function MyDownStatus1($parent_code) {
     // Arrays to hold child IDs for each status
     $results_status_0 = [];
@@ -1975,6 +2067,66 @@ public function MyDownStatus1($parent_code) {
             payments ON payments.user_id = usermlms.id
         WHERE 
             usermlms.id = $current_parent and payments.status=1");
+
+        // Check if children were found
+        if (!empty($children)) {
+            // Get child IDs and current status
+            $child_left = $children[0]->child_left;
+            $child_right = $children[0]->child_right;
+            $current_status = $children[0]->status; 
+
+            // Add the current parent to the respective results based on its status
+            if ($current_status == 0) {
+                $results_status_0[] = $current_parent; // Add to status 0 array
+            } else if ($current_status == 1) {
+                $results_status_1[] = $current_parent; // Add to status 1 array
+            }
+
+            // Add children to the stack for further processing
+            if (!is_null($child_right) && $child_right > 0) {
+                $stack[] = $child_right;
+            }
+            if (!is_null($child_left) && $child_left > 0) {
+                $stack[] = $child_left;
+            }
+        }
+    }
+
+    // Return both arrays as part of an associative array
+    return [
+        'status_0' => $results_status_0,
+        'status_1' => $results_status_1,
+    ];
+}
+
+
+
+public function MyDownStatus1Today($parent_code) {
+    // Arrays to hold child IDs for each status
+    $results_status_0 = [];
+    $results_status_1 = [];
+
+    // Initialize the stack with the given parent code
+    $stack = [$parent_code];
+
+    while (!empty($stack)) {
+        // Pop the last parent from the stack
+        $current_parent = array_pop($stack);
+        // Fetch the children details from the database
+
+        //$children = DB::select("SELECT child_left, child_right, status FROM usermlms WHERE id = ?", [$current_parent]);
+
+        $children = DB::select("SELECT 
+            usermlms.child_left, 
+            usermlms.child_right, 
+            usermlms.status, 
+            payments.status AS payment_status 
+        FROM 
+            usermlms
+        LEFT JOIN 
+            payments ON payments.user_id = usermlms.id
+        WHERE 
+            usermlms.id = $current_parent and payments.status=1 AND DATE(payments.created_at) = CURDATE()");
 
         // Check if children were found
         if (!empty($children)) {
@@ -2091,6 +2243,109 @@ public function adminGenAmountPin(Request $request)
         'totalAmount' => $totalAmount,
     ], 200);
 }
+
+
+public function myChild(Request $request) {
+    // Validate the incoming request
+    $validator = Validator::make($request->all(), [
+        'id' => 'required|integer'
+    ]);
+
+    // Return validation errors if any
+    if ($validator->fails()) {
+        return response()->json(['statusCode' => 0, 'message' => 'Validation failed', 'errors' => $validator->errors()], 400);
+    }
+
+  $parent_code = $request->id;
+
+    $RDownline=$this->LeftDownline($request->id);
+
+    // Initialize results arrays
+    $right_results = [];
+    $left_results = [];
+    $LDownline = 0;
+    
+    // Loop to find right children
+    do {
+        // Use parameter binding to prevent SQL injection
+        $get = DB::select("SELECT child_right FROM usermlms WHERE id = ?", [$parent_code]);
+        
+        if (!empty($get)) {
+            $child_right = $get[0]->child_right;
+
+            if ($child_right !== null && $child_right > 0) {
+                // Fetch additional details about the right child
+                $userDetails = DB::select("SELECT id, name, self_code, status, mobile FROM usermlms WHERE id = ?", [$child_right]);
+
+                // Ensure userDetails is not empty before accessing
+                if (!empty($userDetails)) {
+                    // Add user details to the right results array
+                    $right_results[] = [
+                        'child_right' => $child_right,
+                        'user_details' => $userDetails[0] // Assuming you want the first result
+                    ];
+                }
+
+                // Update the parent_code for the next iteration
+                $parent_code = $child_right; 
+            } else {
+                // If child_right is null or not greater than 0, exit the loop
+                break;
+            }
+        } else {
+            // If no records found, exit the loop
+            break;
+        }
+    } while (true);
+
+    // Reset parent_code to the original ID for left child retrieval
+    $parent_code = $request->id;
+
+    // Loop to find left children
+    do {
+        // Use parameter binding to prevent SQL injection
+        $get = DB::select("SELECT child_left FROM usermlms WHERE id = ?", [$parent_code]);
+        
+        if (!empty($get)) {
+            $child_left = $get[0]->child_left;
+
+            if ($child_left !== null && $child_left > 0) {
+                // Fetch additional details about the left child
+                $userDetails = DB::select("SELECT id, name, self_code, status, mobile FROM usermlms WHERE id = ?", [$child_left]);
+
+                // Ensure userDetails is not empty before accessing
+                if (!empty($userDetails)) {
+                    // Add user details to the left results array
+                    $left_results[] = [
+                        'child_left' => $child_left,
+                        'user_details' => $userDetails[0] // Assuming you want the first result
+                    ];
+                }
+
+                // Update the parent_code for the next iteration
+                $parent_code = $child_left; 
+            } else {
+                // If child_left is null or not greater than 0, exit the loop
+                break;
+            }
+        } else {
+            // If no records found, exit the loop
+            break;
+        }
+    } while (true);
+
+    // Return the results in the response
+    return response()->json([
+        'statusCode' => 1,
+        'message' => 'Tree successfully retrieved',
+        'left_child' => $left_results,
+        'right_child' => $right_results,
+        'rightCh'=>$RDownline,
+    ], 200);
+}
+
+
+
 
 
 
