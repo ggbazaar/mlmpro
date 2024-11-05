@@ -1672,12 +1672,14 @@ public function findDash($child_left,$child_right,$findtoday=0){
         (empty($LDownline['status_1']) ? 0 : count($LDownline['status_1'])) +
         (empty($RDownline['status_0']) ? 0 : count($RDownline['status_0'])) +
         (empty($RDownline['status_1']) ? 0 : count($RDownline['status_1']));
+
         $rsm['total_team'] =$totalTeam;
         $rsm['leftside_list'] =$LDownline['ListResults'];
         $rsm['rightside_list'] =$RDownline['ListResults'];
 
         $rsm['active'] = (empty($LDownline1['status_1']) ? 0 : count($LDownline1['status_1'])) +
                  (empty($RDownline1['status_1']) ? 0 : count($RDownline1['status_1']));
+
         $rsm['inactive'] = $totalTeam - ((empty($LDownline1['status_1']) ? 0 : count($LDownline1['status_1'])) +
         (empty($RDownline1['status_1']) ? 0 : count($RDownline1['status_1'])));
 
