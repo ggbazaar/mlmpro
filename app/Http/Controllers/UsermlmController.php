@@ -890,33 +890,41 @@ public function MyDownline1Sts($parent_code) {
 public function advisorList() {
     // Fetch advisor list from the usermlms table
     $authUser = auth()->guard('api')->user();
-        if(!$authUser){
-            return response()->json([
-                "statusCode"=> 0,
-                'error' => "Unauthorized User"
-            ], 200);
+    
+    if (!$authUser) {
+        return response()->json([
+            "statusCode" => 0,
+            'error' => "Unauthorized User"
+        ], 200);
+    }
 
-        }
-        $userId=$authUser->id;
-        $users = Usermlm::select('name', 'id', 'child_left', 'child_right', 'self_code', 'parent_code', 'status')
+    $userId = $authUser->id;
+
+    // Fetch user data for the current user
+    $users = Usermlm::select('name', 'id', 'child_left', 'child_right', 'self_code', 'parent_code', 'status')
         ->where('id', $userId)
         ->get();
 
-      $LDownline = $this->MyDownline1Sts($users[0]->child_left);
-      $RDownline = $this->MyDownline1Sts($users[0]->child_right);
-      $Down=array_merge($LDownline,$RDownline);
+    // Fetch downlines for the left and right children
+    $LDownline = $this->MyDownline1Sts($users[0]->child_left);
+    $RDownline = $this->MyDownline1Sts($users[0]->child_right);
+    
+    // Create an array containing the user ID
+    $Down = array_merge($LDownline, $RDownline); // Merge downlines first
+    $Down[] = $userId; // Then add the user ID to the array
 
-      $x = Usermlm::select('name', 'id', 'self_code', 'parent_code', 'status')
+    // Fetch the users based on the merged array
+    $x = Usermlm::select('name', 'id', 'self_code', 'parent_code', 'status')
         ->whereIn('id', $Down) // Use whereIn with the merged array
         ->get();
 
-      // Return the result as a JSON response
+    // Return the result as a JSON response
     return response()->json([
         'statusCode' => 1,
         'data' => $x
-
     ], 200);
 }
+
 
 
 
