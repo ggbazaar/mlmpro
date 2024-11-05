@@ -2043,10 +2043,8 @@ public function adminGetPins(Request $request)
             'generated_by' => $pin->generated_by,
             'pin' => $pin->pin,
             'updated_at' => $pin->updated_at,
-            'used_by' => $pin->user_name ? [
-                'name' => $pin->user_name,
-                'self_code' => $pin->user_code,
-            ] : 0,
+            'used_by_name' => $pin->user_name??0,
+            'used_by_self_code' => $pin->user_code??0
         ];
     });
 
