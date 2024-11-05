@@ -1672,10 +1672,16 @@ public function findDash($child_left,$child_right,$findtoday=0){
         (empty($LDownline['status_1']) ? 0 : count($LDownline['status_1'])) +
         (empty($RDownline['status_0']) ? 0 : count($RDownline['status_0'])) +
         (empty($RDownline['status_1']) ? 0 : count($RDownline['status_1']));
+        
+        
 
         $rsm['total_team'] =$totalTeam;
-        $rsm['leftside_list'] =$LDownline['ListResults'];
-        $rsm['rightside_list'] =$RDownline['ListResults'];
+        // Check if 'ListResults' exists in $LDownline; if not, set it to an empty array
+        $rsm['leftside_list'] = isset($LDownline['ListResults']) ? $LDownline['ListResults'] : [];
+        
+        // Check if 'ListResults' exists in $RDownline; if not, set it to an empty array
+        $rsm['rightside_list'] = isset($RDownline['ListResults']) ? $RDownline['ListResults'] : [];
+
 
         $rsm['active'] = (empty($LDownline1['status_1']) ? 0 : count($LDownline1['status_1'])) +
                  (empty($RDownline1['status_1']) ? 0 : count($RDownline1['status_1']));
@@ -1692,12 +1698,16 @@ public function findDash($child_left,$child_right,$findtoday=0){
 }
 
 
-
 public function calculateTotalBusiness($LDownline, $RDownline, $findtoday = 0)
 {
     // Merge and format the user list
-    $totalUsers = implode(',', array_merge($LDownline['status_1'], $RDownline['status_1']));
-
+    $totalUsers = implode(',', array_merge($LDownline['status_1'] ?? [], $RDownline['status_1'] ?? []));
+    
+    // If $totalUsers is blank, return 0 as total business
+    if (empty($totalUsers)) {
+        return ['total_business' => 0];
+    }
+    
     // Base query
     $query = "SELECT 
         usermlms.id AS userId,
@@ -1713,13 +1723,11 @@ public function calculateTotalBusiness($LDownline, $RDownline, $findtoday = 0)
 
     // Add conditions based on `$totalUsers`
     $conditions = [];
-    if (!empty($totalUsers)) {
-        $conditions[] = "usermlms.id IN ($totalUsers)";
-    }
+    $conditions[] = "usermlms.id IN ($totalUsers)";
     $conditions[] = "payments.status = 1";
 
-    // Add date condition if $findtoday is set to 1 (only today’s records)
-    if ($findtoday == 'today') {
+    // Add date condition if $findtoday is set to 'today' (only today’s records)
+    if ($findtoday === 'today') {
         $todayDate = date('Y-m-d');
         $conditions[] = "DATE(payments.created_at) = '$todayDate'";
     }
@@ -1734,8 +1742,10 @@ public function calculateTotalBusiness($LDownline, $RDownline, $findtoday = 0)
 
     // Calculate the total business
     $totalBusiness = array_sum(array_column($results, 'pamount'));
+
     return ['total_business' => $totalBusiness];
 }
+
 
 
 
@@ -1881,11 +1891,28 @@ public function dashboard(Request $request){
        
        $data["Ldownline"] = $rs->leftside_list;
        $data["Rdownline"] = $rs->rightside_list;
+       
+       $data["count_Ldownline"] = count($rs->leftside_list);
+       $data["count_Rdownline"] = count($rs->rightside_list);
+       
+       
+        $childLeft = Usermlm::select('self_code')
+    ->where('id', $users[0]->child_left)
+    ->first();
+
+    $childRight = Usermlm::select('self_code')
+    ->where('id', $users[0]->child_right)
+    ->first();
+       
+        $users[0]->child_left = $childLeft ? $childLeft->self_code : ''; // If not found, set to null
+        $users[0]->child_right = $childRight ? $childRight->self_code : ''; // If not found, set to null
+       
     //    $data["list"] = $rs;
 
     return response()->json([
         'statusCode' => 1,
         'data'=>$data,
+        'users'=>$users[0] 
     ], 200); 
 
 }
