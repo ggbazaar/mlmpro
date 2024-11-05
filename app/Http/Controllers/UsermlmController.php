@@ -1833,10 +1833,10 @@ function calculateCommissions($userId, $findtoday = 0)
 
 public function dashboard(Request $request){
     $validator = Validator::make($request->all(), [
-        'user_id' => 'required'
+        'user_id' => 'required|integer|exists:usermlms,id',
     ]);
     if ($validator->fails()) {
-        return response()->json(['statusCode' => 0,'error' => 'Validation failed', 'message' => $validator->errors()], 200);
+        return response()->json(['statusCode' => 0,'message' => 'user_id Validation failed', 'message' => $validator->errors()], 200);
     }
 
     $users = Usermlm::select('usermlms.name', 'usermlms.id', 'usermlms.child_left', 'usermlms.child_right', 'usermlms.self_code', 'usermlms.parent_code', 'usermlms.status')
