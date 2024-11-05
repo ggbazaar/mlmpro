@@ -922,6 +922,41 @@ public function advisorList() {
 }
 
 
+
+public function AdminAdvisorList() {
+    // Fetch advisor list from the usermlms table
+        //$authUser = auth()->guard('api')->user();
+        // if(!$authUser){
+        //     return response()->json([
+        //         "statusCode"=> 0,
+        //         'error' => "Unauthorized User"
+        //     ], 200);
+
+        // }
+       // $userId=$authUser->id;
+        $users = Usermlm::select('name', 'id', 'child_left', 'child_right', 'self_code', 'parent_code', 'status')
+        ->get();
+
+    //   $LDownline = $this->MyDownline1Sts($users[0]->child_left);
+    //   $RDownline = $this->MyDownline1Sts($users[0]->child_right);
+    //   $Down=array_merge($LDownline,$RDownline);
+
+    //   $x = Usermlm::select('name', 'id', 'self_code', 'parent_code', 'status')
+    //     ->whereIn('id', $Down) // Use whereIn with the merged array
+    //     ->get();
+
+      // Return the result as a JSON response
+    return response()->json([
+        'statusCode' => 1,
+        // 'data1' => $LDownline,
+        // 'data2' => $RDownline,
+        // 'data4'=>$Down,
+        'data' => $users
+
+    ], 200);
+}
+
+
 public function uplineListUntilRoot(Request $request) {
     // Start with the child node
    // $user = auth()->guard('api')->user();
