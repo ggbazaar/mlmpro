@@ -1841,6 +1841,20 @@ $totalUsers = implode(',', array_merge($LDownline['status_1'], $RDownline['statu
     $rsm['today_paid']=0;
     $rsm['today_unpaid']=0;
 
+    $childLeft = Usermlm::select('self_code')
+    ->where('id', $users[0]->child_left)
+    ->first();
+
+    $childRight = Usermlm::select('self_code')
+    ->where('id', $users[0]->child_right)
+    ->first();
+
+    $users[0]->child_left = $childLeft ? $childLeft->self_code : null; // If not found, set to null
+    $users[0]->child_right = $childRight ? $childRight->self_code : null; // If not found, set to null
+    
+    
+
+
     return response()->json([
         'statusCode' => 1,
         'data'=>$rsm,
