@@ -34,7 +34,7 @@ CREATE TABLE `commissions` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `commissions` (`id`, `user_id`, `purchase_id`, `level`, `level_commission`, `total_amount`, `service_charge`, `payable_amount`, `status`, `created_at`, `updated_at`) VALUES
 (140,	85,	1,	1,	300.00,	300.00,	30.00,	270.00,	1,	'2024-10-22 01:38:34',	'2024-10-22 01:38:34'),
@@ -64,7 +64,7 @@ CREATE TABLE `commissions1` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `commissions1_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 DROP TABLE IF EXISTS `kit_amounts`;
@@ -77,7 +77,7 @@ CREATE TABLE `kit_amounts` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `kit_amounts` (`id`, `title`, `description`, `amount`, `status`, `created_at`, `updated_at`) VALUES
 (1,	'A plan',	'My Planc',	3500.00,	1,	'2024-10-20 10:53:37',	'2024-10-20 10:53:37'),
@@ -220,7 +220,7 @@ CREATE TABLE `payments` (
   `user_id` int NOT NULL,
   `amount` decimal(10,2) NOT NULL,
   `pay_type` varchar(50) NOT NULL,
-  `pin_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `pin_code` varchar(50) CHARACTER SET utf8mb4  DEFAULT NULL,
   `remark` text,
   `date` datetime NOT NULL,
   `status` varchar(20) DEFAULT NULL,
@@ -230,7 +230,7 @@ CREATE TABLE `payments` (
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `payments` (`id`, `kit_id`, `user_id`, `amount`, `pay_type`, `pin_code`, `remark`, `date`, `status`, `approve_by`, `approve_date`, `created_at`, `updated_at`) VALUES
 (21,	1,	85,	3500.00,	'1',	'',	'Appoved by avinash',	'2024-10-27 07:51:43',	'1',	'Root',	'2024-10-27 07:57:30',	'2024-10-27 07:51:43',	'2024-10-27 07:57:30'),
@@ -307,7 +307,7 @@ CREATE TABLE `pins` (
   `pin` varchar(255) NOT NULL,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `pins` (`id`, `buyer_id`, `created_at`, `generated_by`, `used_by`, `pin`, `updated_at`) VALUES
 (1,	85,	'2024-10-27 07:46:10',	'1',	89,	'GGBI1KZR',	'2024-10-27 07:46:10'),
@@ -381,37 +381,37 @@ CREATE TABLE `user_accounts` (
 DROP TABLE IF EXISTS `usermlms`;
 CREATE TABLE `usermlms` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `child_left` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `child_right` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `last_left` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `last_right` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `child_left` varchar(100) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `child_right` varchar(100) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `last_left` varchar(100) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `last_right` varchar(100) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `name` varchar(100) CHARACTER SET utf8mb4  DEFAULT NULL,
   `level` int DEFAULT NULL,
   `paid_level` int DEFAULT NULL,
-  `self_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_gl_0900_ai_ci DEFAULT NULL,
-  `mobile` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `email` varchar(222) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `self_code` varchar(100) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `mobile` varchar(100) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `email` varchar(222) CHARACTER SET utf8mb4  DEFAULT NULL,
   `whatsapp` varchar(100) DEFAULT NULL,
-  `pan` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `adhar` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `relation` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `relation_name` varchar(222) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `gender` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `used_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_gl_0900_ai_ci DEFAULT NULL,
-  `dob` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `referral_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `parent_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_gl_0900_ai_ci DEFAULT NULL,
-  `role` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_gl_0900_ai_ci DEFAULT '1',
+  `pan` varchar(25) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `adhar` varchar(100) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `relation` varchar(100) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `relation_name` varchar(222) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `gender` varchar(10) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `used_code` varchar(100) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `dob` varchar(25) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `referral_code` varchar(100) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `parent_code` varchar(100) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `role` varchar(100) CHARACTER SET utf8mb4  DEFAULT '1',
   `side` tinyint DEFAULT NULL,
   `status` tinyint DEFAULT NULL,
-  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `plain_password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `api_token` varchar(1255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `added_below` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `plain_password` varchar(255) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `api_token` varchar(1255) CHARACTER SET utf8mb4  DEFAULT NULL,
+  `added_below` varchar(100) CHARACTER SET utf8mb4  DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY `user_id` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `usermlms` (`id`, `child_left`, `child_right`, `last_left`, `last_right`, `name`, `level`, `paid_level`, `self_code`, `mobile`, `email`, `whatsapp`, `pan`, `adhar`, `relation`, `relation_name`, `gender`, `used_code`, `dob`, `referral_code`, `parent_code`, `role`, `side`, `status`, `password`, `plain_password`, `api_token`, `added_below`, `created_at`, `updated_at`) VALUES
 (1,	'',	'',	'',	'',	'Admin',	3,	NULL,	'',	'7985003120',	'admin@gmail.com',	'',	'',	'',	'',	'',	'Male',	'',	'31/10/1989',	NULL,	'0',	'2',	0,	1,	'admin@123',	NULL,	NULL,	NULL,	'2024-10-27 07:55:20',	'2024-10-27 07:55:20'),

@@ -1611,29 +1611,29 @@ public function adminDashboard(Request $request) {
 
     // Prepare data for the dashboard
     $ds = [];
-    $ds['totalUser'] = $totalUsers-1;  //for admin
-    $ds['todayUser'] = $todayUsers[0]->sums;  //for admin
+    $ds['totalUser'] = $totalUsers-1 ?? 0;  //for admin
+    $ds['todayUser'] = $todayUsers[0]->sums?? 0;  //for admin
 
-    $ds['totalActive'] = $totalActive;
-    $ds['todayActive'] =  $todayActive[0]->sums;
+    $ds['totalActive'] = $totalActive?? 0;  
+    $ds['todayActive'] =  $todayActive[0]->sums?? 0;  
 
-    $ds['totalInactive'] = $totalInactive;
-    $ds['todayInactive'] = $todayInactive[0]->sums;
+    $ds['totalInactive'] = $totalInactive?? 0;  
+    $ds['todayInactive'] = $todayInactive[0]->sums?? 0;  
 
-    $ds['totalBusiness'] = $totalBusiness;
-    $ds['todayBusiness'] = $todayBusiness[0]->sums;
+    $ds['totalBusiness'] = $totalBusiness?? 0;  
+    $ds['todayBusiness'] = $todayBusiness[0]->sums?? 0;  
 
-    $ds['totalComm'] = $totalComm;
-    $ds['todayComm'] = $todayComm[0]->sums;
+    $ds['totalComm'] = $totalComm?? 0;  
+    $ds['todayComm'] = $todayComm[0]->sums?? 0;  
 
-    $ds['totalCommPaid'] = $totalCommPaid;
+    $ds['totalCommPaid'] = $totalCommPaid?? 0;  
     $ds['todayCommPaid'] = $todayCommPaid[0]->sums??0;  // $todayComm[0]->sums;
 
-    $ds['totalCommUnpaid'] = $totalCommUnpaid;
-    $ds['todayCommUnpaid'] = $todayCommUnpaid[0]->sums;  
+    $ds['totalCommUnpaid'] = $totalCommUnpaid?? 0;  
+    $ds['todayCommUnpaid'] = $todayCommUnpaid[0]->sums?? 0;   
 
-    $ds['totalkitRequest'] = $totalkitRequest;
-    $ds['todaykitRequest'] = $todaykitRequest;
+    $ds['totalkitRequest'] = $totalkitRequest?? 0;  
+    $ds['todaykitRequest'] = $todaykitRequest?? 0;  
 
     return response()->json([
         'statusCode' => 1,
