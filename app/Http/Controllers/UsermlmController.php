@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Usermlm;
 use App\Models\Admin;
+use App\Models\Payment;
 use App\Models\Pin;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
