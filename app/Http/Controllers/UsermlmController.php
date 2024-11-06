@@ -1953,10 +1953,10 @@ public function dashboard(Request $request){
        $data["Ldownline"] = $rs->leftside_list;
        $data["Rdownline"] = $rs->rightside_list;
 
-       $rsm['LDownlineActive'] = $rs->LDownlineActive;
-       $rsm['LDownlineInActive'] = $rs->LDownlineInActive;
-       $rsm['RDownlineActive'] = $rs->RDownlineActive;
-       $rsm['RDownlineInActive'] = $rs->RDownlineInActive;
+       $data['LDownlineActive'] = $rs->LDownlineActive;
+       $data['LDownlineInActive'] = $rs->LDownlineInActive;
+       $data['RDownlineActive'] = $rs->RDownlineActive;
+       $data['RDownlineInActive'] = $rs->RDownlineInActive;
        
        $data["count_Ldownline"] = count($rs->leftside_list);
        $data["count_Rdownline"] = count($rs->rightside_list);
