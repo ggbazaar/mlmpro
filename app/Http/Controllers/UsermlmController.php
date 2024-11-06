@@ -1741,10 +1741,11 @@ public function findDash($child_left,$child_right,$findtoday=0){
         $rsm['LDownline'] = $LDownline;
         $rsm['RDownline'] = $RDownline;
 
-        $rsm['LDownlineActive'] = $LDownline['status_1'];
-        $rsm['LDownlineInActive'] = $LDownline['status_0'];
-        $rsm['RDownlineActive'] = $RDownline['status_1'];
-        $rsm['RDownlineInActive'] = $RDownline['status_0'];
+        $rsm['LDownline_1'] = isset($LDownline['ListResults_1']) ? $LDownline['ListResults_1'] : []; 
+        $rsm['LDownline_0'] = isset($LDownline['ListResults_0']) ? $LDownline['ListResults_0'] : []; 
+
+        $rsm['RDownline_1'] = isset($RDownline['ListResults_1']) ? $RDownline['ListResults_1'] : [];
+        $rsm['RDownline_0'] = isset($RDownline['ListResults_0']) ? $RDownline['ListResults_0'] : [];
 
         $rsm['calculateTotalBusiness']=$this->calculateTotalBusiness($LDownline,$RDownline);
         return $rsm;
@@ -1953,10 +1954,10 @@ public function dashboard(Request $request){
        $data["Ldownline"] = $rs->leftside_list;
        $data["Rdownline"] = $rs->rightside_list;
 
-       $data['LDownlineActive'] = $rs->LDownlineActive;
-       $data['LDownlineInActive'] = $rs->LDownlineInActive;
-       $data['RDownlineActive'] = $rs->RDownlineActive;
-       $data['RDownlineInActive'] = $rs->RDownlineInActive;
+       $data['LDownline_1'] = $rs->LDownline_1;
+       $data['LDownline_0'] = $rs->LDownline_0;
+       $data['RDownline_1'] = $rs->RDownline_1;
+       $data['RDownline_0'] = $rs->RDownline_0;
        
        $data["count_Ldownline"] = count($rs->leftside_list);
        $data["count_Rdownline"] = count($rs->rightside_list);
@@ -2004,6 +2005,8 @@ public function MyDown($parent_code,$findtoday=0) {
     $results_status_0 = [];
     $results_status_1 = [];
     $ListResults= [];
+    $ListResults_0= [];
+    $ListResults_1= [];
 
     // Initialize the stack with the given parent code
     $stack = [$parent_code];
@@ -2043,8 +2046,11 @@ public function MyDown($parent_code,$findtoday=0) {
 
             if ($current_status == 0) {
                 $results_status_0[] = $getSelfCOde[0]->id; // Add to status 0 array
+                $ListResults_0[]=$getSelfCOde[0];
+                
             } else if ($current_status == 1) {
                 $results_status_1[] =  $getSelfCOde[0]->id; // Add to status 1 array
+                $ListResults_1[]=$getSelfCOde[0];
             }
 
             // Add children to the stack for further processing
