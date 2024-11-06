@@ -1,0 +1,669 @@
+-- Adminer 4.8.1 MySQL 8.0.30 dump
+
+SET NAMES utf8;
+SET time_zone = '+00:00';
+SET foreign_key_checks = 0;
+SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
+
+DROP TABLE IF EXISTS `app_accounts`;
+CREATE TABLE `app_accounts` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `bank_name` varchar(150) DEFAULT NULL,
+  `account_name` varchar(150) DEFAULT NULL,
+  `account_no` varchar(80) DEFAULT NULL,
+  `user_id` int DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+
+SET NAMES utf8mb4;
+
+DROP TABLE IF EXISTS `commissions`;
+CREATE TABLE `commissions` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `purchase_id` int DEFAULT NULL,
+  `level` int NOT NULL,
+  `paid_date` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `reference` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `level_commission` decimal(10,2) NOT NULL,
+  `total_amount` decimal(10,2) NOT NULL,
+  `service_charge` decimal(10,2) NOT NULL,
+  `payable_amount` decimal(10,2) NOT NULL,
+  `powerleg_child` int NOT NULL DEFAULT '0',
+  `remark` varchar(5999) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '',
+  `status` int NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+INSERT INTO `commissions` (`id`, `user_id`, `purchase_id`, `level`, `paid_date`, `reference`, `level_commission`, `total_amount`, `service_charge`, `payable_amount`, `powerleg_child`, `remark`, `status`, `created_at`, `updated_at`) VALUES
+(1,	2,	3,	1,	NULL,	NULL,	300.00,	300.00,	30.00,	270.00,	0,	'',	1,	'2024-10-30 06:45:54',	'2024-10-30 06:45:54'),
+(2,	3,	5,	1,	NULL,	NULL,	300.00,	300.00,	30.00,	270.00,	0,	'',	1,	'2024-10-30 06:50:37',	'2024-10-30 06:50:37'),
+(5,	4,	NULL,	1,	NULL,	NULL,	300.00,	300.00,	30.00,	270.00,	0,	'',	1,	'2024-10-30 07:00:54',	'2024-10-30 07:00:54'),
+(6,	2,	NULL,	2,	NULL,	NULL,	300.00,	300.00,	30.00,	270.00,	0,	'',	1,	'2024-10-30 07:00:54',	'2024-10-30 07:00:54'),
+(7,	8,	NULL,	1,	NULL,	NULL,	300.00,	300.00,	30.00,	270.00,	0,	'',	1,	'2024-10-30 07:36:33',	'2024-10-30 07:36:33'),
+(8,	9,	NULL,	1,	NULL,	NULL,	300.00,	300.00,	30.00,	270.00,	0,	'',	1,	'2024-10-30 07:38:47',	'2024-10-30 07:38:47'),
+(9,	8,	NULL,	1,	NULL,	NULL,	300.00,	300.00,	30.00,	270.00,	9,	'ByPowerLeg {\"powerlegCommission\":true,\"user_id\":9,\"parent_code\":\"8\",\"powerleg\":1,\"child_left\":\"9\",\"child_right\":\"10\"}',	1,	'2024-10-30 07:38:47',	'2024-10-30 07:38:47'),
+(10,	11,	16,	1,	NULL,	NULL,	300.00,	300.00,	30.00,	270.00,	0,	'',	1,	'2024-10-30 07:46:46',	'2024-10-30 07:46:46'),
+(11,	12,	18,	1,	NULL,	NULL,	300.00,	300.00,	30.00,	270.00,	0,	'',	1,	'2024-10-30 07:46:53',	'2024-10-30 07:46:53'),
+(12,	9,	18,	2,	NULL,	NULL,	300.00,	300.00,	30.00,	270.00,	0,	'',	1,	'2024-10-30 07:46:53',	'2024-10-30 07:46:53'),
+(13,	8,	18,	2,	NULL,	NULL,	300.00,	300.00,	30.00,	270.00,	9,	'ByPowerLeg {\"powerlegCommission\":true,\"user_id\":9,\"parent_code\":\"8\",\"powerleg\":1,\"child_left\":\"9\",\"child_right\":\"10\"}',	1,	'2024-10-30 07:46:53',	'2024-10-30 07:46:53');
+
+DROP TABLE IF EXISTS `kit_amounts`;
+CREATE TABLE `kit_amounts` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `title` varchar(90) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `description` varchar(3000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `amount` double(10,2) NOT NULL,
+  `bv` double(10,2) NOT NULL,
+  `status` tinyint NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+INSERT INTO `kit_amounts` (`id`, `title`, `description`, `amount`, `bv`, `status`, `created_at`, `updated_at`) VALUES
+(1,	'A plan',	'My Planc',	3500.00,	3000.00,	1,	'2024-10-20 10:53:37',	'2024-10-20 10:53:37'),
+(2,	'B plan',	'My Planc1',	3500.00,	3000.00,	1,	'2024-10-20 10:53:37',	'2024-10-20 10:53:37');
+
+DROP TABLE IF EXISTS `migrations`;
+CREATE TABLE `migrations` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `migration` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `batch` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+DROP TABLE IF EXISTS `oauth_access_tokens`;
+CREATE TABLE `oauth_access_tokens` (
+  `id` varchar(100) NOT NULL,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `client_id` bigint unsigned NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `scopes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `revoked` tinyint(1) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `expires_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `oauth_access_tokens_user_id_index` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `oauth_access_tokens` (`id`, `user_id`, `client_id`, `name`, `scopes`, `revoked`, `created_at`, `updated_at`, `expires_at`) VALUES
+('0177d7a30b75f576c5a51e07483632f1f89d9941651961cf95ad9d372684b2ca09ee60016b186e93',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:48:26',	'2024-10-19 02:48:26',	'2025-10-19 08:18:26'),
+('086baf916082ee2ac9ab8de5dda07f741224dbf565c99f3f25745354a2e9379f9089cc9aebd95c2e',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 12:56:15',	'2024-10-28 12:56:17',	'2025-10-28 12:56:15'),
+('0f4c53778dc1e0b9e3e82a959ef4d62481687c622eec4af1f04fbace3b2661453d3b93264b9f617f',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:04:10',	'2024-10-28 06:04:11',	'2025-10-28 06:04:10'),
+('0ff2d543fdf788ddf9382f8e2764e914e2c9b84c14bd6d1f3078802c6e25d175fa2562186f8a1b67',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 01:18:10',	'2024-10-19 01:18:10',	'2025-10-19 06:48:10'),
+('11eae2b1ebf39f003ac87b5aa05cc5e4ff652d2c3d991589d04de7237cec1798d6796ce3834e3c5b',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 10:58:17',	'2024-10-28 10:58:19',	'2025-10-28 10:58:17'),
+('1239c2399275f02b2f19c2d95aeebc3a7efeca00d5145cb11816d125982ae080507a580e7e3d5240',	3,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-11-05 06:38:47',	'2024-11-05 06:38:47',	'2025-11-05 12:08:47'),
+('193345d2cbdbc35e8fc78f21060c418a7e07c60691b01a2bc47303f4aac767ae908fb1723f7f7224',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:52:11',	'2024-10-19 02:52:11',	'2025-10-19 08:22:11'),
+('1a0da799b320a2ffd78beb8216c97e65b2d7973cf4453d76333069c3785501ef945df475e4c698b4',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 07:02:23',	'2024-10-28 07:02:24',	'2025-10-28 07:02:23'),
+('1a496a59fb54686bb19ab60b7430c8087316193eb1157d09df74990ea2cc3ffeae52324240f01f2a',	86,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:14:37',	'2024-10-28 06:14:38',	'2025-10-28 06:14:37'),
+('259d8fc8e000fbce5435db39f7f8f446996e7227e317babf0c4215fd0b075d010ddd072cf0e47164',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:40:47',	'2024-10-19 02:40:47',	'2025-10-19 08:10:47'),
+('285dd4d081b11e3f1263853a76318e1f0bd15873dff1b031844dd27430d0cb4bf69e1280e1172d99',	3,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-11-05 06:41:57',	'2024-11-05 06:41:57',	'2025-11-05 12:11:57'),
+('293de2138eb065096105d5abe7542df9ecc996ea910681226d27e8a894411dd4eb74d0996b9c5c25',	107,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 12:12:44',	'2024-10-28 12:12:45',	'2025-10-28 12:12:44'),
+('2ab0e37c7c053290187000ba7ab4a87d13d358a6621c364cc4b0b23a927ae1af7a681b04d1c8480e',	3,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-11-05 08:11:25',	'2024-11-05 08:11:25',	'2025-11-05 13:41:25'),
+('3085cf237a2935559714d142628eb34d70f3d4cd97d0747dec34b458adec20d26018977357e0d5b8',	86,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:23:55',	'2024-10-28 06:23:56',	'2025-10-28 06:23:55'),
+('31b200709839a3437db7942cfa8941e76fe39d08766b92b8a37740c2602e71c41fa9804620b9879d',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-11-05 06:41:37',	'2024-11-05 06:41:37',	'2025-11-05 12:11:37'),
+('31d2089975965ad50998973fae0b30ef9885221565604499130d37fe1366b51e40ac56ce0f00b91a',	107,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 10:30:10',	'2024-10-28 10:30:12',	'2025-10-28 10:30:10'),
+('31de275bcb8f908f1825620a06c4fae41a96649b819d7ce031370d6ce2e1c6961084552103b6c036',	86,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:14:45',	'2024-10-28 06:14:47',	'2025-10-28 06:14:45'),
+('32ccdc8644ecad50b104341867f35b554f11cf90c52b4ca33e98f2df9e0ab6016c543fbad44c2546',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:59:37',	'2024-10-28 06:59:38',	'2025-10-28 06:59:37'),
+('33251058160ae96363c7ebaa86bb59caa39041cbb2668f8276d72f77d2c89356b7540e7c0703609f',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:10:41',	'2024-10-28 06:10:42',	'2025-10-28 06:10:41'),
+('3971a159ded05efecb8b98d8a6c4f9d9d57e99a717664de6aa141e841a9e18c55845fb8646af843f',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:39:52',	'2024-10-19 02:39:52',	'2025-10-19 08:09:52'),
+('3d947c8b2191cbb543b551c004977ebe3b8c8e96fd9e34f57a0cd389a2d3bb296b60cfab3d440e17',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:39:10',	'2024-10-19 02:39:10',	'2025-10-19 08:09:10'),
+('3fcac2b53965749043356ca668370745130df468ca6dc2c08d47b83bd473c322a8b10d8af3596883',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:04:18',	'2024-10-28 06:04:19',	'2025-10-28 06:04:18'),
+('4065bd0cd5e188ce6f031bb0b6333818c49c21f0e72dc41cb2ca47aab0c2a3a46856d9d25b53e493',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:57:24',	'2024-10-28 06:57:25',	'2025-10-28 06:57:24'),
+('4592c0e55b7569e5bd4f928c68aa3630b61a73e163b6870e1c7c37063290ccfd6475531da703fec9',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:52:02',	'2024-10-28 06:52:03',	'2025-10-28 06:52:02'),
+('47b3a4fed9ae1447e14f6c8ff6b5ba0571bf2a18ac9e961eea01b40bef7e549ec2f4e834066c9c93',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:03:24',	'2024-10-28 06:03:25',	'2025-10-28 06:03:24'),
+('4d30d832b465cc1c3904623ddaabcef463898d223aa92883fca434c6327f8d9b183ee4a8fa6111ed',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:07:37',	'2024-10-28 06:07:39',	'2025-10-28 06:07:37'),
+('4d6a3b7d3b882bfc3b9e7dbf5837bc898c6c733da4d1f8b8745b487c367f61e5393ab2a528a9ddb7',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:31:18',	'2024-10-28 06:31:19',	'2025-10-28 06:31:18'),
+('4ef99cea9b196afcd6834dbb039ddc3d9e44918bc1a1361b2774c443a4bc072e9ce9126fbde0a035',	86,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-22 01:06:45',	'2024-10-22 01:06:45',	'2025-10-22 06:36:45'),
+('4f8a46d76834a79ed4ab00e60a24870ba86c1dc94fc698c327caa99415c8707e6cba78bf13408bfe',	248,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 04:28:23',	'2024-10-19 04:28:23',	'2025-10-19 09:58:23'),
+('4fb25a93a60c23f458fb88a9dcba112d5c4e4b2af2376f071ca504d48c64a6cdf73e86cff0dbc581',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:42:17',	'2024-10-19 02:42:17',	'2025-10-19 08:12:17'),
+('50f48a9ab25def497bae303be9e5551a310bdad1d589033cc27060ed60930b6a5802b1c20530aa76',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-11-05 02:33:10',	'2024-11-05 02:33:10',	'2025-11-05 08:03:10'),
+('52600b33820958b44f043c9933e7798afecbc617b55f5e9c77258c03381a4c08e99c355651ae3184',	107,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 11:52:05',	'2024-10-28 11:52:06',	'2025-10-28 11:52:05'),
+('55598c6f7d51f59f102a8e49a648a9827acf5819a908511156a86da3361876b0527fc2b127a7b26a',	3,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-11-05 06:23:34',	'2024-11-05 06:23:34',	'2025-11-05 11:53:34'),
+('56ac6489bcb42bc28507a053c1c8fdc77b5bd02578ad58fedc28c2d1971d54cdbf2f78ad23b5744c',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 10:53:46',	'2024-10-28 10:53:47',	'2025-10-28 10:53:46'),
+('56da6f19a750b7e534941af7960c04f053702aac1a1f7f64605281a1708c0e4f4378d277ad51dd1c',	248,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 04:26:43',	'2024-10-19 04:26:43',	'2025-10-19 09:56:43'),
+('58c28b56712b6755be3e18c2e94aeb38cfaef937565da1a7fd3f974f11eb225ce235ee3effac2715',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 10:06:21',	'2024-10-28 10:06:22',	'2025-10-28 10:06:21'),
+('5b780ae2acb5fb0ba279d9926ec4020c7e8118fda6e6a336fb8be67efc005350237024bb0d06b15b',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:49:48',	'2024-10-19 02:49:48',	'2025-10-19 08:19:48'),
+('60cf8d80b60adabd75d28d71b39bb2e8c85e2edc172bc7a2a816dff7cedefa8139fc01dcaa1cf4d4',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:36:58',	'2024-10-19 02:36:58',	'2025-10-19 08:06:58'),
+('64c421f1f8f2881acf09242d1b44246217e5c650eb7f730a4eee8de45b3e89b1bb8ec7a37dcf82be',	86,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-22 01:05:14',	'2024-10-22 01:05:15',	'2025-10-22 06:35:14'),
+('656ec2d571fb680e71f81a0f2c7cc8317d56aaecb6536d5d97c0e4ddee56c55096e5f8d4f790e231',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-29 07:04:12',	'2024-10-29 07:04:12',	'2025-10-29 12:34:12'),
+('677098be6da44dc8e32d3f2e9eb6ef4ef475092c3adb59a7a40873d16238b4dad9bfeccc3a5096c9',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:11:54',	'2024-10-28 06:11:55',	'2025-10-28 06:11:54'),
+('69b6ea5126b5e60acfd42cd12de7e053bbbaf30470c78b956edc5b701a9a4d01411fc798584ca1d1',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:12:02',	'2024-10-28 06:12:04',	'2025-10-28 06:12:02'),
+('6a0ddb127ece8e9f8c08a93b2131a20459e2ac58d913c051f3afb7412dbe1b7c8f8b941d63fa64b5',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 01:51:58',	'2024-10-19 01:51:59',	'2025-10-19 07:21:58'),
+('6afb2e0532be89e7bbae8c2578e988bb7e0fe1a2e09656e8b4c8d47b4fa2a7714d3de436f879361f',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:09:12',	'2024-10-28 06:09:13',	'2025-10-28 06:09:12'),
+('6d8ba00b67e9cf0d32b605930693334f0e1395f6064e01ee2cd9e9daa94779b9f3b7632a31705bfa',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:33:43',	'2024-10-28 06:33:44',	'2025-10-28 06:33:43'),
+('70285a9ac8940b1d310aa30785971c6649763df6194370eca2ab2133f2209cf46f82f5a978850844',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-29 07:10:30',	'2024-10-29 07:10:30',	'2025-10-29 12:40:30'),
+('707b5250ea84560de8d21607a33e68df61cbab31900adeef951bc934f9c5615a4a1c533ae2e770c0',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:40:25',	'2024-10-19 02:40:25',	'2025-10-19 08:10:25'),
+('72107100f881c50a984d094cb391dcce3a2d453d67cfd19a9b8ef59e47541c51464eec160148e96a',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 09:21:05',	'2024-10-28 09:21:06',	'2025-10-28 09:21:05'),
+('72b93a358f387ef48c71fe83d4f8a2bd0e3fe789ba3ee48a2dcf89ff9ccb10abc75e702b52b60c2b',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 09:17:30',	'2024-10-28 09:17:31',	'2025-10-28 09:17:30'),
+('76c76c8397c5c2273dcc63a528404231aedad44cd252ed1e8e74894dfd593347939cda5ac0d253bb',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:52:58',	'2024-10-28 06:53:00',	'2025-10-28 06:52:58'),
+('797592a1ab8374e2f633cbc0a21d24f9a967ec958c8a56d1f9ef5dc1219a5f07094071bb82276da5',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-29 00:23:43',	'2024-10-29 00:23:44',	'2025-10-29 05:53:43'),
+('7fb0985d52520ea7943ed2d2a3ac42d19002782b3c7ad406e4b2a008bb291a65ef90522c2f51d05e',	248,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 04:26:31',	'2024-10-19 04:26:31',	'2025-10-19 09:56:31'),
+('804fc9c1d14ab23d8d9e33701a4f5513cd227f5373d9a929b1aeaa7921f817ef9835e35d71ecebd7',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:38:03',	'2024-10-19 02:38:03',	'2025-10-19 08:08:03'),
+('80f3936d9014fb36f7359a6182c8f7d68feeecafe15255d0e9e7929cf1539c14864f72ceb6c11027',	107,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 11:37:57',	'2024-10-28 11:37:58',	'2025-10-28 11:37:57'),
+('843323901f1ec9d3c6d76a87b44615478fadc5e07908bb061c60a07b458442e80b5d0cc69f316988',	86,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:10:58',	'2024-10-28 06:10:59',	'2025-10-28 06:10:58'),
+('8ca9edd3485431b2d505afdf52961c6e5d7ba99a8af9f1ac33be657a528edfdabcc9497a0827ae37',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-29 00:24:03',	'2024-10-29 00:24:03',	'2025-10-29 05:54:03'),
+('90f087fab1ec53c0f11fc4b14fbee4a3651e448f4d63567e789dc3d3115bc837642560cab072987a',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:08:11',	'2024-10-28 06:08:12',	'2025-10-28 06:08:11'),
+('92eac8e4fc392b39efcbf60ef5b3e741cd40e345e2e7733930000e5bb2634cdbbd84e817a63f5fd4',	107,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 10:24:35',	'2024-10-28 10:24:36',	'2025-10-28 10:24:35'),
+('94c97c6785f65e6430d0c0403906976e31ee1179c60fcccdfcd598d6d76dcea8403e4f33b9155ce2',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-30 08:00:08',	'2024-10-30 08:00:08',	'2025-10-30 13:30:08'),
+('9819640a2ae65cbc94565eefd005d6ff78c34995a6a29574990c9d68ed482133e072a9e2ddee4904',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 07:21:27',	'2024-10-28 07:21:28',	'2025-10-28 07:21:27'),
+('9869da0a1c4252f104d6ac71e24d6a3f4b4a03172541f20514bf27b6645d20940fdd16f1c39f0c06',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:44:15',	'2024-10-19 02:44:15',	'2025-10-19 08:14:15'),
+('9c92436747427b82d14b8b0f6907b21f09170ef9053fb0b1df7546571203056957a891a559fcf74a',	248,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 04:26:02',	'2024-10-19 04:26:02',	'2025-10-19 09:56:02'),
+('9dccce5b21f333978bcdadc9b20503d21e7db52cdc033b997a727ef176b88e46caf0a569dadade56',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-29 03:40:26',	'2024-10-29 03:40:26',	'2025-10-29 09:10:26'),
+('9f8fccb7dceddeece4a98ab56a31b8202f0daaaba70231d93fb63a35b17c5a13136a520878b047af',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 08:08:05',	'2024-10-28 08:08:06',	'2025-10-28 08:08:05'),
+('a266dd64d340ad6852bd781f64fc8e836c56ac38b343615f9ee38d04ee8dc309363406c4e48efbc5',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:07:03',	'2024-10-28 06:07:04',	'2025-10-28 06:07:03'),
+('a3f46bdf70f0f85881f3cc68a673edad2fa068280143fa4b79ee56111106b45827e9bb6eb643aa3e',	107,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 10:29:57',	'2024-10-28 10:29:58',	'2025-10-28 10:29:57'),
+('a5adcba5bf13b3aa69050095552e3d41d417b7089492ebda9d4e831acd2e8d1a437294708981f009',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 01:19:04',	'2024-10-19 01:19:04',	'2025-10-19 06:49:04'),
+('a93ae8f79faae0f68466559e2aeeb1dda88708c290173e5374ce787f5028fff776aa5815e7b6a750',	107,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 11:37:22',	'2024-10-28 11:37:24',	'2025-10-28 11:37:22'),
+('a9c9e46e86e5016bb6d7e50f93457aeab74133ed4c3c19b33d8b5f5b38ffedb9c0b65c078b39df11',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:10:33',	'2024-10-28 06:10:34',	'2025-10-28 06:10:33'),
+('aa51130475d35cca50be3df65f38abcbb2aa73ac8d69153a937152ea4c8caebe21debee15c2022a5',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:03:32',	'2024-10-28 06:03:33',	'2025-10-28 06:03:32'),
+('ab7a4e555ddf216304a6454865abde69fbe03616bd1951e14fcc2a449dba3ec32d1e4de9dadf659f',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-11-05 02:42:34',	'2024-11-05 02:42:34',	'2025-11-05 08:12:34'),
+('ae9ee9b17d43ccc9467213bc57487c035775f072a7f0532ce1153aacbfaaa8c9ffa5a1e48484cdeb',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:26:21',	'2024-10-28 06:26:22',	'2025-10-28 06:26:21'),
+('af79321123ca3ae9b88bb17e3ea04e685f22b8f1d12fe488ebb4bb9521f06338e822fe4d631944b1',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 05:59:13',	'2024-10-28 05:59:15',	'2025-10-28 05:59:13'),
+('afa36c9282eb6fb41e85343e5e173b63c6893b788cac0d16dbf0c2c46ff53b8be61bb19f3cdf5690',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:43:03',	'2024-10-19 02:43:03',	'2025-10-19 08:13:03'),
+('b26566546f3da320ccec8a88c5066a66810564746a00c2994b072b50d18b6694a06b18035736dc8a',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 08:07:42',	'2024-10-28 08:07:44',	'2025-10-28 08:07:42'),
+('b292a3aaa1e15f0d1728b4a952699d5d9aa1f2e6688d76ce2192906d2156266de2d4535157b4c98d',	248,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 04:28:42',	'2024-10-19 04:28:42',	'2025-10-19 09:58:42'),
+('b3117a8df52d4de3ee0f07461dacfb13f2e66f904ec24271586610e9eb0feeba5215ed7677d67040',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:30:25',	'2024-10-19 02:30:25',	'2025-10-19 08:00:25'),
+('b3e6581c5ffaa8a418f56039df8652da97b79e5b20d5c20538585c28e9e6708b72ec5619b6edce05',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:28:01',	'2024-10-28 06:28:03',	'2025-10-28 06:28:01'),
+('b5653cca49842c47a831b61b557d027767801afbf50313aab6d98c2da8c45330f8541939828cf30b',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:53:49',	'2024-10-19 02:53:49',	'2025-10-19 08:23:49'),
+('b65ee5f0cdad69e3d95f9ad5a8cfeedd3239f4146b722010b437c73f84fbe80c30fe26f8e24fb06b',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:06:54',	'2024-10-28 06:06:55',	'2025-10-28 06:06:54'),
+('b7f82232559054b0023a98a0dc735aaba3959e50ed993405b4cacfe5174ba155006497853bf86753',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:41:55',	'2024-10-19 02:41:55',	'2025-10-19 08:11:55'),
+('b9addb9286d66f3a6e3054a7e8711ac2b1e221c9fa0390d5c2291c649b41373f756f2eae3998a69d',	248,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 04:25:07',	'2024-10-19 04:25:07',	'2025-10-19 09:55:07'),
+('b9f0350213a2f963325bd7231220e1263fca28fdb39ba647ccee29b9ada7c1f76a9527d8ae48ec67',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-27 02:27:16',	'2024-10-27 02:27:17',	'2025-10-27 07:57:16'),
+('ba70c947a762baaeaf67266cd6eb94a2745b65b3bf1be1952b0fb0ab15f69db450ff8d4ea9a9e78d',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:48:44',	'2024-10-19 02:48:44',	'2025-10-19 08:18:44'),
+('bb68d38d3008ec975cb2c8c33a016764476bdb328bb719cea9eaacf85ce51fb4ccc1801274be9034',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:07:49',	'2024-10-28 06:07:50',	'2025-10-28 06:07:49'),
+('bf27d69f2cfbe39bb26bf69a4357397ec8cd6d6d95015015fbb1bb4b53558a5de1c79f55efe75be3',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:38:45',	'2024-10-19 02:38:45',	'2025-10-19 08:08:45'),
+('bf559e5198ec93979ad5b7abbcf2066f5c798165dc1f84892b43e2f9e17ab834f2d406e2bba22e47',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 08:04:54',	'2024-10-28 08:04:55',	'2025-10-28 08:04:54'),
+('c0258edebda34dec1318d9c2bdf4edcc1c621ca74eeacab57a0bb4e0ae770466bda41cec8d5c81f0',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 03:27:28',	'2024-10-19 03:27:28',	'2025-10-19 08:57:28'),
+('c422d3cb1a4454e11e9cda8dec46b60487ebd6db6e55bcabc0ce8f60cca093cf6e904320b14f7ba6',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 10:19:12',	'2024-10-28 10:19:13',	'2025-10-28 10:19:12'),
+('c43681a4d9bf44af1b0724af425c073015ced06d0e446aa9b67539a979f04c3f8d6d6679192d4aeb',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:22:15',	'2024-10-19 02:22:15',	'2025-10-19 07:52:15'),
+('c443234573f2da458afc4849b19fc3aea47de2b0e533cbbd0416e61151e7689add8b7fd452f808c4',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:09:21',	'2024-10-28 06:09:22',	'2025-10-28 06:09:21'),
+('c999da974f5e9d288698481e17013305d209545a0461ea0e75d8e09823457a9fa3292fd2c1e7b6d3',	86,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:11:06',	'2024-10-28 06:11:08',	'2025-10-28 06:11:06'),
+('c9e50d33f4ef9eb4fdea06e441ccf05ca163b058c6983f817cd893de3a8f7030a010ecbf8e9de7ce',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:28:09',	'2024-10-28 06:28:11',	'2025-10-28 06:28:09'),
+('ca4f3d0996bd8bb008a34f52f7554db04e521ffef208a643279d42e03a859b2c39b259df5ffd5d82',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:07:20',	'2024-10-28 06:07:21',	'2025-10-28 06:07:20'),
+('cb027b0d3658df89b8e059bccec147126094a413e509416626407a2e024bc91e0a95f5b62c7b5509',	3,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-11-05 06:41:16',	'2024-11-05 06:41:16',	'2025-11-05 12:11:16'),
+('ccb69d9d846edb832fce90e37b3094c9a71b7141238b9ac38f5698cfac05285d59e47eb4d4d2fcbf',	107,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 10:26:27',	'2024-10-28 10:26:29',	'2025-10-28 10:26:27'),
+('cd147b4f260a422013d2a538385c3e5cc8410d670f51abd81168efaaafec7142cca355fb5a1aa014',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:49:36',	'2024-10-28 06:49:37',	'2025-10-28 06:49:36'),
+('cd370bced13d5af3031edaeaf7cacb1f2e8b687e63151662e23bf506849e3db10375412b127d065a',	86,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 08:18:57',	'2024-10-28 08:18:58',	'2025-10-28 08:18:57'),
+('ce743e354993070c0c949bd2bd370aa37d516cf581c6f23bd629b38dc775260f648491b6dc45c019',	86,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 07:18:16',	'2024-10-28 07:18:18',	'2025-10-28 07:18:16'),
+('cf46db1566c3c0d5cb24512d0a2c290b176f63d6be941af2520bc885d9fc0cd3439a6c172133020d',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 12:01:26',	'2024-10-28 12:01:28',	'2025-10-28 12:01:26'),
+('d2b8fc10adced1716e122ac49f2a10ce5f04eab4d8763699ccc486234a95f60b9466df1e64cec0ab',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 08:04:45',	'2024-10-28 08:04:46',	'2025-10-28 08:04:45'),
+('d46f35fedb26da38761b62dd8888c5b25a886db6b89a0d60437b6c8888ec11d424b15ab60b0e80ef',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:27:18',	'2024-10-19 02:27:18',	'2025-10-19 07:57:18'),
+('d521a1316d78956d5ed03c7101746bdb47936b2edcab3271392f22f4aa4d0169b1205f475136b8cd',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:07:12',	'2024-10-28 06:07:13',	'2025-10-28 06:07:12'),
+('d81ddb3b75d2aca8b46473268c414c9ccded8fc8cab173ecb7ccd2ec2c2ee254a4d964e67bcfe2d6',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 07:00:31',	'2024-10-28 07:00:33',	'2025-10-28 07:00:31'),
+('da8e7c786c3afa9d58462c1607257b891f932f3b4499df2117beefc1bdf29f68cd58739b0f887578',	2,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-11-05 01:57:26',	'2024-11-05 01:57:27',	'2025-11-05 07:27:26'),
+('de215acc45ecc96029fae9e48c000cd5b276e93fa05db288afc15b6d4ae83231a52d8d30a4ecadac',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:07:58',	'2024-10-28 06:07:59',	'2025-10-28 06:07:58'),
+('df6a3038589f83179951e4e0f9b6b2a961601b359fe156cde2316dc4d137a83deb0617cd6eba0332',	86,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:23:47',	'2024-10-28 06:23:48',	'2025-10-28 06:23:47'),
+('e07c781c89d65637b9c730dedbd635e78505eee5673a0f76edc7af2fb25409759bef259e42c844f3',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:03:54',	'2024-10-28 06:03:55',	'2025-10-28 06:03:54'),
+('e0faf28efaaea095e9672660a246b5488a97276c851ccd855a3240320cc4bdb4eae8548c1a8ff632',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:27:01',	'2024-10-19 02:27:01',	'2025-10-19 07:57:01'),
+('e3352d052ce59205cfe212d96a9e4a99241e7bc7a7db86effe851594d98df352b1afe172e730eaa1',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 09:14:29',	'2024-10-28 09:14:31',	'2025-10-28 09:14:29'),
+('e3f8da06814f780788828e750c81cbddee0d8855f60a6d0d163b21647ba3b62518a71131ce5893d0',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 07:03:08',	'2024-10-28 07:03:09',	'2025-10-28 07:03:08'),
+('e5247ba8542b152dc40bdcbe53265357c06491ace08c28efe2761481f36cf1fd1ddb9e9dae6a1d9a',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:37:30',	'2024-10-19 02:37:30',	'2025-10-19 08:07:30'),
+('ebfbd72cf5855491b3a899a8dbce1e7ebe6b85b696040a491c6ce3cb88e20f4e74ea261b744fa3e7',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-29 07:54:51',	'2024-10-29 07:54:52',	'2025-10-29 13:24:51'),
+('ec008119f1796f9e59c9be0ddaae1abeb91ea4f50c02cb7a7b15fe6a695febaf31046e83d6cb9179',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:26:29',	'2024-10-28 06:26:31',	'2025-10-28 06:26:29'),
+('ed3f2c434883d1a12e317177113debb163014542ef3272e3df01e5aa24d6a73fc5fe392872e24645',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:13:39',	'2024-10-28 06:13:40',	'2025-10-28 06:13:39'),
+('edcf2232243f631ca2238891a5fc83f12fc9bb4919050ce186d1b575fa0c037105d9a22b2c1e63b1',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:27:38',	'2024-10-19 02:27:38',	'2025-10-19 07:57:38'),
+('f2e66b81f899a3179ccadea7cfc84f2ad147444c4b83b9ed42a0fb9cb506a35eb6f5fcea66a2845a',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 07:13:14',	'2024-10-28 07:13:16',	'2025-10-28 07:13:14'),
+('f3463f0b197e10eaa1e037e059ffa98f573523deffb9953c893fdf8483cd2edf84e71fabe6cf6152',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:38:23',	'2024-10-19 02:38:23',	'2025-10-19 08:08:23'),
+('f41d9b96ce68a4ec9773b834620398d15cb61ee6b0f565eef0349c1c5d72237daa4b1724a2f47d46',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 02:49:04',	'2024-10-19 02:49:04',	'2025-10-19 08:19:04'),
+('f88dddf04dc28ea980ed8bddab44a874ba62db9d49c9ec007ee666e9adab26e69437b7d191131f2b',	2,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-11-05 02:22:12',	'2024-11-05 02:22:12',	'2025-11-05 07:52:12'),
+('f95e755c29ed849091deaf4dd273b60e017ec6fd221ee8ffbd917ba5fc7134fb958e48196c525562',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:33:52',	'2024-10-28 06:33:53',	'2025-10-28 06:33:52'),
+('f9c88644cab521ea893b0247720af75880a2d6fd0b6de09509fccb65d0593ab841a8c312657dbb1e',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 06:08:19',	'2024-10-28 06:08:20',	'2025-10-28 06:08:19'),
+('fa565dd8e3ac8b3fb076e53482b3f4114f69af179e190784f57a1cb48cee9a38620870e71786242a',	85,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 11:45:05',	'2024-10-28 11:45:06',	'2025-10-28 11:45:05'),
+('fa5b281b9e51ba49b44b4e24d7ca1c2a12b12540f889d6c1e60646dd481b7387e5c489aa66ee7635',	240,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 04:08:11',	'2024-10-19 04:08:11',	'2025-10-19 09:38:11'),
+('fe12d3868b094edd2f61ed21569c98918c0fb40e3fa1c0afebca6cbf9153a0ebca78dab6960cf447',	1,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-28 12:15:12',	'2024-10-28 12:15:14',	'2025-10-28 12:15:12'),
+('ff1655715de56218ad2d356d12ebf09fd40e761d67b387e4042322243eaad56177e0e0b0f20a66a8',	248,	1,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'[]',	0,	'2024-10-19 04:28:04',	'2024-10-19 04:28:04',	'2025-10-19 09:58:04');
+
+DROP TABLE IF EXISTS `oauth_auth_codes`;
+CREATE TABLE `oauth_auth_codes` (
+  `id` varchar(100) NOT NULL,
+  `user_id` bigint unsigned NOT NULL,
+  `client_id` bigint unsigned NOT NULL,
+  `scopes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `revoked` tinyint(1) NOT NULL,
+  `expires_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `oauth_auth_codes_user_id_index` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+DROP TABLE IF EXISTS `oauth_clients`;
+CREATE TABLE `oauth_clients` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  `secret` varchar(100) DEFAULT NULL,
+  `provider` varchar(255) DEFAULT NULL,
+  `redirect` text NOT NULL,
+  `personal_access_client` tinyint(1) NOT NULL,
+  `password_client` tinyint(1) NOT NULL,
+  `revoked` tinyint(1) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `oauth_clients_user_id_index` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `oauth_clients` (`id`, `user_id`, `name`, `secret`, `provider`, `redirect`, `personal_access_client`, `password_client`, `revoked`, `created_at`, `updated_at`) VALUES
+(1,	NULL,	'ggbmlm',	'oqlH37LYPvg6yTfVM2RmZNYTmcuYJefowFdB71gj',	NULL,	'http://localhost',	1,	0,	0,	'2024-10-19 01:17:55',	'2024-10-19 01:17:55');
+
+DROP TABLE IF EXISTS `oauth_personal_access_clients`;
+CREATE TABLE `oauth_personal_access_clients` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `client_id` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `oauth_personal_access_clients` (`id`, `client_id`, `created_at`, `updated_at`) VALUES
+(1,	1,	'2024-10-19 01:17:56',	'2024-10-19 01:17:56');
+
+DROP TABLE IF EXISTS `oauth_refresh_tokens`;
+CREATE TABLE `oauth_refresh_tokens` (
+  `id` varchar(100) NOT NULL,
+  `access_token_id` varchar(100) NOT NULL,
+  `revoked` tinyint(1) NOT NULL,
+  `expires_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `oauth_refresh_tokens_access_token_id_index` (`access_token_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+DROP TABLE IF EXISTS `password_resets`;
+CREATE TABLE `password_resets` (
+  `email` varchar(255) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY `password_resets_email_index` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `payments`;
+CREATE TABLE `payments` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `kit_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `pay_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `pin_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `paid_date` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `remark` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+  `date` datetime NOT NULL,
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `approve_by` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `approve_date` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
+
+INSERT INTO `payments` (`id`, `kit_id`, `user_id`, `amount`, `pay_type`, `pin_code`, `paid_date`, `remark`, `date`, `status`, `approve_by`, `approve_date`, `created_at`, `updated_at`) VALUES
+(1,	1,	1,	3500.00,	'1',	NULL,	NULL,	'Via Pin',	'2024-10-30 12:11:44',	'0',	NULL,	NULL,	'2024-10-30 12:11:44',	'2024-10-30 12:11:44'),
+(2,	1,	3,	3500.00,	'1',	NULL,	NULL,	'Via Pin',	'2024-10-30 12:11:52',	'1',	'Admin',	'2024-10-30 12:15:12',	'2024-10-30 12:11:52',	'2024-10-30 12:15:12'),
+(3,	1,	4,	3500.00,	'1',	NULL,	NULL,	'Via Pin',	'2024-10-30 12:15:41',	'1',	'Admin',	'2024-10-30 12:15:54',	'2024-10-30 12:15:41',	'2024-10-30 12:15:54'),
+(4,	1,	5,	3500.00,	'1',	NULL,	NULL,	'Via Pin',	'2024-10-30 12:18:48',	'1',	'Admin',	'2024-10-30 12:20:32',	'2024-10-30 12:18:48',	'2024-10-30 12:20:32'),
+(5,	1,	6,	3500.00,	'1',	NULL,	NULL,	'Via Pin',	'2024-10-30 12:18:56',	'1',	'Admin',	'2024-10-30 12:20:37',	'2024-10-30 12:18:56',	'2024-10-30 12:20:37'),
+(6,	1,	7,	3500.00,	'1',	NULL,	NULL,	'Via Pin',	'2024-10-30 12:18:59',	'1',	'Admin',	'2024-10-30 12:20:53',	'2024-10-30 12:18:59',	'2024-10-30 12:20:53'),
+(10,	1,	8,	3500.00,	'10',	'GGBKIGO7',	NULL,	'Pin-Via Pin',	'2024-10-30 12:30:54',	'1',	NULL,	NULL,	'2024-10-30 12:30:54',	'2024-10-30 12:30:54'),
+(11,	1,	10,	3500.00,	'10',	'GGBANZUE',	NULL,	'Pin-Via Pin',	'2024-10-30 13:05:43',	'1',	NULL,	NULL,	'2024-10-30 13:05:43',	'2024-10-30 13:05:43'),
+(12,	1,	9,	3500.00,	'10',	'GGBNSCKW',	NULL,	'Pin-Via Pin',	'2024-10-30 13:06:33',	'1',	NULL,	NULL,	'2024-10-30 13:06:33',	'2024-10-30 13:06:33'),
+(13,	1,	11,	3500.00,	'10',	'GGB2BMVW',	NULL,	'Pin-Via Pin',	'2024-10-30 13:08:29',	'1',	NULL,	NULL,	'2024-10-30 13:08:29',	'2024-10-30 13:08:29'),
+(14,	1,	12,	3500.00,	'10',	'GGBL3RKQ',	NULL,	'Pin-Via Pin',	'2024-10-30 13:08:47',	'1',	NULL,	NULL,	'2024-10-30 13:08:47',	'2024-10-30 13:08:47'),
+(15,	1,	13,	3500.00,	'1',	NULL,	NULL,	'Via Pin',	'2024-10-30 13:15:08',	'1',	'Root',	'2024-10-30 13:16:41',	'2024-10-30 13:15:08',	'2024-10-30 13:16:41'),
+(16,	1,	14,	3500.00,	'1',	NULL,	NULL,	'Via Pin',	'2024-10-30 13:15:23',	'1',	'Root',	'2024-10-30 13:16:46',	'2024-10-30 13:15:23',	'2024-10-30 13:16:46'),
+(17,	1,	15,	3500.00,	'1',	NULL,	NULL,	'Via Pin',	'2024-10-30 13:15:27',	'1',	'Root',	'2024-10-30 13:16:49',	'2024-10-30 13:15:27',	'2024-10-30 13:16:49'),
+(18,	1,	16,	3500.00,	'1',	NULL,	NULL,	'Via Pin',	'2024-10-30 13:15:50',	'1',	'Root',	'2024-10-30 13:16:53',	'2024-10-30 13:15:50',	'2024-10-30 13:16:53'),
+(19,	1,	25,	3500.00,	'1',	NULL,	NULL,	'mujh n ho paygaa',	'2024-11-05 12:20:21',	'0',	NULL,	NULL,	'2024-11-05 12:20:21',	'2024-11-05 12:20:21'),
+(20,	2,	19,	3500.00,	'2',	NULL,	NULL,	'gshsh',	'2024-11-05 12:42:39',	'0',	NULL,	NULL,	'2024-11-05 12:42:39',	'2024-11-05 12:42:39'),
+(21,	2,	27,	3500.00,	'3',	NULL,	NULL,	'sshshs',	'2024-11-05 13:29:53',	'0',	NULL,	NULL,	'2024-11-05 13:29:53',	'2024-11-05 13:29:53');
+
+DROP TABLE IF EXISTS `personal_access_tokens`;
+CREATE TABLE `personal_access_tokens` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `tokenable_type` varchar(255) NOT NULL,
+  `tokenable_id` bigint unsigned NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `token` varchar(64) NOT NULL,
+  `abilities` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `expires_at` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `last_used_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
+  KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `expires_at`, `last_used_at`, `created_at`, `updated_at`) VALUES
+(1,	'App\\Models\\Usermlm',	228,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'1a3537765615c2e3837040dd6bcef193fbd1a9bad46d06b16cbce1d6859ae8f8',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:17:57',	'2024-10-09 21:17:57'),
+(2,	'App\\Models\\Usermlm',	228,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'2bb19bf26a7d2a201c02205d318c93cb2c95295044ec369e88a5a9d60c08acf2',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:19:21',	'2024-10-09 21:19:21'),
+(3,	'App\\Models\\Usermlm',	228,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'6ad21f263f4c72ca4c02d181a4268ac52bfd73038ee648128ff7a6d5ca84ce21',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:20:04',	'2024-10-09 21:20:04'),
+(4,	'App\\Models\\Usermlm',	228,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'2c72026d6ec06be6da2f52e8797dbf5d5243783c81f73ab384796abb7324bae3',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:22:15',	'2024-10-09 21:22:15'),
+(5,	'App\\Models\\Usermlm',	228,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'30efa2254aeb15c864916398f7a454429e3fa9148e2c4aab91daa5388e0ee3bb',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:22:49',	'2024-10-09 21:22:49'),
+(6,	'App\\Models\\Usermlm',	228,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'fade5a134dc12aa77555f06b603488927afe64f668d6af009b9bb52e05b41ffa',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:23:47',	'2024-10-09 21:23:47'),
+(7,	'App\\Models\\Usermlm',	228,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'8a3dd0b88acad031b4dc10dfff478b50941cfb97841118cb2e225ddee77f52cf',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:24:05',	'2024-10-09 21:24:05'),
+(8,	'App\\Models\\Usermlm',	228,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'a3b5636dff9805752f10c77996be87b43964c660f8076dab838d2efaac8c7f61',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:25:14',	'2024-10-09 21:25:14'),
+(9,	'App\\Models\\Usermlm',	228,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'a3c9e20639e1870a63fd6290ea6ab81af4ff2f8e885e69df0a6b3e7d85d54243',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:26:11',	'2024-10-09 21:26:11'),
+(10,	'App\\Models\\Usermlm',	228,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'3c51c9971e016c8bef71936cd59956b3fb1041f79d9b1c4aada58c862f97f99c',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:26:56',	'2024-10-09 21:26:56'),
+(11,	'App\\Models\\Usermlm',	228,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'990ca234b7f74c8fc262a8d932625a29ebee1aa45eedc609da61ff2ee3b15bba',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:27:21',	'2024-10-09 21:27:21'),
+(12,	'App\\Models\\Usermlm',	228,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'a0382ce547fd2ece81d76cce441a2994db76b2cdb3026bff10dcb690ba907a59',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:32:18',	'2024-10-09 21:32:18'),
+(13,	'App\\Models\\Usermlm',	228,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'6e6c818cd09284d738600d9471089b61a36ca9dfd47160ef78321f03028529c9',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:35:46',	'2024-10-09 21:35:46'),
+(14,	'App\\Models\\Usermlm',	228,	'FKDIWIJdfdsfdsjhkgyW IEW J77872 78*&*&839039J DKSJH!#@^*&(',	'eaeaa7a2c50d2269326b61020e11abbff675f80bf7b90143faa34deed7393085',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:37:02',	'2024-10-09 21:37:02'),
+(15,	'App\\Models\\Usermlm',	228,	'Personal Access Token',	'f2d78e4f533debbaa4280f4f9814397887d93328dbeff91eab63eb413d3f3d0a',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:48:48',	'2024-10-09 21:48:48'),
+(16,	'App\\Models\\Usermlm',	228,	'Personal Access Token',	'634ccad38569631b0cfbcd37059d27688c1ced775f969f7b5e9dd41b0597931f',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:48:52',	'2024-10-09 21:48:52'),
+(17,	'App\\Models\\Usermlm',	228,	'Personal Access Token',	'a4af2b1e1554e4d2c77e3fa7be90bd8ac52fc9e51cd3d8c46a165ee6482c0c27',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:49:40',	'2024-10-09 21:49:40'),
+(18,	'App\\Models\\Usermlm',	228,	'Personal Access Token',	'2624a507aad3006b48fc2cb3aafd489392b7da1007c7dc0d890dfb56a684a7d6',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:49:48',	'2024-10-09 21:49:48'),
+(19,	'App\\Models\\Usermlm',	228,	'Personal Access Token',	'544247d6faa7d6e6fb4bfb5d36b2e23ee5239a6531adfebc61ad36e8ce927490',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:50:40',	'2024-10-09 21:50:40'),
+(20,	'App\\Models\\Usermlm',	228,	'Personal Access Token',	'f93feec84225c752e7c00e10bb9953094a03bbca487f275db8fbb0cbcea0eae7',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:54:26',	'2024-10-09 21:54:26'),
+(21,	'App\\Models\\Usermlm',	228,	'Personal Access Token',	'8cf852f12909e5811cbaa3b8c4ebeee6bc5f20a0371067fde5f8202e2f7c2904',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 21:54:58',	'2024-10-09 21:54:58'),
+(22,	'App\\Models\\Usermlm',	228,	'Personal Access Token',	'15898395cf81944c1a2893abfc9500073223661b0184f066ded726e1846035e5',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 22:40:53',	'2024-10-09 22:40:53'),
+(23,	'App\\Models\\Usermlm',	228,	'Personal Access Token',	'374a348392cc4da93b86ef0541fc96a75e25194b7e86f6654463ce779fec58c5',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 22:44:16',	'2024-10-09 22:44:16'),
+(24,	'App\\Models\\Usermlm',	228,	'Personal Access Token',	'2510d34af9aeb8cb11373dff4e4925142325534afe5719b75c7cdc882649154a',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 22:57:59',	'2024-10-09 22:57:59'),
+(25,	'App\\Models\\Usermlm',	228,	'Personal Access Token',	'b634cfac67441894e57504fe1155ba3c4cb40b9b05939435265c7146ce25b34c',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 23:03:27',	'2024-10-09 23:03:27'),
+(26,	'App\\Models\\Usermlm',	228,	'Personal Access Token',	'4b6021803861a44e2c7b4679c9d977ad2afb70e886f8c391252dd6159cc3ddd5',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 23:04:41',	'2024-10-09 23:04:41'),
+(27,	'App\\Models\\Usermlm',	228,	'Personal Access Token',	'3fe683f7f1b6c33bf372cda09f0949182707807958446a136715718f072b59bf',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 23:05:37',	'2024-10-09 23:05:37'),
+(28,	'App\\Models\\Usermlm',	228,	'Personal Access Token',	'88c84689d03a67d3b41e5250b2a329613efa426a46c5c34fbc86704904b61807',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 23:05:48',	'2024-10-09 23:05:48'),
+(29,	'App\\Models\\Usermlm',	228,	'Personal Access Token',	'3153caf0d38d26a5137b297246b42849dd12076c27def9972e9091fab21a268c',	'[\"*\"]',	NULL,	NULL,	'2024-10-09 23:06:21',	'2024-10-09 23:06:21'),
+(30,	'App\\Models\\Usermlm',	240,	'Personal Access Token',	'e3bd6458bb298440ce74c756d94909b4d62fa094e63f77a3d07c630fd306ce37',	'[\"*\"]',	NULL,	NULL,	'2024-10-18 08:18:42',	'2024-10-18 08:18:42'),
+(31,	'App\\Models\\Usermlm',	240,	'Personal Access Token',	'25a3f3bab73b19819e2ed8bb26f457ee1c98c525a99778fdcc89aaa1b2be1e62',	'[\"*\"]',	NULL,	NULL,	'2024-10-18 08:19:38',	'2024-10-18 08:19:38'),
+(32,	'App\\Models\\Usermlm',	240,	'Personal Access Token',	'731917956e0cf554a3480e099607585eec7c15f11fe02f534b0a7da0f5556304',	'[\"*\"]',	NULL,	NULL,	'2024-10-18 08:24:34',	'2024-10-18 08:24:34'),
+(33,	'App\\Models\\Usermlm',	240,	'Personal Access Token',	'051a981305c74c1b133b0bc15ce41e2ab508df4cc0c70499e330fb448bd3a6c0',	'[\"*\"]',	NULL,	NULL,	'2024-10-18 23:32:02',	'2024-10-18 23:32:02'),
+(34,	'App\\Models\\Usermlm',	240,	'Personal Access Token',	'99a80f426ae728fb636374140e2dec7993c46ce0be61709624db20f3da2d475c',	'[\"*\"]',	NULL,	NULL,	'2024-10-19 00:25:53',	'2024-10-19 00:25:53'),
+(35,	'App\\Models\\Usermlm',	240,	'Personal Access Token',	'fdb60beaa3471841569c17f4a3b41e940c43d9d1e206c24bb645a5c93f0c135d',	'[\"*\"]',	NULL,	NULL,	'2024-10-19 00:26:07',	'2024-10-19 00:26:07'),
+(36,	'App\\Models\\Usermlm',	240,	'Personal Access Token',	'35504eb301ff10aaab751052f6b07676e8fa892a5a718535022aa32b34a0473c',	'[\"*\"]',	NULL,	NULL,	'2024-10-19 00:31:05',	'2024-10-19 00:31:05');
+
+DROP TABLE IF EXISTS `pins`;
+CREATE TABLE `pins` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `pin` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `buyer_id` int NOT NULL,
+  `used_by` int DEFAULT '0',
+  `generated_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+INSERT INTO `pins` (`id`, `pin`, `buyer_id`, `used_by`, `generated_by`, `created_at`, `updated_at`) VALUES
+(1,	'GGBBJ7LJ',	2,	0,	'1',	'2024-10-30 12:21:53',	'2024-10-30 12:21:53'),
+(2,	'GGBFENYB',	2,	0,	'1',	'2024-10-30 12:21:53',	'2024-10-30 12:21:53'),
+(3,	'GGB7U7JA',	2,	0,	'1',	'2024-10-30 12:21:53',	'2024-10-30 12:21:53'),
+(4,	'GGBAPSKV',	2,	0,	'1',	'2024-10-30 12:21:53',	'2024-10-30 12:21:53'),
+(5,	'GGBSI59L',	2,	0,	'1',	'2024-10-30 12:21:53',	'2024-10-30 12:21:53'),
+(6,	'GGBYJLW7',	3,	0,	'1',	'2024-10-30 12:21:56',	'2024-10-30 12:21:56'),
+(7,	'GGBKEIPZ',	3,	0,	'1',	'2024-10-30 12:21:56',	'2024-10-30 12:21:56'),
+(8,	'GGBUIMAI',	3,	0,	'1',	'2024-10-30 12:21:56',	'2024-10-30 12:21:56'),
+(9,	'GGBCK3BF',	3,	0,	'1',	'2024-10-30 12:21:56',	'2024-10-30 12:21:56'),
+(10,	'GGBQEMLF',	3,	0,	'1',	'2024-10-30 12:21:56',	'2024-10-30 12:21:56'),
+(11,	'GGBKIGO7',	4,	8,	'1',	'2024-10-30 12:21:58',	'2024-10-30 18:00:54'),
+(12,	'GGBHXWZI',	4,	0,	'1',	'2024-10-30 12:21:58',	'2024-10-30 12:21:58'),
+(13,	'GGBRUTDR',	4,	0,	'1',	'2024-10-30 12:21:58',	'2024-10-30 12:21:58'),
+(14,	'GGBKVPXE',	4,	0,	'1',	'2024-10-30 12:21:58',	'2024-10-30 12:21:58'),
+(15,	'GGBJUL0X',	4,	0,	'1',	'2024-10-30 12:21:58',	'2024-10-30 12:21:58'),
+(16,	'GGBZUK6I',	5,	0,	'1',	'2024-10-30 12:22:01',	'2024-10-30 12:22:01'),
+(17,	'GGB6NB4V',	5,	0,	'1',	'2024-10-30 12:22:01',	'2024-10-30 12:22:01'),
+(18,	'GGBXLVGD',	5,	0,	'1',	'2024-10-30 12:22:01',	'2024-10-30 12:22:01'),
+(19,	'GGBFZ69J',	5,	0,	'1',	'2024-10-30 12:22:01',	'2024-10-30 12:22:01'),
+(20,	'GGB0NOEP',	5,	0,	'1',	'2024-10-30 12:22:01',	'2024-10-30 12:22:01'),
+(21,	'GGBAUMRZ',	6,	0,	'1',	'2024-10-30 12:22:05',	'2024-10-30 12:22:05'),
+(22,	'GGBSXGAI',	6,	0,	'1',	'2024-10-30 12:22:05',	'2024-10-30 12:22:05'),
+(23,	'GGBJ1XW4',	6,	0,	'1',	'2024-10-30 12:22:05',	'2024-10-30 12:22:05'),
+(24,	'GGBSNKBA',	6,	0,	'1',	'2024-10-30 12:22:05',	'2024-10-30 12:22:05'),
+(25,	'GGBVWQDO',	6,	0,	'1',	'2024-10-30 12:22:05',	'2024-10-30 12:22:05'),
+(26,	'GGBFREIL',	7,	0,	'1',	'2024-10-30 12:22:09',	'2024-10-30 12:22:09'),
+(27,	'GGBIXAGI',	7,	0,	'1',	'2024-10-30 12:22:09',	'2024-10-30 12:22:09'),
+(28,	'GGBWYBD2',	7,	0,	'1',	'2024-10-30 12:22:09',	'2024-10-30 12:22:09'),
+(29,	'GGBV6ZMX',	7,	0,	'1',	'2024-10-30 12:22:09',	'2024-10-30 12:22:09'),
+(30,	'GGBNXFQB',	7,	0,	'1',	'2024-10-30 12:22:09',	'2024-10-30 12:22:09'),
+(31,	'GGBANZUE',	8,	10,	'1',	'2024-10-30 12:22:11',	'2024-10-30 18:35:43'),
+(32,	'GGBNSCKW',	8,	9,	'1',	'2024-10-30 12:22:11',	'2024-10-30 18:36:33'),
+(33,	'GGB2BMVW',	8,	11,	'1',	'2024-10-30 12:22:11',	'2024-10-30 18:38:29'),
+(34,	'GGBL3RKQ',	8,	12,	'1',	'2024-10-30 12:22:11',	'2024-10-30 18:38:47'),
+(35,	'GGBZF0FG',	8,	0,	'1',	'2024-10-30 12:22:11',	'2024-10-30 12:22:11'),
+(36,	'GGBC4WAV',	8,	0,	'1',	'2024-11-05 08:07:16',	'2024-11-05 08:07:16'),
+(37,	'GGBCV1N0',	8,	0,	'1',	'2024-11-05 08:07:16',	'2024-11-05 08:07:16'),
+(38,	'GGBHEH4N',	8,	0,	'1',	'2024-11-05 08:46:55',	'2024-11-05 08:46:55'),
+(39,	'GGB6VVFR',	8,	0,	'1',	'2024-11-05 08:46:55',	'2024-11-05 08:46:55'),
+(40,	'GGBR2PMH',	8,	0,	'1',	'2024-11-05 08:46:55',	'2024-11-05 08:46:55'),
+(41,	'GGBDXD23',	8,	0,	'1',	'2024-11-05 08:46:55',	'2024-11-05 08:46:55'),
+(42,	'GGBE4BG4',	8,	0,	'1',	'2024-11-05 08:46:55',	'2024-11-05 08:46:55'),
+(43,	'GGBFHXO1',	8,	0,	'1',	'2024-11-05 09:49:28',	'2024-11-05 09:49:28'),
+(44,	'GGBCSAHE',	8,	0,	'1',	'2024-11-05 09:49:28',	'2024-11-05 09:49:28'),
+(45,	'GGBI1R2S',	8,	0,	'1',	'2024-11-05 09:49:28',	'2024-11-05 09:49:28'),
+(46,	'GGBM2I2E',	8,	0,	'1',	'2024-11-05 09:49:28',	'2024-11-05 09:49:28'),
+(47,	'GGBUXJR7',	8,	0,	'1',	'2024-11-05 09:49:28',	'2024-11-05 09:49:28'),
+(48,	'GGB58KOW',	8,	0,	'1',	'2024-11-05 09:49:28',	'2024-11-05 09:49:28'),
+(49,	'GGBDSZGJ',	16,	0,	'1',	'2024-11-05 09:51:55',	'2024-11-05 09:51:55'),
+(50,	'GGBW9YTZ',	16,	0,	'1',	'2024-11-05 09:51:55',	'2024-11-05 09:51:55'),
+(51,	'GGBAR6DJ',	16,	0,	'1',	'2024-11-05 09:51:55',	'2024-11-05 09:51:55'),
+(52,	'GGBP1Z42',	16,	0,	'1',	'2024-11-05 09:51:55',	'2024-11-05 09:51:55'),
+(53,	'GGBN7DWE',	7,	0,	'1',	'2024-11-05 10:02:02',	'2024-11-05 10:02:02'),
+(54,	'GGBZSMG9',	7,	0,	'1',	'2024-11-05 10:02:02',	'2024-11-05 10:02:02'),
+(55,	'GGBOHINT',	8,	0,	'1',	'2024-11-05 10:13:41',	'2024-11-05 10:13:41'),
+(56,	'GGBJ2718',	8,	0,	'1',	'2024-11-05 10:13:41',	'2024-11-05 10:13:41'),
+(57,	'GGBBHZ1J',	8,	0,	'1',	'2024-11-05 10:13:41',	'2024-11-05 10:13:41'),
+(58,	'GGBMTYTK',	8,	0,	'1',	'2024-11-05 10:13:41',	'2024-11-05 10:13:41'),
+(59,	'GGBRFGSZ',	8,	0,	'1',	'2024-11-05 10:13:41',	'2024-11-05 10:13:41'),
+(60,	'GGBTTEUJ',	8,	0,	'1',	'2024-11-05 10:13:41',	'2024-11-05 10:13:41'),
+(61,	'GGBYPOGO',	1,	0,	'1',	'2024-11-05 10:27:10',	'2024-11-05 10:27:10'),
+(62,	'GGBFG5MZ',	1,	0,	'1',	'2024-11-05 10:27:10',	'2024-11-05 10:27:10'),
+(63,	'GGBUHOS6',	1,	0,	'1',	'2024-11-05 10:28:20',	'2024-11-05 10:28:20'),
+(64,	'GGB4LZDZ',	1,	0,	'1',	'2024-11-05 10:28:20',	'2024-11-05 10:28:20'),
+(65,	'GGBNX1YX',	1,	0,	'1',	'2024-11-05 10:28:20',	'2024-11-05 10:28:20'),
+(66,	'GGBWKACT',	1,	0,	'1',	'2024-11-05 10:28:20',	'2024-11-05 10:28:20'),
+(67,	'GGBNMT1C',	1,	0,	'1',	'2024-11-05 10:28:20',	'2024-11-05 10:28:20'),
+(68,	'GGBMRJTS',	2,	0,	'1',	'2024-11-05 10:39:39',	'2024-11-05 10:39:39'),
+(69,	'GGBVHS9X',	2,	0,	'1',	'2024-11-05 10:39:39',	'2024-11-05 10:39:39'),
+(70,	'GGBZ0DDN',	2,	0,	'1',	'2024-11-05 10:39:39',	'2024-11-05 10:39:39'),
+(71,	'GGB8XRPA',	2,	0,	'1',	'2024-11-05 10:39:39',	'2024-11-05 10:39:39'),
+(72,	'GGBZIPQC',	2,	0,	'1',	'2024-11-05 10:39:39',	'2024-11-05 10:39:39'),
+(73,	'GGBQZFA1',	2,	0,	'1',	'2024-11-05 10:39:39',	'2024-11-05 10:39:39'),
+(74,	'GGBWIOST',	2,	0,	'1',	'2024-11-05 10:41:39',	'2024-11-05 10:41:39'),
+(75,	'GGBPIZXG',	2,	0,	'1',	'2024-11-05 10:41:39',	'2024-11-05 10:41:39'),
+(76,	'GGBZCS85',	2,	0,	'1',	'2024-11-05 10:41:39',	'2024-11-05 10:41:39'),
+(77,	'GGBQAOFM',	9,	0,	'1',	'2024-11-05 10:42:43',	'2024-11-05 10:42:43'),
+(78,	'GGBNJTCW',	9,	0,	'1',	'2024-11-05 10:42:43',	'2024-11-05 10:42:43'),
+(79,	'GGBUT4I0',	9,	0,	'1',	'2024-11-05 10:42:43',	'2024-11-05 10:42:43'),
+(80,	'GGBZFASR',	9,	0,	'1',	'2024-11-05 10:42:43',	'2024-11-05 10:42:43'),
+(81,	'GGBG7AVA',	9,	0,	'1',	'2024-11-05 10:42:43',	'2024-11-05 10:42:43'),
+(82,	'GGB9NUAR',	2,	0,	'1',	'2024-11-05 10:51:00',	'2024-11-05 10:51:00'),
+(83,	'GGBPBRRG',	2,	0,	'1',	'2024-11-05 10:51:00',	'2024-11-05 10:51:00'),
+(84,	'GGBL5SGL',	4,	0,	'1',	'2024-11-05 10:54:00',	'2024-11-05 10:54:00'),
+(85,	'GGBC8TNL',	4,	0,	'1',	'2024-11-05 10:54:00',	'2024-11-05 10:54:00'),
+(86,	'GGBUEARW',	6,	0,	'1',	'2024-11-05 10:54:50',	'2024-11-05 10:54:50'),
+(87,	'GGBCRPT6',	6,	0,	'1',	'2024-11-05 10:54:50',	'2024-11-05 10:54:50'),
+(88,	'GGBUUEKT',	6,	0,	'1',	'2024-11-05 10:54:50',	'2024-11-05 10:54:50'),
+(89,	'GGBNBFGS',	6,	0,	'1',	'2024-11-05 10:54:50',	'2024-11-05 10:54:50'),
+(90,	'GGBLTGP0',	5,	0,	'1',	'2024-11-05 10:57:04',	'2024-11-05 10:57:04'),
+(91,	'GGBE36IA',	5,	0,	'1',	'2024-11-05 10:57:04',	'2024-11-05 10:57:04'),
+(92,	'GGBGGQXP',	5,	0,	'1',	'2024-11-05 10:57:04',	'2024-11-05 10:57:04'),
+(93,	'GGBCKWIY',	5,	0,	'1',	'2024-11-05 10:57:04',	'2024-11-05 10:57:04'),
+(94,	'GGBSU3KG',	5,	0,	'1',	'2024-11-05 10:57:04',	'2024-11-05 10:57:04'),
+(95,	'GGBHAALW',	3,	0,	'1',	'2024-11-05 11:07:05',	'2024-11-05 11:07:05'),
+(96,	'GGBSBSB1',	3,	0,	'1',	'2024-11-05 11:07:05',	'2024-11-05 11:07:05'),
+(97,	'GGBNU1YE',	4,	0,	'1',	'2024-11-05 11:08:33',	'2024-11-05 11:08:33'),
+(98,	'GGBLMBJU',	4,	0,	'1',	'2024-11-05 11:08:33',	'2024-11-05 11:08:33'),
+(99,	'GGB8Z4VS',	4,	0,	'1',	'2024-11-05 11:10:11',	'2024-11-05 11:10:11'),
+(100,	'GGBUVZ0O',	4,	0,	'1',	'2024-11-05 11:10:11',	'2024-11-05 11:10:11'),
+(101,	'GGBGTKKB',	4,	0,	'1',	'2024-11-05 11:10:11',	'2024-11-05 11:10:11'),
+(102,	'GGBSMVTT',	4,	0,	'1',	'2024-11-05 11:11:14',	'2024-11-05 11:11:14'),
+(103,	'GGBWLKD2',	4,	0,	'1',	'2024-11-05 11:11:14',	'2024-11-05 11:11:14'),
+(104,	'GGBTJDGC',	4,	0,	'1',	'2024-11-05 11:11:14',	'2024-11-05 11:11:14'),
+(105,	'GGBDFTYD',	4,	0,	'1',	'2024-11-05 11:11:14',	'2024-11-05 11:11:14'),
+(106,	'GGBX1CYT',	3,	0,	'1',	'2024-11-05 11:41:20',	'2024-11-05 11:41:20'),
+(107,	'GGBHWBOU',	3,	0,	'1',	'2024-11-05 11:41:20',	'2024-11-05 11:41:20'),
+(108,	'GGBMWJDS',	3,	0,	'1',	'2024-11-05 11:41:20',	'2024-11-05 11:41:20'),
+(109,	'GGBRI8SR',	3,	0,	'1',	'2024-11-05 11:41:20',	'2024-11-05 11:41:20'),
+(110,	'GGB6H2HT',	1,	0,	'1',	'2024-11-05 11:47:11',	'2024-11-05 11:47:11');
+
+DROP TABLE IF EXISTS `transactions`;
+CREATE TABLE `transactions` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `amount` int NOT NULL,
+  `type` varchar(250) DEFAULT NULL,
+  `status` varchar(150) DEFAULT NULL,
+  `paid_by` int DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `user_accounts`;
+CREATE TABLE `user_accounts` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `bank_name` varchar(150) DEFAULT NULL,
+  `account_name` varchar(150) DEFAULT NULL,
+  `account_no` varchar(80) DEFAULT NULL,
+  `user_id` int DEFAULT NULL,
+  `default` tinyint DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `usermlms`;
+CREATE TABLE `usermlms` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `child_left` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `child_right` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `last_left` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `last_right` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `level` int DEFAULT NULL,
+  `paid_level` int DEFAULT NULL,
+  `self_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `mobile` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `email` varchar(222) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `whatsapp` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `pan` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `adhar` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `relation` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `relation_name` varchar(222) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `gender` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `used_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `dob` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `referral_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `parent_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `role` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT '1',
+  `side` tinyint DEFAULT NULL,
+  `powerleg` tinyint DEFAULT '0',
+  `parent_id` int DEFAULT NULL,
+  `status` tinyint DEFAULT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `plain_password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `api_token` varchar(1255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `added_below` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY `user_id` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+INSERT INTO `usermlms` (`id`, `child_left`, `child_right`, `last_left`, `last_right`, `name`, `level`, `paid_level`, `self_code`, `mobile`, `email`, `whatsapp`, `pan`, `adhar`, `relation`, `relation_name`, `gender`, `used_code`, `dob`, `referral_code`, `parent_code`, `role`, `side`, `powerleg`, `parent_id`, `status`, `password`, `plain_password`, `api_token`, `added_below`, `created_at`, `updated_at`) VALUES
+(1,	'',	'',	'',	'',	'Admin',	0,	NULL,	'',	'7985003120',	'admin@gmail.com',	'',	'',	'',	'',	'',	'Male',	'',	'31/10/1989',	NULL,	'0',	'2',	0,	NULL,	NULL,	1,	'password@123',	NULL,	NULL,	NULL,	'2024-10-28 06:11:41',	'2024-10-28 06:11:41'),
+(2,	'3',	'4',	'25',	'10',	'Root',	2,	NULL,	'GGB22024',	'8800318153',	'ggbroot@gmail.com',	'',	'',	'',	'',	'root',	'Male',	'0',	'31/10/1989',	NULL,	'0',	'1',	0,	NULL,	NULL,	1,	'password@123',	NULL,	NULL,	NULL,	'2024-11-05 12:15:20',	'2024-11-05 12:15:20'),
+(3,	'5',	'6',	'25',	'24',	'Avinash Maurya',	0,	NULL,	'GGB32024',	'8810688191',	'ov5@gmail.com',	'45111135',	'67568687',	'345345',	'W/O',	'Rahul',	'Male',	'2',	'31/10/1989',	NULL,	'2',	'1',	1,	0,	NULL,	1,	'password@123',	'password@123',	NULL,	NULL,	'2024-11-05 12:15:20',	'2024-11-05 12:15:20'),
+(4,	'7',	'8',	'7',	'10',	'Avinash Maurya',	1,	NULL,	'GGB42024',	'8810688192',	'ov5@gmail.com',	'45111135',	'67568687',	'345345',	'W/O',	'Rahul',	'Male',	'2',	'31/10/1989',	NULL,	'2',	'1',	2,	0,	NULL,	1,	'password@123',	'password@123',	NULL,	NULL,	'2024-10-30 12:37:55',	'2024-10-30 12:37:55'),
+(5,	'21',	'22',	'25',	'22',	'Avinash Maurya',	0,	NULL,	'GGB52024',	'8810688193',	'ov5@gmail.com',	'45111135',	'67568687',	'345345',	'W/O',	'Rahul',	'Male',	'2',	'31/10/1989',	NULL,	'3',	'1',	1,	0,	NULL,	1,	'password@123',	'password@123',	NULL,	NULL,	'2024-11-05 12:15:20',	'2024-11-05 12:15:20'),
+(6,	'23',	'24',	'23',	'24',	'Avinash Maurya',	0,	NULL,	'GGB62024',	'8810688196',	'ov5@gmail.com',	'45111135',	'67568687',	'345345',	'W/O',	'Rahul',	'Male',	'2',	'31/10/1989',	NULL,	'3',	'1',	2,	0,	NULL,	1,	'password@123',	'password@123',	NULL,	NULL,	'2024-11-05 12:03:11',	'2024-11-05 12:03:11'),
+(7,	NULL,	NULL,	NULL,	NULL,	'Avinash Maurya',	0,	NULL,	'GGB72024',	'8810688197',	'ov5@gmail.com',	'45111135',	'67568687',	'345345',	'W/O',	'Rahul',	'Male',	'2',	'31/10/1989',	NULL,	'4',	'1',	1,	0,	NULL,	1,	'password@123',	'password@123',	NULL,	NULL,	'2024-10-30 12:20:53',	'2024-10-30 12:20:53'),
+(8,	'9',	'10',	'18',	'10',	'Avinash Maurya',	1,	NULL,	'GGB82024',	'8810688198',	'ov5@gmail.com',	'45111135',	'67568687',	'345345',	'W/O',	'Rahul',	'Male',	'2',	'31/10/1989',	NULL,	'4',	'1',	2,	1,	NULL,	1,	'password@123',	'password@123',	NULL,	NULL,	'2024-11-05 07:29:38',	'2024-11-05 07:29:38'),
+(9,	'11',	'12',	'18',	'16',	'Avinash Maurya',	2,	NULL,	'GGB92024',	'8810688199',	'ov5@gmail.com',	'45111135',	'67568687',	'345345',	'W/O',	'Rahul',	'Male',	'8',	'31/10/1989',	NULL,	'8',	'1',	1,	0,	NULL,	1,	'password@123',	'password@123',	NULL,	NULL,	'2024-11-05 07:29:38',	'2024-11-05 07:29:38'),
+(10,	'20',	NULL,	'20',	NULL,	'Avinash Maurya',	0,	NULL,	'GGB102024',	'8810688180',	'ov5@gmail.com',	'45111135',	'67568687',	'345345',	'W/O',	'Rahul',	'Male',	'8',	'31/10/1989',	NULL,	'8',	'1',	2,	0,	NULL,	1,	'password@123',	'password@123',	NULL,	NULL,	'2024-11-05 07:34:27',	'2024-11-05 07:34:27'),
+(11,	'13',	'14',	'18',	'14',	'Avinash Maurya',	1,	NULL,	'GGB112024',	'8810688181',	'ov5@gmail.com',	'45111135',	'67568687',	'345345',	'W/O',	'Rahul',	'Male',	'9',	'31/10/1989',	NULL,	'9',	'1',	1,	0,	NULL,	1,	'password@123',	'password@123',	NULL,	NULL,	'2024-11-05 07:29:38',	'2024-11-05 07:29:38'),
+(12,	'15',	'16',	'15',	'16',	'Avinash Maurya',	1,	NULL,	'GGB122024',	'8810688182',	'ov5@gmail.com',	'45111135',	'67568687',	'345345',	'W/O',	'Rahul',	'Male',	'9',	'31/10/1989',	NULL,	'9',	'1',	2,	0,	NULL,	1,	'password@123',	'password@123',	NULL,	NULL,	'2024-10-30 13:16:53',	'2024-10-30 13:16:53'),
+(13,	'18',	NULL,	'18',	NULL,	'Avinash Maurya',	0,	NULL,	'GGB132024',	'8810688183',	'ov5@gmail.com',	'45111135',	'67568687',	'345345',	'W/O',	'Rahul',	'Male',	'9',	'31/10/1989',	NULL,	'11',	'1',	1,	0,	NULL,	1,	'password@123',	'password@123',	NULL,	NULL,	'2024-11-05 07:29:38',	'2024-11-05 07:29:38'),
+(14,	'17',	NULL,	'17',	NULL,	'Avinash Maurya',	0,	NULL,	'GGB142024',	'8810688184',	'ov5@gmail.com',	'45111135',	'67568687',	'345345',	'W/O',	'Rahul',	'Male',	'9',	'31/10/1989',	NULL,	'11',	'1',	2,	0,	NULL,	1,	'password@123',	'password@123',	NULL,	NULL,	'2024-11-05 07:28:28',	'2024-11-05 07:28:28'),
+(15,	NULL,	NULL,	NULL,	NULL,	'Avinash Maurya',	0,	NULL,	'GGB152024',	'8810688185',	'ov5@gmail.com',	'45111135',	'67568687',	'345345',	'W/O',	'Rahul',	'Male',	'9',	'31/10/1989',	NULL,	'12',	'1',	1,	0,	NULL,	1,	'password@123',	'password@123',	NULL,	NULL,	'2024-10-30 13:16:49',	'2024-10-30 13:16:49'),
+(16,	NULL,	NULL,	NULL,	NULL,	'Avinash Maurya',	0,	NULL,	'GGB162024',	'8810688186',	'ov5@gmail.com',	'45111135',	'67568687',	'345345',	'W/O',	'Rahul',	'Male',	'9',	'31/10/1989',	NULL,	'12',	'1',	2,	0,	NULL,	1,	'password@123',	'password@123',	NULL,	NULL,	'2024-10-30 13:16:53',	'2024-10-30 13:16:53'),
+(17,	NULL,	NULL,	NULL,	NULL,	'neelu',	0,	NULL,	'GGB172024',	'9969969961',	'neeluk@gmail.com',	'9699969991',	NULL,	NULL,	NULL,	NULL,	NULL,	'14',	NULL,	NULL,	'14',	'1',	1,	0,	NULL,	0,	'111',	'222',	NULL,	NULL,	'2024-11-05 18:58:31',	'2024-11-05 18:58:31'),
+(18,	NULL,	'19',	NULL,	'28',	'Avinash Maurya',	0,	NULL,	'GGB182024',	'9969969962',	'ov5@gmail.com',	'451111352',	'67568687',	'345345',	'W/O',	'Rahul',	'Male',	'9',	'31/10/1989',	NULL,	'13',	'1',	1,	0,	NULL,	0,	'password@123',	'password@123',	NULL,	NULL,	'2024-11-05 13:30:09',	'2024-11-05 13:30:09'),
+(19,	NULL,	'27',	NULL,	'28',	'Durgesh',	0,	NULL,	'GGB192024',	'96453948760',	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	'18',	NULL,	NULL,	'18',	'1',	2,	0,	NULL,	0,	'12345678',	'12345678',	NULL,	NULL,	'2024-11-05 13:30:09',	'2024-11-05 13:30:09'),
+(20,	NULL,	NULL,	NULL,	NULL,	'Neelu',	0,	NULL,	'GGB202024',	'9684546646',	NULL,	'9978454546',	NULL,	NULL,	NULL,	NULL,	NULL,	'8',	NULL,	NULL,	'10',	'1',	1,	0,	NULL,	0,	'111',	'222',	NULL,	NULL,	'2024-11-05 18:58:45',	'2024-11-05 18:58:45'),
+(21,	'25',	'26',	'25',	'26',	'Neelu',	0,	NULL,	'GGB212024',	'9465497979',	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	'5',	NULL,	NULL,	'5',	'1',	1,	0,	NULL,	0,	'222',	'333',	NULL,	NULL,	'2024-11-05 18:58:54',	'2024-11-05 18:58:54'),
+(22,	NULL,	NULL,	NULL,	NULL,	'neelu',	0,	NULL,	'GGB222024',	'766494849',	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	'5',	NULL,	NULL,	'5',	'1',	2,	0,	NULL,	0,	'4444',	'5555',	NULL,	NULL,	'2024-11-05 18:59:06',	'2024-11-05 18:59:06'),
+(23,	NULL,	NULL,	NULL,	NULL,	'bdhdhd',	0,	NULL,	'GGB232024',	'9764849646',	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	'6',	NULL,	NULL,	'6',	'1',	1,	0,	NULL,	0,	'12345678',	'12345678',	NULL,	NULL,	'2024-11-05 06:30:33',	'2024-11-05 06:30:33'),
+(24,	NULL,	NULL,	NULL,	NULL,	'nshsjsk',	0,	NULL,	'GGB242024',	'9464849649',	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	'6',	NULL,	NULL,	'6',	'1',	2,	0,	NULL,	0,	'12345678',	'12345678',	NULL,	NULL,	'2024-11-05 06:33:11',	'2024-11-05 06:33:11'),
+(25,	NULL,	NULL,	NULL,	NULL,	'avinbnas',	0,	NULL,	'GGB252024',	'6939663699',	'bb@gmail.com',	'9999963666',	NULL,	NULL,	NULL,	NULL,	NULL,	'5',	NULL,	NULL,	'21',	'1',	1,	0,	NULL,	0,	'12345678',	'12345678',	NULL,	NULL,	'2024-11-05 06:45:20',	'2024-11-05 06:45:20'),
+(26,	NULL,	NULL,	NULL,	NULL,	'eyguuh',	0,	NULL,	'GGB262024',	'9438243868',	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	'5',	NULL,	NULL,	'21',	'1',	2,	0,	NULL,	0,	'1234567890',	'1234567890',	NULL,	NULL,	'2024-11-05 06:45:37',	'2024-11-05 06:45:37'),
+(27,	NULL,	'28',	NULL,	'28',	'Durgesh',	0,	NULL,	'GGB272024',	'96453948764',	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	'18',	NULL,	NULL,	'18',	'1',	2,	0,	NULL,	0,	'12345678',	'12345678',	NULL,	NULL,	'2024-11-05 13:30:09',	'2024-11-05 13:30:09'),
+(28,	NULL,	NULL,	NULL,	NULL,	'Durgesh',	0,	NULL,	'GGB282024',	'96453948766',	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	'18',	NULL,	NULL,	'18',	'1',	2,	0,	NULL,	0,	'12345678',	'12345678',	NULL,	NULL,	'2024-11-05 08:00:09',	'2024-11-05 08:00:09');
+
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE `users` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `username` varchar(255) DEFAULT NULL,
+  `phone` varchar(255) DEFAULT NULL,
+  `referrer` varchar(255) DEFAULT NULL,
+  `parent_id` int DEFAULT NULL,
+  `sponsor_id` varchar(255) DEFAULT NULL,
+  `direct_downlines` int DEFAULT '0',
+  `level` int DEFAULT '0',
+  `two` int DEFAULT '0',
+  `three` int DEFAULT '0',
+  `four` int DEFAULT '0',
+  `five` int DEFAULT '0',
+  `six` int DEFAULT '0',
+  `password` varchar(255) NOT NULL,
+  `password1` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `avartar` varchar(250) DEFAULT NULL,
+  `role` varchar(150) DEFAULT 'user',
+  `activated` varchar(150) DEFAULT 'no',
+  `activated_at` datetime DEFAULT NULL,
+  `activated_by` int DEFAULT NULL,
+  `email_verified_at` datetime DEFAULT NULL,
+  `remember_token` varchar(150) DEFAULT NULL,
+  `address` text,
+  `country` varchar(255) DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `code` varchar(1255) DEFAULT NULL,
+  `deleted` datetime DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+INSERT INTO `users` (`id`, `name`, `email`, `username`, `phone`, `referrer`, `parent_id`, `sponsor_id`, `direct_downlines`, `level`, `two`, `three`, `four`, `five`, `six`, `password`, `password1`, `avartar`, `role`, `activated`, `activated_at`, `activated_by`, `email_verified_at`, `remember_token`, `address`, `country`, `state`, `code`, `deleted`, `created_at`, `updated_at`) VALUES
+(1,	'avinash',	'akmaur31@gmail.com',	'avi31',	'4562345345',	'root',	0,	'',	0,	0,	0,	0,	0,	0,	0,	'',	'',	NULL,	'user',	'no',	NULL,	NULL,	'2024-10-02 13:19:31',	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	'2024-10-02 02:18:12',	'2024-10-02 02:18:12'),
+(2,	'Avinash',	'user@tutorialvilla.com',	'avinashee',	'8800388752',	'admin',	NULL,	NULL,	0,	0,	0,	0,	0,	0,	0,	'$2y$12$PpfA2Se4d6K4EMiHYmjNYOqCD6/NAcW9MUof07ryGaIlXXyRm9jme',	'',	NULL,	'user',	'no',	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	'2024-10-01 21:21:15',	'2024-10-01 21:21:15'),
+(3,	'Avinash',	'user@tutorialvilla1.com',	'avinashee1',	'234123412',	'admin',	NULL,	NULL,	0,	0,	0,	0,	0,	0,	0,	'$2y$12$Qxqm1EBgl/iiK7ED2OPZjuA4FpjmUsnQQqcpVhnm8Kv3fHv9o96Ki',	'12345678',	NULL,	'user',	'no',	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	'2024-10-01 21:27:25',	'2024-10-01 21:27:25');
+
+DROP TABLE IF EXISTS `users_tree`;
+CREATE TABLE `users_tree` (
+  `ancestor` int unsigned NOT NULL,
+  `descendant` int unsigned NOT NULL,
+  `depth` int NOT NULL,
+  PRIMARY KEY (`ancestor`,`descendant`),
+  KEY `descendant` (`descendant`),
+  CONSTRAINT `tree_hierarchy_ibfk_1` FOREIGN KEY (`ancestor`) REFERENCES `users` (`id`),
+  CONSTRAINT `tree_hierarchy_ibfk_2` FOREIGN KEY (`descendant`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `wallets`;
+CREATE TABLE `wallets` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `amount` int NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+
+-- 2024-11-06 01:05:07
