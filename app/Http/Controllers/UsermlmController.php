@@ -121,10 +121,21 @@ public function signin(Request $request)
             }
         }
 
+        $payments = Payment::where('user_id', $request->user_id)->get();
+        $ppStatusExist = 0;  // Initialize to indicate no payments
+        $ppStatus = null;      // Initialize to avoid undefined variable issues
+    
+        if ($payments->isNotEmpty()) {
+            $ppStatus = $payments[0]->status;
+            $ppStatusExist = 1;  // Indicate that payments exist
+        } 
+
         return response()->json([
             'statusCode' => 1,
             'message' => 'Login successful.',
             'user' => $userData,
+            'payStatusExist'=>$ppStatusExist,
+            'payStatusApproved'=>$ppStatus,
             'access_token' => [
                 // 'full'=>$tokenResult,
                 'token' => $accessToken,
