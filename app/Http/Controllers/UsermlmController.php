@@ -1977,7 +1977,7 @@ public function dashboard(Request $request){
         'statusCode' => 1,
         'data'=>$data,
         'users'=>$users[0],
-        'payStatusExist'=>$payStatusExist,
+        'payStatusExist'=>$ppStatusExist,
         'payStatusApproved'=>$ppstatus,
     ], 200); 
 
