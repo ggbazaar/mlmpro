@@ -1627,17 +1627,17 @@ public function adminDashboard(Request $request) {
      $today = Carbon::today()->toDateString();
     //die("ASDFA");
 
-    $totalUsers = DB::table('usermlms')->count();
-    $todayUsers = DB::select("SELECT COUNT(*) as sums FROM usermlms WHERE DATE(created_at) = ?", [$today]);
+    $totalUsers = DB::table('usermlms')->where('role', 1)->count();
+    $todayUsers = DB::select("SELECT COUNT(*) as sums FROM usermlms WHERE role = 1 AND DATE(created_at) = ?", [$today]);
 
 
     // Fetch total active users
-    $totalActive = DB::table('usermlms')->where('status', 1)->count();
-    $todayActive = DB::select("SELECT COUNT(*) as sums FROM usermlms WHERE status = 1 AND DATE(created_at) = ?", [$today]);
+    $totalActive = DB::table('usermlms')->where('status', 1)->where('role', 1)->count();
+    $todayActive = DB::select("SELECT COUNT(*) as sums FROM usermlms WHERE role = 1 AND status = 1 AND  DATE(created_at) = ?", [$today]);
 
     // Fetch total inactive users
-    $totalInactive = DB::table('usermlms')->where('status', 0)->count();
-    $todayInactive = DB::select("SELECT COUNT(*) as sums FROM usermlms WHERE status = 0 AND DATE(created_at) = ?", [$today]);
+    $totalInactive = DB::table('usermlms')->where('status', 0)->where('role', 1)->count();
+    $todayInactive = DB::select("SELECT COUNT(*) as sums FROM usermlms WHERE role = 1 AND status = 0 AND DATE(created_at) = ?", [$today]);
 
     // Fetch total business (sum of all payments' amount)
     $totalBusiness = DB::table('payments')->where('status', 1)->sum('amount');
@@ -1660,7 +1660,7 @@ public function adminDashboard(Request $request) {
 
     // Prepare data for the dashboard
     $ds = [];
-    $ds['totalUser'] = $totalUsers-1 ?? 0;  //for admin
+    $ds['totalUser'] = $totalUsers ?? 0;  //for admin
     $ds['todayUser'] = $todayUsers[0]->sums?? 0;  //for admin
 
     $ds['totalActive'] = $totalActive?? 0;  
@@ -2321,14 +2321,59 @@ public function AgetUserStatistics(Request $request) {
 }
 
 
-public function getBusinessAndCommissionData() {
-    // Fetch all required data
-    $data['totalBusiness'] = DB::table('payments')->where('status', 1)->get();
-    $data['totalComm'] = DB::table('commissions')->get();
-    $data['totalCommUnpaid'] = DB::table('commissions')->where('status', 1)->get();
-    $data['totalCommPaid'] = DB::table('commissions')->where('status', 2)->get();
+public function getBusinessAndCommissionData(Request $request) {
+    $today = Carbon::today();
+    $data = [];
+    $data['totalBusinessToday'] = DB::table('payments')
+        ->join('usermlms', 'payments.user_id', '=', 'usermlms.id') // Join payments and usermlm
+        ->where('payments.status', 1) // Only include payments with status 1
+        ->whereDate('payments.created_at', '=', $today) // Filter by today's date
+        ->select('payments.*', 'usermlms.name as user_name', 'usermlms.self_code as self_code') // Select the required fields
+        ->get();
 
-    // Return all data in a JSON response
+    $data['totalCommToday'] = DB::table('commissions')
+        ->join('usermlms', 'commissions.user_id', '=', 'usermlms.id') // Join commissions and usermlm
+        ->whereDate('commissions.created_at', '=', $today) // Filter by today's date
+        ->select('commissions.*', 'usermlms.name as user_name', 'usermlms.self_code as self_code') // Select the required fields
+        ->get();
+
+    // $data['totalCommUnpaidToday'] = DB::table('commissions')
+    //     ->join('usermlms', 'commissions.user_id', '=', 'usermlms.id') // Join commissions and usermlm
+    //     ->where('commissions.status', 1) // Only include commissions with status 1 (unpaid)
+    //     ->whereDate('commissions.created_at', '=', $today) // Filter by today's date
+    //     ->select('commissions.*', 'usermlms.name as user_name') // Select the required fields
+    //     ->get();
+
+    // $data['totalCommPaidToday'] = DB::table('commissions')
+    //     ->join('usermlms', 'commissions.user_id', '=', 'usermlms.id') // Join commissions and usermlm
+    //     ->where('commissions.status', 2) // Only include commissions with status 2 (paid)
+    //     ->whereDate('commissions.created_at', '=', $today) // Filter by today's date
+    //     ->select('commissions.*', 'usermlms.name as user_name') // Select the required fields
+    //     ->get();
+
+    $data['totalBusinessAll'] = DB::table('payments')
+        ->join('usermlms', 'payments.user_id', '=', 'usermlms.id') // Join payments and usermlm
+        ->where('payments.status', 1) // Only include payments with status 1
+        ->select('payments.*', 'usermlms.name as user_name', 'usermlms.self_code as self_code') // Select the required fields
+        ->get();
+
+    $data['totalCommAll'] = DB::table('commissions')
+        ->join('usermlms', 'commissions.user_id', '=', 'usermlms.id') // Join commissions and usermlm
+        ->select('commissions.*', 'usermlms.name as user_name', 'usermlms.self_code as self_code') // Select the required fields
+        ->get();
+
+    // $data['totalCommUnpaidAll'] = DB::table('commissions')
+    //     ->join('usermlms', 'commissions.user_id', '=', 'usermlms.id') // Join commissions and usermlm
+    //     ->where('commissions.status', 1) // Only include commissions with status 1 (unpaid)
+    //     ->select('commissions.*', 'usermlms.name as user_name') // Select the required fields
+    //     ->get();
+
+    // $data['totalCommPaidAll'] = DB::table('commissions')
+    //     ->join('usermlms', 'commissions.user_id', '=', 'usermlms.id') // Join commissions and usermlm
+    //     ->where('commissions.status', 2) // Only include commissions with status 2 (paid)
+    //     ->select('commissions.*', 'usermlms.name as user_name') // Select the required fields
+    //     ->get();
+    // Return the data in a JSON response
     return response()->json([
         'statusCode' => 1,
         'data' => $data
