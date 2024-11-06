@@ -1915,20 +1915,20 @@ public function dashboard(Request $request){
     $cc=(object)$this->calculateCommissions($request->user_id);
     $cct=(object)$this->calculateCommissions($request->user_id,'today');
 
-       $data["today_total_team"] = $rst->total_team;
-       $data["today_active_left_side"] = $rst->active_left_side;
-       $data["today_active_right_side"] = $rst->active_right_side;
+    //    $data["today_total_team"] = $rst->total_team;
+    //    $data["today_active_left_side"] = $rst->active_left_side;
+    //    $data["today_active_right_side"] = $rst->active_right_side;
 
-       $data["today_inactive_left_side"] = $rst->inactive_right_side;
-       $data["today_inactive_right_side"] = $rst->inactive_right_side;
+    //    $data["today_inactive_left_side"] = $rst->inactive_right_side;
+    //    $data["today_inactive_right_side"] = $rst->inactive_right_side;
 
 
-       $data["today_active"] = $rst->active;
-       $data["today_inactive"] = $rst->inactive;
-       $data["today_total"] = $cct->total;
-       $data["today_paid"] = $cct->paid;
-       $data["today_unpaid"] = $cct->unpaid;
-       $data["total_businessToday"] = $rst->calculateTotalBusiness['total_business'];
+    //    $data["today_active"] = $rst->active;
+    //    $data["today_inactive"] = $rst->inactive;
+    //    $data["today_total"] = $cct->total;
+    //    $data["today_paid"] = $cct->paid;
+    //    $data["today_unpaid"] = $cct->unpaid;
+    //    $data["total_businessToday"] = $rst->calculateTotalBusiness['total_business'];
 
        $data["total_team"] = $rs->total_team;
        $data["active_left_side"] = $rs->active_left_side;
@@ -1965,13 +1965,20 @@ public function dashboard(Request $request){
     //    $data["list"] = $rs;
 
     $payments = Payment::where('user_id', $request->user_id)->get();
+    $ppStatusExist = 0;  // Initialize to indicate no payments
+    $ppStatus = null;      // Initialize to avoid undefined variable issues
 
+    if ($payments->isNotEmpty()) {
+        $ppStatus = $payments[0]->status;
+        $ppStatusExist = 1;  // Indicate that payments exist
+    } 
 
     return response()->json([
         'statusCode' => 1,
         'data'=>$data,
         'users'=>$users[0],
-        'payments'=>$payments
+        'payStatusExist'=>$payStatusExist,
+        'payStatusApproved'=>$ppstatus,
     ], 200); 
 
 }
