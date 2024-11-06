@@ -2311,4 +2311,19 @@ public function AgetUserStatistics(Request $request) {
     ], 200);
 }
 
+
+public function getBusinessAndCommissionData() {
+    // Fetch all required data
+    $data['totalBusiness'] = DB::table('payments')->where('status', 1)->get();
+    $data['totalComm'] = DB::table('commissions')->get();
+    $data['totalCommUnpaid'] = DB::table('commissions')->where('status', 1)->get();
+    $data['totalCommPaid'] = DB::table('commissions')->where('status', 2)->get();
+
+    // Return all data in a JSON response
+    return response()->json([
+        'statusCode' => 1,
+        'data' => $data
+    ], 200);
+}
+
 }
