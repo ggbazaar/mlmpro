@@ -39,6 +39,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::post('/create-user', [UsermlmController::class, 'store']);
     // Route::post('/pairlevel', [UsermlmController::class, 'pairlevel']);
     Route::post('/findbyfield', [UsermlmController::class, 'findbyfield']);
+    Route::post('/findby', [UsermlmController::class, 'findby']);
 
     Route::post('/advisorList', [UsermlmController::class, 'advisorList']);
     Route::get('/AdminAdvisorList', [UsermlmController::class, 'AdminAdvisorList']);

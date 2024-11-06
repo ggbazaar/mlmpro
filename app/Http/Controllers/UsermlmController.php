@@ -2170,6 +2170,56 @@ public function myChild(Request $request) {
 
 
 
+public function findby(Request $request)
+{
+    // Manually creating a validator instance
+    $validator = Validator::make($request->all(), [
+        'value' => 'required|string',
+    ]);
+
+    // Check if validation fails
+    if ($validator->fails()) {
+        return response()->json(['statusCode' => 0,'error' => 'Validation failed', 'message' => $validator->errors()], 200);
+    }
+    // Extract both 'field' and 'value' from the request
+
+    $req = $request->only(['value']); // Corrected the array syntax for 'value'
+    $userData = Usermlm::where(function ($query) use ($req) {
+        $query->where('self_code', $req['value'])
+              ->orWhere('mobile', $req['value'])
+              ->orWhere('name', 'like', '%' . $req['value'] . '%'); // 'like' for partial match
+    })->first();
+
+    // Search in the Usermlm model based on the given field and value
+    if ($userData) {
+        $userData = $userData->toArray();
+        
+        foreach ($userData as $key => $value) {
+            if (is_null($value)) {
+                $userData[$key] = ''; // Set to an empty string if null
+            }
+        }
+    } else {
+        $userData = []; // or handle the "no data found" scenario as needed
+    } 
+    
+  
+
+    foreach ($userData as $key => $value) {
+        if (is_null($value)) {
+            $userData[$key] = ''; // Set to an empty string if null
+        }
+    }
+
+    // Check if the user was found
+    if ($userData) {
+        return response()->json(['statusCode'=>1,'message' => 'User details', 'user' => $userData], 200);
+    } else {
+        return response()->json(['statusCode'=>0,'message' => 'User not found'], 200);
+    }
+}
+
+
 
 
 
