@@ -926,9 +926,18 @@ public function advisorList() {
 }
 
 
+public function AdminAdvisorList() {
+    $users = Usermlm::select('name', 'id', 'child_left', 'child_right', 'self_code', 'parent_code', 'status')
+    ->where('role', '1')
+    ->get();
+    return response()->json([
+        'statusCode' => 1,
+        'data' => $users
+    ], 200);
+}
 
 
-public function AdminAdvisorList(Request $request) {
+public function AdminAdvisorListPost(Request $request) {
     // Validate 'typeStatus' as nullable
     $request->validate([
         'typeStatus' => 'nullable|integer'

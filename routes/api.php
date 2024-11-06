@@ -43,6 +43,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
     Route::post('/advisorList', [UsermlmController::class, 'advisorList']);
     Route::get('/AdminAdvisorList', [UsermlmController::class, 'AdminAdvisorList']);
+    Route::post('/AdminAdvisorListPost', [UsermlmController::class, 'AdminAdvisorListPost']);
+
     Route::post('/uplineListUntilRoot', [UsermlmController::class, 'uplineListUntilRoot']);
     Route::post('/uplineListBreakFirstZero', [UsermlmController::class, 'uplineListBreakFirstZero']);
     //Route::post('/admin', [UsermlmController::class, 'adminSignin']);
