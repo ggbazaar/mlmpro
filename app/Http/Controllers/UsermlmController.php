@@ -1732,6 +1732,11 @@ public function findDash($child_left,$child_right,$findtoday=0){
 
         $rsm['active_left_side'] = empty($LDownline['status_1']) ? 0 : count($LDownline['status_1']);
         $rsm['active_right_side'] = empty($RDownline['status_1']) ? 0 : count($RDownline['status_1']);
+
+        $rsm['inactive_left_side'] = empty($LDownline['status_0']) ? 0 : count($LDownline['status_0']);
+        $rsm['inactive_right_side'] = empty($RDownline['status_0']) ? 0 : count($RDownline['status_0']);
+
+
         $rsm['LDownline'] = $LDownline;
         $rsm['RDownline'] = $RDownline;
         $rsm['calculateTotalBusiness']=$this->calculateTotalBusiness($LDownline,$RDownline);
@@ -1898,11 +1903,11 @@ public function dashboard(Request $request){
     ->where('payments.status', 1)
     ->get();
 
-    if ($users->isEmpty()) {
-        $users = Usermlm::select('name', 'id', 'child_left', 'child_right', 'self_code', 'parent_code', 'status')
-        ->where('id', $request->user_id)
-        ->get();
-    }
+        if ($users->isEmpty()) {
+            $users = Usermlm::select('name', 'id', 'child_left', 'child_right', 'self_code', 'parent_code', 'status')
+            ->where('id', $request->user_id)
+            ->get();
+        }
 
     $rs=(object)$this->findDash($users[0]->child_left,$users[0]->child_right);
     $rst=(object)$this->findDash($users[0]->child_left,$users[0]->child_right,'today');
@@ -1912,6 +1917,11 @@ public function dashboard(Request $request){
        $data["today_total_team"] = $rst->total_team;
        $data["today_active_left_side"] = $rst->active_left_side;
        $data["today_active_right_side"] = $rst->active_right_side;
+
+       $data["today_inactive_left_side"] = $rst->inactive_right_side;
+       $data["today_inactive_right_side"] = $rst->inactive_right_side;
+
+
        $data["today_active"] = $rst->active;
        $data["today_inactive"] = $rst->inactive;
        $data["today_total"] = $cct->total;
@@ -1922,6 +1932,9 @@ public function dashboard(Request $request){
        $data["total_team"] = $rs->total_team;
        $data["active_left_side"] = $rs->active_left_side;
        $data["active_right_side"] = $rs->active_right_side;
+       $data["inactive_left_side"] = $rst->inactive_right_side;
+       $data["inactive_right_side"] = $rst->inactive_right_side;
+
        $data["active"] = $rs->active;
        $data["inactive"] = $rs->inactive;
        $data["total"] = $cc->total;
@@ -1950,10 +1963,14 @@ public function dashboard(Request $request){
        
     //    $data["list"] = $rs;
 
+    $payments = Payment::where('user_id', $request->user_id)->get();
+
+
     return response()->json([
         'statusCode' => 1,
         'data'=>$data,
-        'users'=>$users[0] 
+        'users'=>$users[0],
+        'payments'=>$payments
     ], 200); 
 
 }
