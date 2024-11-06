@@ -2068,6 +2068,8 @@ public function MyDown($parent_code,$findtoday=0) {
         'status_0' => $results_status_0,
         'status_1' => $results_status_1,
         'ListResults' => $ListResults,
+        'ListResults_0' => $ListResults_0,
+        'ListResults_1' => $ListResults_1,
     ];
 }
 
