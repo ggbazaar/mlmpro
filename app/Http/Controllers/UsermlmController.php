@@ -928,15 +928,38 @@ public function advisorList() {
 
 
 
-public function AdminAdvisorList() {
-    $users = Usermlm::select('name', 'id', 'child_left', 'child_right', 'self_code', 'parent_code', 'status')
-    ->where('role', '1')
-    ->get();
+public function AdminAdvisorList(Request $request) {
+    // Validate 'typeStatus' as nullable
+    $request->validate([
+        'typeStatus' => 'nullable|integer'
+    ]);
+
+    // Retrieve the 'typeStatus' from the request
+    $typeStatus = $request->input('typeStatus');
+
+    // Query to fetch users
+    $usersQuery = Usermlm::select('name', 'id', 'child_left', 'child_right', 'self_code', 'parent_code', 'status')
+        ->where('role', '1');
+
+    // Check if 'typeStatus' is specified and apply the appropriate filter
+    if ($typeStatus === 1 || $typeStatus === 0) {
+        // Filter based on active (1) or inactive (0) status
+        $usersQuery->where('status', $typeStatus);
+    } elseif ($typeStatus === 2 || is_null($typeStatus)) {
+        // If 'typeStatus' is 2 or null, do not apply any status filter to get both active and inactive users
+        // No additional filtering needed
+    }
+
+    // Execute the query
+    $users = $usersQuery->get();
+
+    // Return the JSON response
     return response()->json([
         'statusCode' => 1,
         'data' => $users
     ], 200);
 }
+
 
 
 public function uplineListUntilRoot(Request $request) {
@@ -2221,7 +2244,71 @@ public function findby(Request $request)
 }
 
 
+public function getUserStatistics($type = 'total') {
+    $today = Carbon::today()->toDateString();
+    $data = [];
 
+    switch ($type) {
+        case 'total':
+            // Fetch total users
+            $data['totalUser'] = DB::table('usermlms')->count() - 1; // Adjusting for admin
+            $data['totalActive'] = DB::table('usermlms')->where('status', 1)->count();
+            $data['totalInactive'] = DB::table('usermlms')->where('status', 0)->count();
 
+            // Fetch total business and commissions
+            $data['totalBusiness'] = DB::table('payments')->where('status', 1)->sum('amount');
+            $data['totalComm'] = DB::table('commissions')->sum('payable_amount');
+            $data['totalCommUnpaid'] = DB::table('commissions')->where('status', 1)->sum('payable_amount');
+            $data['totalCommPaid'] = DB::table('commissions')->where('status', 2)->sum('payable_amount');
+
+            // Total kit requests
+            $data['totalkitRequest'] = DB::table('payments')->count();
+            break;
+
+        case 'today':
+            // Fetch today's users
+            $data['todayUser'] = DB::table('usermlms')->whereDate('created_at', $today)->count();
+            $data['todayActive'] = DB::table('usermlms')->where('status', 1)->whereDate('created_at', $today)->count();
+            $data['todayInactive'] = DB::table('usermlms')->where('status', 0)->whereDate('created_at', $today)->count();
+
+            // Fetch today's business and commissions
+            $data['todayBusiness'] = DB::table('payments')->where('status', 1)->whereDate('created_at', $today)->sum('amount');
+            $data['todayComm'] = DB::table('commissions')->whereDate('created_at', $today)->sum('payable_amount');
+            $data['todayCommUnpaid'] = DB::table('commissions')->where('status', 1)->whereDate('created_at', $today)->sum('payable_amount');
+            $data['todayCommPaid'] = DB::table('commissions')->where('status', 2)->whereDate('created_at', $today)->sum('payable_amount');
+
+            // Today's kit requests
+            $data['todaykitRequest'] = DB::table('payments')->whereDate('created_at', $today)->count();
+            break;
+
+        case 'list':
+            // List all statistics (combining total and today's data)
+            $data = array_merge(
+                $this->getUserStatistics('total'),
+                $this->getUserStatistics('today')
+            );
+            break;
+
+        default:
+            throw new InvalidArgumentException("Invalid type: $type");
+    }
+
+    return $data;
+}
+
+// // Usage examples:
+// $totalStats = getUserStatistics('total');
+// $todayStats = getUserStatistics('today');
+public function AgetUserStatistics(Request $request) {
+    // Retrieve the type from the request, defaulting to 'list' if not provided
+    $type = $request->input('type', 'list');
+
+    $listStats = $this->getUserStatistics($type);
+
+    return response()->json([
+        'statusCode' => 1,
+        'data' => $listStats
+    ], 200);
+}
 
 }
