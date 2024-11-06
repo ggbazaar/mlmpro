@@ -123,7 +123,7 @@ public function signin(Request $request)
 
         $payments = Payment::where('user_id', $request->user_id)->get();
         $ppStatusExist = 0;  // Initialize to indicate no payments
-        $ppStatus = null;      // Initialize to avoid undefined variable issues
+        $ppStatus = 0;      // Initialize to avoid undefined variable issues
     
         if ($payments->isNotEmpty()) {
             $ppStatus = $payments[0]->status;
@@ -1989,7 +1989,7 @@ public function dashboard(Request $request){
 
     $payments = Payment::where('user_id', $request->user_id)->get();
     $ppStatusExist = 0;  // Initialize to indicate no payments
-    $ppStatus = null;      // Initialize to avoid undefined variable issues
+    $ppStatus = 0;      // Initialize to avoid undefined variable issues
 
     if ($payments->isNotEmpty()) {
         $ppStatus = $payments[0]->status;
