@@ -930,6 +930,7 @@ public function advisorList() {
 
 public function AdminAdvisorList() {
     $users = Usermlm::select('name', 'id', 'child_left', 'child_right', 'self_code', 'parent_code', 'status')
+    ->where('role', '1')
     ->get();
     return response()->json([
         'statusCode' => 1,
