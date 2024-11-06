@@ -1740,6 +1740,12 @@ public function findDash($child_left,$child_right,$findtoday=0){
 
         $rsm['LDownline'] = $LDownline;
         $rsm['RDownline'] = $RDownline;
+
+        $rsm['LDownlineActive'] = $LDownline['status_1'];
+        $rsm['LDownlineInActive'] = $LDownline['status_0'];
+        $rsm['RDownlineActive'] = $RDownline['status_1'];
+        $rsm['RDownlineInActive'] = $RDownline['status_0'];
+
         $rsm['calculateTotalBusiness']=$this->calculateTotalBusiness($LDownline,$RDownline);
         return $rsm;
 }
@@ -1946,6 +1952,11 @@ public function dashboard(Request $request){
        
        $data["Ldownline"] = $rs->leftside_list;
        $data["Rdownline"] = $rs->rightside_list;
+
+       $rsm['LDownlineActive'] = $rs->LDownlineActive;
+       $rsm['LDownlineInActive'] = $rs->LDownlineInActive;
+       $rsm['RDownlineActive'] = $rs->RDownlineActive;
+       $rsm['RDownlineInActive'] = $rs->RDownlineInActive;
        
        $data["count_Ldownline"] = count($rs->leftside_list);
        $data["count_Rdownline"] = count($rs->rightside_list);
