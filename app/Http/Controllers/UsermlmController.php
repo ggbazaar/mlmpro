@@ -1962,6 +1962,16 @@ public function dashboard(Request $request){
        $data['LDownline_inactive'] = $rs->LDownline_0;
        $data['RDownline_active'] = $rs->RDownline_1;
        $data['RDownline_inactive'] = $rs->RDownline_0;
+
+        $data['TeamActive'] = array_merge(
+            !empty($rs->LDownline_1) ? $rs->LDownline_1 : [],
+            !empty($rs->RDownline_1) ? $rs->RDownline_1 : []
+        );
+    
+        $data['TeamInactive'] = array_merge(
+            !empty($rs->LDownline_0) ? $rs->LDownline_0 : [],
+            !empty($rs->RDownline_0) ? $rs->RDownline_0 : []
+        );
        
        $data["count_Ldownline"] = count($rs->leftside_list);
        $data["count_Rdownline"] = count($rs->rightside_list);
