@@ -1742,22 +1742,13 @@ public function findDash($child_left,$child_right,$findtoday=0){
         $rsm['inactive'] = $totalTeam - ((empty($LDownline1['status_1']) ? 0 : count($LDownline1['status_1'])) +
         (empty($RDownline1['status_1']) ? 0 : count($RDownline1['status_1'])));
 
-        $rsm['active_left_side'] = empty($LDownline['status_1']) ? 0 : count($LDownline['status_1']);
-        $rsm['active_right_side'] = empty($RDownline['status_1']) ? 0 : count($RDownline['status_1']);
-
-        $rsm['inactive_left_side'] = empty($LDownline['status_0']) ? 0 : count($LDownline['status_0']);
-        $rsm['inactive_right_side'] = empty($RDownline['status_0']) ? 0 : count($RDownline['status_0']);
-
-
         $rsm['LDownline'] = $LDownline;
         $rsm['RDownline'] = $RDownline;
 
         $rsm['LDownline_1'] = isset($LDownline['ListResults_1']) ? $LDownline['ListResults_1'] : []; 
         $rsm['LDownline_0'] = isset($LDownline['ListResults_0']) ? $LDownline['ListResults_0'] : []; 
-
         $rsm['RDownline_1'] = isset($RDownline['ListResults_1']) ? $RDownline['ListResults_1'] : [];
         $rsm['RDownline_0'] = isset($RDownline['ListResults_0']) ? $RDownline['ListResults_0'] : [];
-
         $rsm['calculateTotalBusiness']=$this->calculateTotalBusiness($LDownline,$RDownline);
         return $rsm;
 }
@@ -1949,13 +1940,15 @@ public function dashboard(Request $request){
     //    $data["total_businessToday"] = $rst->calculateTotalBusiness['total_business'];
 
        $data["total_team"] = $rs->total_team;
-       $data["active_left_side"] = $rs->active_left_side;
-       $data["active_right_side"] = $rs->active_right_side;
-       $data["inactive_left_side"] = $rst->inactive_right_side;
-       $data["inactive_right_side"] = $rst->inactive_right_side;
-
        $data["active"] = $rs->active;
        $data["inactive"] = $rs->inactive;
+
+       $data["active_left_side"] =  empty($rs->LDownline_1) ? 0 : count($rs->LDownline_1);
+       $data["inactive_left_side"] = empty($rs->LDownline_0) ? 0 : count($rs->LDownline_0);
+
+       $data["active_right_side"] = empty($rs->RDownline_1) ? 0 : count($rs->RDownline_1); 
+       $data["inactive_right_side"] = empty($rs->RDownline_0) ? 0 : count($rs->RDownline_0); 
+
        $data["total"] = $cc->total;
        $data["paid"] = $cc->paid;
        $data["unpaid"] = $cc->unpaid;
@@ -1965,10 +1958,10 @@ public function dashboard(Request $request){
        $data["Ldownline"] = $rs->leftside_list;
        $data["Rdownline"] = $rs->rightside_list;
 
-       $data['LDownline_1'] = $rs->LDownline_1;
-       $data['LDownline_0'] = $rs->LDownline_0;
-       $data['RDownline_1'] = $rs->RDownline_1;
-       $data['RDownline_0'] = $rs->RDownline_0;
+       $data['LDownline_active'] = $rs->LDownline_1;
+       $data['LDownline_inactive'] = $rs->LDownline_0;
+       $data['RDownline_active'] = $rs->RDownline_1;
+       $data['RDownline_inactive'] = $rs->RDownline_0;
        
        $data["count_Ldownline"] = count($rs->leftside_list);
        $data["count_Rdownline"] = count($rs->rightside_list);
