@@ -80,6 +80,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::post('/payment_approved', [GetAdvisorList::class, 'payment_approved']);
     Route::post('/AdminSetpowerleg', [GetAdvisorList::class, 'AdminSetpowerleg']);
 
+    Route::post('/Mypayments', [UsermlmController::class, 'Mypayments']);
+
+
 
     Route::post('/AdminKitRequest', [GetAdvisorList::class, 'AdminKitRequest']);
 

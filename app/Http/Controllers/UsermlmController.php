@@ -119,16 +119,17 @@ public function signin(Request $request)
                     $userData[$key] = ''; // Set to an empty string if null
                 }
             }
+            $payments = Payment::where('user_id', $user->id)->get();
         }
 
-        $payments = Payment::where('user_id', $request->user_id)->get();
+      
         $ppStatusExist = 0;  // Initialize to indicate no payments
         $ppStatus = 0;      // Initialize to avoid undefined variable issues
     
-        if ($payments->isNotEmpty()) {
+        if (isset($payments) && $payments->isNotEmpty()) {
             $ppStatus = $payments[0]->status;
             $ppStatusExist = 1;  // Indicate that payments exist
-        } 
+        }
 
         return response()->json([
             'statusCode' => 1,
@@ -2437,5 +2438,50 @@ public function getBusinessAndCommissionData(Request $request) {
         'data' => $data
     ], 200);
 }
+
+public function Mypayments(Request $request)
+{
+    // Validate the input
+    $validator = Validator::make($request->all(), [
+        'user_id' => 'required',
+    ]);
+
+    // Check if validation fails
+    if ($validator->fails()) {
+        return response()->json([
+            'statusCode' => 0,
+            'error' => 'Validation failed',
+            'message' => $validator->errors()
+        ], 200);
+    }
+
+    // Retrieve payments along with usermlms details
+    $payments = Payment::join('usermlms', 'usermlms.id', '=', 'payments.user_id')
+        ->where('usermlms.id', $request->user_id)
+        ->select('payments.*', 'usermlms.id as usermlms_id', 'usermlms.name', 'usermlms.mobile')  // Select payments and usermlms data
+        ->get();
+
+    // Initialize payment status indicators
+    $ppStatusExist = 0;  // No payments by default
+    $ppStatus = null;    // Set to null if no payments found
+
+    // Check if payments exist and set status accordingly
+    if ($payments->isNotEmpty()) {
+        $ppStatus = $payments[0]->status;
+        $ppStatusExist = 1;  // Indicate that payments exist
+    }
+
+    // Return the response with additional status information
+    return response()->json([
+        'statusCode' => 1,
+        'data' => $payments,
+        'ppStatusExist' => $ppStatusExist,
+        'ppStatus' => $ppStatus,
+    ], 200);
+}
+
+
+
+
 
 }
