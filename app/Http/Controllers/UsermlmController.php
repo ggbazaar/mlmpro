@@ -2463,7 +2463,7 @@ public function Mypayments(Request $request)
 
     // Initialize payment status indicators
     $ppStatusExist = 0;  // No payments by default
-    $ppStatus = null;    // Set to null if no payments found
+    $ppStatus = 0;    // Set to null if no payments found
 
     // Check if payments exist and set status accordingly
     if ($payments->isNotEmpty()) {
