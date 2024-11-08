@@ -1697,6 +1697,21 @@ public function adminDashboard(Request $request) {
     $ds['totalkitRequest'] = $totalkitRequest?? 0;  
     $ds['todaykitRequest'] = $todaykitRequest?? 0;  
 
+      // Select only specific columns based on powerleg condition
+    
+    $usersCount = Usermlm::select('id', 'powerleg', 'status', 'name', 'self_code', 'mobile')
+        ->whereIn('powerleg', [1, 2])
+        ->where('role',1)
+        ->get();
+    
+    $usersDisCount = Usermlm::select('id', DB::raw('IFNULL(powerleg, 0) as powerleg'), 'status', 'name', 'self_code', 'mobile')
+        ->whereRaw('(powerleg NOT IN (1, 2) OR powerleg IS NULL) AND role = 1')
+        ->get();
+    
+
+    $ds['withPower'] = count($usersCount);  
+    $ds['withoutPower'] = count($usersDisCount);  
+
     return response()->json([
         'statusCode' => 1,
         'data'=>$ds
