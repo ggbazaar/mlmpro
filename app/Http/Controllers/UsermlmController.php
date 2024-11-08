@@ -1923,14 +1923,14 @@ public function dashboard(Request $request){
         return response()->json(['statusCode' => 0,'message' => 'user_id Validation failed', 'message' => $validator->errors()], 200);
     }
 
-    $users = Usermlm::select('usermlms.name', 'usermlms.id', 'usermlms.child_left', 'usermlms.child_right', 'usermlms.self_code', 'usermlms.parent_code', 'usermlms.status')
+    $users = Usermlm::select('usermlms.name', 'usermlms.id', 'usermlms.child_left', 'usermlms.child_right', 'usermlms.self_code', 'usermlms.parent_code', 'usermlms.status', 'usermlms.powerleg')
     ->join('payments', 'payments.user_id', '=', 'usermlms.id')
     ->where('usermlms.id', $request->user_id)
     ->where('payments.status', 1)
     ->get();
 
         if ($users->isEmpty()) {
-            $users = Usermlm::select('name', 'id', 'child_left', 'child_right', 'self_code', 'parent_code', 'status')
+            $users = Usermlm::select('name', 'id', 'child_left', 'child_right', 'self_code', 'parent_code', 'status','powerleg')
             ->where('id', $request->user_id)
             ->get();
         }
@@ -2015,10 +2015,18 @@ public function dashboard(Request $request){
         $ppStatusExist = 1;  // Indicate that payments exist
     } 
 
+    $powerlegExist = 0;
+    if ($users[0]->powerleg == 1 || $users[0]->powerleg == 2) {
+        $powerlegExist = 1;
+    }
+    $powerlegSide = $users[0]->powerleg ?? 0;
+
     return response()->json([
         'statusCode' => 1,
         'data'=>$data,
         'users'=>$users[0],
+        'powerlegExist'=>$powerlegExist,
+        'powerlegSide'=>$powerlegSide,
         'payStatusExist'=>$ppStatusExist,
         'payStatusApproved'=>$ppStatus,
     ], 200); 
