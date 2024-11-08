@@ -2018,4 +2018,40 @@ public function AdminSetpowerleg(Request $request)
     }
 
 
+    public function AdminListpowerleg(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'powerleg' => 'required|integer'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'statusCode' => 0,
+                'error' => 'Validation failed',
+                'message' => $validator->errors()
+            ], 200);
+        }
+
+        // Select only specific columns based on powerleg condition
+        if ($request->powerleg == 1) {
+            $users = Usermlm::select('id', 'powerleg', 'status', 'name', 'self_code', 'mobile')
+                ->whereIn('powerleg', [1, 2])
+                ->where('role',1)
+                ->get();
+        } else {
+            $users = Usermlm::select('id', DB::raw('IFNULL(powerleg, 0) as powerleg'), 'status', 'name', 'self_code', 'mobile')
+                ->whereRaw('(powerleg NOT IN (1, 2) OR powerleg IS NULL) AND role = 1')
+                ->get();
+        }
+
+        // Return a response
+        return response()->json([
+            'message' => 'Powerleg retrieved successfully',
+            'users' => $users
+        ], 200);
+    }
+
+
+
+
 }
