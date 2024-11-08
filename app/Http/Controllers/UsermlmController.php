@@ -2015,17 +2015,12 @@ public function dashboard(Request $request){
         $ppStatusExist = 1;  // Indicate that payments exist
     } 
 
-    $powerlegExist = 0;
-    if ($users[0]->powerleg == 1 || $users[0]->powerleg == 2) {
-        $powerlegExist = 1;
-    }
     $powerlegSide = $users[0]->powerleg ?? 0;
 
     return response()->json([
         'statusCode' => 1,
         'data'=>$data,
         'users'=>$users[0],
-        'powerlegExist'=>$powerlegExist,
         'powerlegSide'=>$powerlegSide,
         'payStatusExist'=>$ppStatusExist,
         'payStatusApproved'=>$ppStatus,
