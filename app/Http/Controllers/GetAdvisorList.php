@@ -2051,7 +2051,33 @@ public function AdminSetpowerleg(Request $request)
         ], 200);
     }
 
+    public function YourPinStatus(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required',
+            'pin_code' => 'required'
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'statusCode' => 0,
+                'error' => 'Validation failed',
+                'message' => $validator->errors()
+            ], 200);
+        }
+
+        // Retrieve `user_id` and `pin_code` from the request
+        $user_id = $request->input('user_id');
+        $pin_code = $request->input('pin_code');
+
+        // Call the `adminCheckPin` function with the correct variables
+        $rr = $this->adminCheckPin($pin_code, $user_id);
+
+        return response()->json([
+            'message' => $rr ? 'Your PIN is valid' : 'Invalid PIN',
+            'users' => $rr ? 1 : 0
+        ], 200);
+    }
 
 
 }

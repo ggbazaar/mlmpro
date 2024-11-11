@@ -55,6 +55,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     
     Route::post('/downline_type', [GetAdvisorList::class, 'downline_type']);
     Route::post('/payment', [GetAdvisorList::class, 'payment']);
+    Route::post('/YourPinStatus', [GetAdvisorList::class, 'YourPinStatus']);
     Route::get('/getkitamount', [GetAdvisorList::class, 'getkitamount']);
     Route::post('/pairlevel', [GetAdvisorList::class, 'pairlevel']);
 
