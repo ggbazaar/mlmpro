@@ -184,18 +184,25 @@ public function commissionlist(Request $request) {
             ->whereIn('buyer_id', $buyerIds) 
             ->first(); // Get the first matching record
         // Return a response based on the existence of the PIN
-
-        //print_r($pin);
-       // die("Asdfa");
+        $pin1 = Pin::where('pin', $pin_code)->first();
 
         if ($pin) {
             if ($pin->used_by === 0) { // Check if the PIN hasn't been used
-                return true;
+                return [
+                    'status' => true,
+                    'data' => $pin1
+                ];
             } else {
-                return false;
+                return [
+                    'status' => false,
+                    'data' => $pin1,
+                ];
             }
         } else {
-            return false;
+            return [
+                'status' => false,
+                'data' => $pin1
+            ];
         }
     }
 
@@ -251,9 +258,9 @@ public function commissionlist(Request $request) {
             if ($validator->fails()) {
                 return response()->json(['statusCode' => 0,'error' => 'Validation failed', 'message' => $validator->errors()], 200);
             }
-            $pinCheck = $this->adminCheckPin($request->pin_code, $request->user_id);
+            $pinCheck = (object)$this->adminCheckPin($request->pin_code, $request->user_id);
             //var_dump($pinCheck); die("Asdfa");
-            if ($pinCheck) {
+            if ($pinCheck->status) {
                 try {
                     // Create a new payment record
                     $payment = Payment::create([
@@ -2071,11 +2078,12 @@ public function AdminSetpowerleg(Request $request)
         $pin_code = $request->input('pin_code');
 
         // Call the `adminCheckPin` function with the correct variables
-        $rr = $this->adminCheckPin($pin_code, $user_id);
-
+        $pincheck = (object)$this->adminCheckPin($pin_code, $user_id);
         return response()->json([
-            'message' => $rr ? 'Your PIN is valid' : 'Invalid PIN',
-            'users' => $rr ? 1 : 0
+            'statusCode' => 1,
+            'pinStatus' => $pincheck->status,
+            'message' => $pincheck->status?"Pin is valid":"Pin is Invalid",
+            'data'=>$pincheck,
         ], 200);
     }
 
