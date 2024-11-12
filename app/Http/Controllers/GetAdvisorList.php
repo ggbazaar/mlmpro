@@ -2079,11 +2079,16 @@ public function AdminSetpowerleg(Request $request)
 
         // Call the `adminCheckPin` function with the correct variables
         $pincheck = (object)$this->adminCheckPin($pin_code, $user_id);
+        $msg=$pincheck->status?"Given Pin is valid":"Given Pin is not valid";
+        if ($pincheck->data && $pincheck->data->used_by) {
+            $msg = "Given pin already used";
+        }
+
         return response()->json([
             'statusCode' => 1,
             'pinStatus' => $pincheck->status,
-            'message' => $pincheck->status?"Pin is valid":"Pin is Invalid",
-            'data'=>$pincheck,
+            'message' =>$msg,
+            'pindetail'=>$pincheck,
         ], 200);
     }
 
